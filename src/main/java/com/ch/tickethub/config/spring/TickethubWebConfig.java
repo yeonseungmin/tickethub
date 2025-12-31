@@ -30,4 +30,6 @@ public class TickethubWebConfig extends WebMvcConfigurerAdapter{
 		return new RestTemplate();
 	}
 	
+	
+	
 }
