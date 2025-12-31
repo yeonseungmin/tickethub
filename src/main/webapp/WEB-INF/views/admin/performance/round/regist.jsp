@@ -8,6 +8,8 @@
 </head>
 <body>
 	<script>
+	// ( function() { ... } ) ( ) ; 함수 실행 트리거 마지막 (); 비동기이므로 workMap, currentWork, roundIdx가 계속 살아있다. 
+	(function() {
 		//let workList;
 		let workMap = {};
 		let currentWork;
@@ -241,6 +243,7 @@
 			
 
 		})
+	})();
 	</script>
 	<div class="container-fluid mt-5">
 		<div class="row justify-content-center">
