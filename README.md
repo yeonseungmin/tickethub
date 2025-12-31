@@ -9,3 +9,13 @@ C:\Workspace\JavaFirstTeamWorkspace\.metadata\.plugins\org.eclipse.wst.server.co
 
 C:\Users\shkdh\.m2\repository\com\mysql\mysql-connector-j\8.0.33
 mysql jar 파일 직접 복사 해서 lib 폴더에 붙여넣기 해줘야 함
+
+tickethub
+
+create database tickethub;
+
+create user 'tickethub'@'%' identified by '1234';
+
+grant all privileges on tickethub.* to 'tickethub'@'%' with grant option;
+
+flush privileges;
