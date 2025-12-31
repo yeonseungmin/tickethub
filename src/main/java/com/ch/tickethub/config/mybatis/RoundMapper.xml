@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Round">
+
+	<insert id="insert" parameterType="Round">
+		insert into Round(round_date, round_start_time, work_id, place_id)
+		values(#{round_date}, #{round_start_time}, #{work.work_id}, #{place.place_id})
+	</insert>
+	
+	<select id="selectByWorkId" parameterType="int" resultType="Round">
+		select * from round where work_id = #{work_id}
+	</select>
+	
+</mapper>
