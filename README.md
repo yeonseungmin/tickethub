@@ -13,6 +13,7 @@ mysql jar 파일 직접 복사 해서 lib 폴더에 붙여넣기 해줘야 함
 tickethub
 
 mysql -h localhost -u root -p
+
 create database tickethub;
 
 create user 'tickethub'@'%' identified by '1234';
