@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Work">
+	<insert id="insert" parameterType="Work">
+		insert into work(work_title, director, work_poster_url, work_content_url, age_limit, work_price
+		, running_time, ticket_start_date, work_start_date, work_end_date, work_type
+		, genre_id, publisher_id)
+		values(#{work_title}, #{director}, #{work_poster_url}, #{work_content_url}, #{age_limit}, #{work_price}
+		, #{running_time}, #{ticket_start_date}, #{work_start_date}, #{work_end_date}, #{work_type}
+		, #{genre.genre_id}, #{publisher.publisher_id})
+		
+		<selectKey keyColumn="work_id" resultType="int" order="AFTER" keyProperty="work_id">
+			select last_insert_id() as work_id
+		</selectKey>
+	</insert>
+	
+	<resultMap id="workMap" type="Work">
+		<id column="work_id"				property="work_id"/>
+		<result column="work_title"			property="work_title"/>
+		<result column="director"			property="director"/>
+		<result column="work_poster_url"	property="work_poster_url"/>
+		<result column="work_content_url"	property="work_content_url"/>
+		<result column="work_like_count"	property="work_like_count"/>
+		<result column="age_limit"			property="age_limit"/>
+		<result column="work_price"			property="work_price"/>	
+		<result column="running_time"		property="running_time"/>	
+		<result column="ticket_start_date"	property="ticket_start_date"/>	
+		<result column="work_start_date"	property="work_start_date"/>
+		<result column="work_end_date"		property="work_end_date"/>
+		<result column="work_type"			property="work_type"/>
+		
+	 	<association column="genre_id" property="genre"  javaType="Genre"
+	 	select = "Genre.select"/>
+
+	 	<association column="publisher_id" property="publisher"  javaType="Publisher"
+	 	select = "Publisher.select"/>
+	 	
+	 	<collection column="work_id"
+	 		select="Round.selectByWorkId"
+	 		property="roundList"
+	 		javaType="java.util.List"
+	 		ofType="Round"
+	 	/>
+	</resultMap>
+	
+	<select id="selectAll" resultMap="workMap">
+		select work_id, work_title, director, work_poster_url, work_content_url, work_like_count, age_limit, work_price
+		, running_time
+		, DATE_FORMAT(ticket_start_date, '%Y-%m-%d %H:%i') as ticket_start_date
+		, DATE_FORMAT(work_start_date, '%Y-%m-%d') as work_start_date
+		, DATE_FORMAT(work_end_date, '%Y-%m-%d') as work_end_date
+		, work_type
+		, genre_id, publisher_id
+		from work
+		order by work_id desc
+	</select>
+
+</mapper>
