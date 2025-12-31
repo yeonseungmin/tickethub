@@ -13,7 +13,7 @@
 		let currentWork;
 		let roundIdx = 0;
 		
-	
+		/*https://select2.org/selections 선택한 옵션 이미지 넣기*/
 		// 이 함수는 상위, 하위를 모두 처리해야 하므로, 호출 시 상위를 원하는지, 하위를 원하는지 구분해줘야 한다.
 		function printCategory(title, category, list){
 			let tag = "<option value=''>"+title+"</option>";
@@ -22,6 +22,8 @@
 					tag += "<option value='"+list[i].work_id+"'>"+list[i].work_title+"[ 러닝타임: "+list[i].running_time+"분 ]"+"</option>";
 				}else if(category=="place.place_id"){
 					tag += "<option value='"+list[i].place_id+"'>"+list[i].place_name+"</option>";
+				}else if(category=="person.person_id"){
+					tag += "<option value='"+list[i].person_id+"'>"+list[i].person_name+"</option>";
 				}
 			}
 			$("select[name='"+category+"']").html(tag);
@@ -68,24 +70,6 @@
 		}
 		
 		function registForm(){
-/* 			let roundList = [];
-			let roundTimes = [];
-			
-		    const workId = $("select[name='work.work_id']").val();
-		    const placeId = $("select[name='place.place_id']").val();
-		    const roundDate = $("#round_date input").val();
-		    
-		    roundList.push({
-		    	"work.work_id": workId,
-		    	"place.place_id": placeId,
-		    	round_date: roundDate
-		    });
-		    
-		    console.log(roundList);
-		    
-		    console.log(JSON.stringify(roundList));
-		     */
-		    
 		    
 		    let formData = new FormData(document.getElementById("form"));
 		    
