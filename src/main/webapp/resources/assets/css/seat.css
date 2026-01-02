@@ -1,0 +1,79 @@
+@charset "UTF-8";
+
+/* 레이아웃: 관리바(좌) + 좌석판(우) */
+.admin-seat-wrapper { 
+    display: flex; 
+    gap: 30px; 
+    padding: 20px;
+    background: #1a1a1a;
+    min-width: 1300px;
+    color: #fff;
+}
+
+/* [좌측] 관리자 컨트롤 패널 */
+.management-side-panel { 
+    flex: 0 0 300px; 
+    background: #2d2d2d; 
+    padding: 20px; 
+    border-radius: 12px;
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+/* [우측] 메인 좌석 배치도 */
+.seat-map-container { 
+    flex: 1; 
+    background: #252525; 
+    border: 1px solid #3d3d3d; 
+    border-radius: 12px;
+    position: relative; 
+    min-height: 800px;
+    padding: 60px 40px;
+}
+
+/* 구역(Group) 박스: seat_x, seat_y 좌표로 이동 */
+.sector-group { 
+    position: absolute; 
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed #444;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.group-label {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* 개별 좌석 이미지 */
+.seat-box { 
+    position: relative; 
+    display: inline-block;
+    width: 24px; 
+    height: 24px; 
+    margin: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.seat-box:hover { transform: scale(1.2); }
+.active-select { 
+    outline: 3px solid #007bff;
+    outline-offset: 2px;
+    transform: scale(1.2);
+    z-index: 5;
+}
+
+/* 상태 변경 버튼 */
+.admin-btn { 
+    width: 100%; padding: 14px; margin-top: 10px; border: none; 
+    cursor: pointer; border-radius: 6px; font-weight: bold; color: white;
+    transition: opacity 0.2s;
+}
+.admin-btn:hover { opacity: 0.8; }
