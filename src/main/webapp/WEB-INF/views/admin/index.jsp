@@ -711,7 +711,23 @@
 					}
 				});
 			});
+			
+			
+			
+			$($(".seat .nav-item")[0]).click(function(e){
+				e.preventDefault();
+				$.ajax({
+					url:"/admin/seatmanager/seat",
+					method:"GET",
+					success:function(result){
+						console.log("좌석관리 클릭됨!!");
+						$(".content-wrapper").html(result);
+					}
+				});
+			});
+			
 		});
+		
   </script>
 </body>
 </html>

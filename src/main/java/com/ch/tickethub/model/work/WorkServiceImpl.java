@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ch.tickethub.dto.Work;
 import com.ch.tickethub.exception.WorkException;
 import com.ch.tickethub.util.FileManager;
+import com.ch.tickethub.util.FileUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,7 +25,7 @@ public class WorkServiceImpl implements WorkService{
 	@Autowired
 	private FileManager fileManager;
 	
-	private String rootDir = "c:/tickethub/performance/work";
+	private String rootDir = FileUtil.getRootDir() + "/work";
 
 	@Transactional
 	@Override

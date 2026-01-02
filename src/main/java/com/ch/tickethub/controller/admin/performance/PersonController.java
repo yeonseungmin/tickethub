@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ch.tickethub.dto.Person;
 import com.ch.tickethub.exception.PersonException;
 import com.ch.tickethub.exception.UploadException;
 import com.ch.tickethub.model.person.PersonService;
@@ -48,10 +49,6 @@ public class PersonController {
 	public Map<String, String> regist(
 			@RequestParam("person_name") List<String> nameList,
 			@RequestParam("profile_img") List<MultipartFile> imgList) {
-		
-		for(String name : nameList) {
-			log.debug("이름 " + name);
-		}
 		
 		for(MultipartFile img : imgList) {
 			log.debug("프로필 이미지명은 " + img.getOriginalFilename());	
