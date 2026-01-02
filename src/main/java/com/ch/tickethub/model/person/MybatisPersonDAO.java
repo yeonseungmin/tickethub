@@ -1,5 +1,7 @@
 package com.ch.tickethub.model.person;
 
+import java.util.List;
+
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -16,6 +18,11 @@ public class MybatisPersonDAO implements PersonDAO{
 	public void insert(Person person) {
 		
 		sqlSessionTemplate.insert("Person.insert", person);
+	}
+	
+	@Override
+	public List selectAll() {
+		return sqlSessionTemplate.selectList("Person.selectAll");
 	}
 
 }
