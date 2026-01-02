@@ -8,6 +8,7 @@
 		<typeAlias type = "com.ch.tickethub.dto.Work" alias = "Work"/>
 		<typeAlias type = "com.ch.tickethub.dto.Genre" alias = "Genre"/>
 		<typeAlias type = "com.ch.tickethub.dto.Round" alias = "Round"/>
+		<typeAlias type = "com.ch.tickethub.dto.Seat" alias = "Seat"/>
 	</typeAliases>
 
 	<mappers>
@@ -17,6 +18,7 @@
 		<mapper resource = "com/ch/tickethub/config/mybatis/WorkMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/GenreMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/RoundMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/SeatMapper.xml"/>
 	</mappers>
 	
 </configuration>
