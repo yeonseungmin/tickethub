@@ -74,6 +74,13 @@ public class PersonController {
 		return "admin/performance/person/list";
 	}
 	
+	@GetMapping("/performance/person/list")
+	@ResponseBody
+	public List<Person> getList() {
+		
+		return personService.getList();
+	}
+	
 	// MissingServletRequestParameterException.class 값을 제대로 입력 받지 못했을 때의 에러. 난 이것도 처리했다.
 	@ExceptionHandler({PersonException.class, UploadException.class, MissingServletRequestParameterException.class})
 	@ResponseBody

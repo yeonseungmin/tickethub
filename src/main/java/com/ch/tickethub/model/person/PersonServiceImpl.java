@@ -74,4 +74,10 @@ public class PersonServiceImpl implements PersonService{
 		
 	}
 
+	@Override
+	public List getList() {
+		
+		return personDAO.selectAll();
+	}
+
 }
