@@ -716,6 +716,8 @@
 			
 			$($(".seat .nav-item")[0]).click(function(e){
 				e.preventDefault();
+				
+				
 				$.ajax({
 					url:"/admin/seatmanager/seat",
 					method:"GET",

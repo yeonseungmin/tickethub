@@ -4,16 +4,16 @@ import lombok.Data;
 
 @Data
 public class Seat {
-	
-	private int seat_id;
-	private String seat_name;
-	private String seat_x;
-	private int seat_y;
-	private int floor;
-	private String seat_state;
-	private Place place;
-	
-	//좌석 조회 용 
-	private int seatGroupId;
-	private String groupName;
+
+    private int seat_id;
+
+    private int place_id;
+    private int seat_group_id;
+
+    private String seat_x;      // A, B, C ...
+    private int seat_y;         // 1,2,3...
+    private String seat_name;   // A10
+
+    private int floor;
+    private String seat_state;  // ACTIVE / INACTIVE
 }
