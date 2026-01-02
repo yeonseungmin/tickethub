@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Seat">
+
+
+	<resultMap id="seatMap" 				type="Seat">
+		<id column="seat_id" 				property="seat_id"/>
+		<result column="seat_name" 		property="seat_name"/>
+		<result column="seat_x" 			property="seat_x"/>
+		<result column="seat_y"			property="seat_y"/>
+		<result column="floor" 				property="floor"/>
+		<result column="seat_state" 		property="seat_state"/>
+
+	</resultMap>
+	
+	
+<!-- 좌석 등록  -->
+<insert id="insert" parameterType="Seat">
+	 insert into seat (place_id, seat_name, seat_x, seat_y, floor, seat_state) 
+	 values (#{place_id}, #{seat_name}, #{seat_x}, #{seat_y}, #{floor}, #{seat_state})
+</insert>
+
+<!-- 공연장 + 구역별 좌석 조회 -->
+	<select id="selectSeatByPlaceAndGroup" parameterType="map" resultMap="seatMap">
+		select seat_id, place_id, seat_name, seat_x, seat_y, floor, seat_state
+		from seat
+		where place_id = #{place_id}
+		order by seat_y, seat_x
+	</select>
+
+	<!-- =========================
+	     좌석 1건 조회
+	========================= -->
+	<select id="select" parameterType="int" resultMap="seatMap">
+		select seat_id,place_id,seat_name,seat_x,seat_y,floor,seat_state
+		from seat
+		where seat_id = #{seat_id}
+	</select>
+
+	<!-- =========================
+	     좌석 고정 상태 변경
+	========================= -->
+	<update id="updateSeatState" parameterType="map">
+		update seat
+		set seat_state = #{seat_state}
+		where seat_id = #{seat_id}
+	</update>
+
+	<!-- =========================
+	     좌석 삭제
+	========================= -->
+	<delete id="delete" parameterType="int">
+		delete from seat
+		where seat_id = #{seat_id}
+	</delete>
+
+
+
+
+
+
+
+
+
+
+
+</mapper>
