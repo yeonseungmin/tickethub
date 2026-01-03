@@ -716,10 +716,9 @@
 			
 			$($(".seat .nav-item")[0]).click(function(e){
 				e.preventDefault();
-				
-				
+
 				$.ajax({
-					url:"/admin/seatmanager/seat",
+					url:"/admin/seatmanager/seat/manager",
 					method:"GET",
 					success:function(result){
 						console.log("좌석관리 클릭됨!!");

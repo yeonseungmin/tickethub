@@ -7,7 +7,6 @@
     <!-- ===================== -->
     <resultMap id="seatMap" 						type="Seat">
         <id property="seat_id" 						column="seat_id"/>
-        <result property="place_id" 				column="place_id"/>
         <result property="seat_group_id"		column="seat_group_id"/>
         <result property="seat_x" 					column="seat_x"/>
         <result property="seat_y" 					column="seat_y"/>
@@ -21,38 +20,22 @@
     <!-- useGeneratedKeys pk값 생성시 들고와서 keyProperty 에 넣어주라 -->
     <!-- ===================== -->
     <insert id="insert" parameterType="Seat" useGeneratedKeys="true" keyProperty="seat_id">
-        insert into seat (place_id,seat_group_id,seat_x,seat_y,seat_name,floor,seat_state) 
-        values (#{place_id},#{seat_group_id},#{seat_x},#{seat_y},#{seat_name},#{floor},#{seat_state})
+        insert into seat (seat_group_id,seat_x,seat_y,seat_name,floor,seat_state) 
+        values (#{seat_group_id},#{seat_x},#{seat_y},#{seat_name},#{floor},#{seat_state})
     </insert>
 
     <!-- ===================== -->
     <!-- 좌석 1건 조회 -->
     <!-- ===================== -->
-    <select id="select" parameterType="int" resultMap="seatMap">
-        select seat_id,place_id,seat_group_id,seat_x,seat_y,seat_name,floor,seat_state 
+	<select id="select" parameterType="int" resultMap="seatMap">
+        select seat_id, seat_group_id, seat_x, seat_y, seat_name, floor, seat_state 
         from seat where seat_id = #{seat_id}
-    </select>
-
-    <!-- ===================== -->
-    <!-- 공연장별 좌석 조회 -->
-    <!-- ===================== -->
-    <select id="selectByPlace" parameterType="int" resultMap="seatMap">
-        select seat_id,place_id,seat_group_id,seat_x,seat_y,seat_name,floor,seat_state 
-        from seat where place_id = #{place_id} order by seat_group_id,seat_name
-    </select>
-
-    <!-- ===================== -->
-    <!-- 그룹별 좌석 조회 -->
-    <!-- ===================== -->
-    <select id="selectByGroup" parameterType="int" resultMap="seatMap">
-        select seat_id,place_id,seat_group_id,seat_x,seat_y,seat_name,floor,seat_state 
-        from seat where seat_group_id = #{seat_group_id} order by seat_name
-    </select>
+	</select>
 
     <!-- ===================== -->
     <!-- 좌석 활성 / 비활성 -->
     <!-- ===================== -->
-    <update id="updateSeatState">
+    <update id="updateSeatState" parameterType="Seat">
         update seat
         set seat_state = #{seat_state}
         where seat_id = #{seat_id}
@@ -65,5 +48,6 @@
         delete from seat
         where seat_id = #{seat_id}
     </delete>
+
 
 </mapper>

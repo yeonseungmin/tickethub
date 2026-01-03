@@ -18,5 +18,5 @@ public class SeatGroup {
     private int col_gap;
 
     // 좌석 배치 방향 (선택)
-    private String direction; // LTR, RTL, ZIGZAG
+    private String direction; // LTR (왼쪽부터 오른쪽), RTL(오른쪽부터 왼쪽)
 }

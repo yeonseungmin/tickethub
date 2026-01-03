@@ -4,21 +4,15 @@ import java.util.List;
 import com.ch.tickethub.dto.RoundSeat;
 import com.ch.tickethub.dto.SeatDetail;
 
-
 public interface RoundSeatDAO {
 
-    // 회차 좌석 상태 목록 (JSP용)
-	public List<SeatDetail> selectSeatDetailByRound(int round_id);
+    public int countByRoundAndGroup(int round_id, int seat_group_id);
 
-    // 좌석 상태 변경
-	public int updateStatus(int round_id, int seat_id, String status);
+    public void insert(RoundSeat roundSeat);
 
-    // 임시 점유
-	public int preempt(int round_id, int seat_id);
+    // 추가: 회차별 좌석 상세 정보 조회
+    public List<SeatDetail> selectSeatDetailByRound(int round_id);
 
-    // 예약 확정
-	public int reserve(int round_id, int seat_id, int reservation_id);
-
-    // 취소
-	public int cancel(int round_id, int seat_id);
+    // 추가: 좌석 상태 업데이트 (성공 시 1, 실패 시 0 반환)
+    public int updateStatus(RoundSeat roundSeat);
 }

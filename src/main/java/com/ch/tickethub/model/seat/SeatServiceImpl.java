@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ch.tickethub.dto.Seat;
+import com.ch.tickethub.exception.SeatException;
 
 @Service
 public class SeatServiceImpl implements SeatService {
@@ -14,24 +15,16 @@ public class SeatServiceImpl implements SeatService {
     @Autowired
     private SeatDAO seatDAO;
 
+    // 추가된 메서드
+    @Transactional
     @Override
-    public int insert(Seat seat) {
-        return seatDAO.insert(seat);
+    public void insert(Seat seat) {
+        seatDAO.insert(seat);
     }
 
     @Override
     public Seat select(int seat_id) {
         return seatDAO.select(seat_id);
-    }
-
-    @Override
-    public List<Seat> selectByPlace(int place_id) {
-        return seatDAO.selectByPlace(place_id);
-    }
-
-    @Override
-    public List<Seat> selectByGroup(int seat_group_id) {
-        return seatDAO.selectByGroup(seat_group_id);
     }
 
     @Transactional
@@ -45,4 +38,32 @@ public class SeatServiceImpl implements SeatService {
     public void delete(int seat_id) {
         seatDAO.delete(seat_id);
     }
+    
+    @Override
+    public List<Seat> selectByGroup(int seat_group_id) {
+        return seatDAO.selectByGroup(seat_group_id);
+    }
+    
+    @Transactional
+    @Override
+    public void createSeats(int rows, int cols, int seat_group_id) {
+        for (int r = 0; r < rows; r++) {
+            // 행을 알파벳으로 변환 (0->A, 1->B ...)
+            char rowName = (char) ('A' + r); 
+            
+            for (int c = 1; c <= cols; c++) {
+                Seat seat = new Seat();
+                seat.setSeat_group_id(seat_group_id);
+                seat.setSeat_x(String.valueOf(rowName));
+                seat.setSeat_y(c);
+                seat.setSeat_name(rowName + String.valueOf(c)); // 예: A1, A2
+                seat.setFloor(1);          // 기본값 1층
+                seat.setSeat_state("활성화"); // 기본 상태
+
+                seatDAO.insert(seat);
+            }
+        }
+    }
+
 }
+
