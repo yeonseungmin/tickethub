@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Reservation">
+
+    <insert id="insert" parameterType="Reservation" useGeneratedKeys="true" keyProperty="reservation_id">
+        INSERT INTO reservation (member_id, round_id, seat_grade_id, actual_paid, total_paid, regdate)
+        VALUES (#{member_id}, #{round_id}, #{seat_grade_id}, #{actual_paid}, #{total_paid}, NOW())
+    </insert>
+
+    <select id="select" parameterType="int" resultType="Reservation">
+        SELECT * FROM reservation WHERE reservation_id = #{reservation_id}
+    </select>
+
+    <select id="selectByMember" parameterType="int" resultType="Reservation">
+        SELECT * FROM reservation WHERE member_id = #{member_id} ORDER BY regdate DESC
+    </select>
+
+    <select id="selectByRound" parameterType="int" resultType="Reservation">
+        SELECT * FROM reservation WHERE round_id = #{round_id}
+    </select>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM reservation WHERE reservation_id = #{reservation_id}
+    </delete>
+
+
+</mapper>
