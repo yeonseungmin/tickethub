@@ -62,4 +62,10 @@ public class WorkServiceImpl implements WorkService{
 		
 	}
 
+	@Override
+	public Work getWork(int work_id) {
+		
+		return workDAO.select(work_id);
+	}
+
 }

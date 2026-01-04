@@ -13,6 +13,7 @@
 	
 	<select id="selectByWorkId" parameterType="int" resultType="Round">
 		select * from round where work_id = #{work_id}
+		order by round_date, round_start_time
 	</select>
 	
 </mapper>
