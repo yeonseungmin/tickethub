@@ -60,5 +60,17 @@ public class MybatisSeatDAO implements SeatDAO {
     public List<Seat> selectByGroup(int seat_group_id) {
         return sqlSessionTemplate.selectList("Seat.selectByGroup", seat_group_id);
     }
+    @Override
+    public void updateSeatGrade(int seat_id, int seat_grade_id) {
+        Seat seat = new Seat();
+        seat.setSeat_id(seat_id);
+        seat.setSeat_grade_id(seat_grade_id);
+        try {
+            sqlSessionTemplate.update("Seat.updateSeatGrade", seat);
+        } catch (Exception e) {
+            throw new SeatException("좌석 등급 변경 실패", e);
+        }
+    }
+
 
 }

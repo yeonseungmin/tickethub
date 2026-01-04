@@ -22,6 +22,10 @@ public interface SeatDAO {
     
     // 그룹별 좌석 리스트 조회
     public List<Seat> selectByGroup(int seat_group_id);
+    
+    // 좌석 등급 변경
+    void updateSeatGrade(int seat_id, int seat_grade_id);
+
 
 
 }
