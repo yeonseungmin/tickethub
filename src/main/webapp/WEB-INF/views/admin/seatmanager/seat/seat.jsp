@@ -11,12 +11,9 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Seat Management Admin</title>
-
     <link rel="stylesheet" href="<%=contextPath%>/inc/header.css">
     <link rel="stylesheet" href="<%=contextPath%>/static/assets/css/seat.css?v=<%=System.currentTimeMillis()%>">
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body class="admin-seat-page">
@@ -32,19 +29,14 @@
             <% } } %>
         </select>
     </div>
-
+    
     <div class="nav-group">
         <span class="nav-label">PERFORMANCE</span>
-        <select id="workSelect" class="nav-select">
-            <option value="">공연 선택</option>
-        </select>
+        <select id="workSelect" class="nav-select"><option value="">공연 선택</option></select>
     </div>
-
     <div class="nav-group">
         <span class="nav-label">ROUND</span>
-        <select id="roundSelect" class="nav-select">
-            <option value="">회차 선택</option>
-        </select>
+        <select id="roundSelect" class="nav-select"><option value="">회차 선택</option></select>
     </div>
 
     <button class="nav-load-btn" onclick="loadSeats()">
@@ -82,19 +74,112 @@
 
         <div class="auto-gen-box">
             <p class="section-title">좌석 자동 생성</p>
-            <select id="groupSelect" class="nav-select full-width-select">
-                <option value="">구역 선택</option>
-            </select>
-            
+            <select id="groupSelect" class="nav-select full-width-select"><option value="">구역 선택</option></select>
             <div class="input-group-row">
                 <input type="number" id="rowCount" placeholder="Rows" class="admin-input-small">
                 <input type="number" id="colCount" placeholder="Cols" class="admin-input-small">
             </div>
-            
             <button class="create-exec-btn" onclick="createSeats()">생성 실행</button>
         </div>
     </div>
 </div>
+
+<script>
+    let selectedSeatId = null;
+    const contextPath = "<%=contextPath%>";
+
+    // 1. 좌석 불러오기 (현재 선택된 구역의 좌석 배치)
+    function loadSeats() {
+        const groupId = $("#groupSelect").val();
+        if(!groupId) { alert("구역을 먼저 선택하세요."); return; }
+
+        $.get(contextPath + "/seatmanager/seat/manager", { seat_group_id: groupId }, function(data) {
+            // 서버에서 보낸 좌석 리스트를 seatArea에 그림 (이 부분은 프로젝트의 HTML 구조에 맞게 구현)
+            $("#seatArea").html(data);
+        });
+    }
+
+    // 2. 좌석 상태 변경 (AVAILABLE, RESERVED 등)
+    function changeStatus(status) {
+        if (!selectedSeatId) { alert("좌석을 선택하세요"); return; }
+        
+        $.post(contextPath + "/seatmanager/seat/status/update", {
+            seat_id: selectedSeatId,
+            seat_state: status
+        }, function (res) {
+            if(res === "success") {
+                $("#selState").text(status);
+                alert("상태가 변경되었습니다.");
+                // 이미지 업데이트 로직이 필요하다면 여기서 getSeatImage 호출
+            } else {
+                alert("변경 실패: " + res);
+            }
+        });
+    }
+
+    // 3. 좌석 등급 변경 (VIP, R, S, A)
+    function changeGrade(gradeId) {
+        if (!selectedSeatId) { alert("좌석을 선택하세요"); return; }
+        
+        $.post(contextPath + "/seatmanager/seat/grade/update", {
+            seat_id: selectedSeatId,
+            seat_grade_id: gradeId
+        }, function (res) {
+            if(res === "success") {
+                alert("등급이 변경되었습니다.");
+            } else {
+                alert("변경 실패");
+            }
+        });
+    }
+
+    // 4. 좌석 자동 생성 (이중 for문을 타는 Service와 연결)
+    function createSeats() {
+        const groupId = $("#groupSelect").val();
+        const rows = $("#rowCount").val();
+        const cols = $("#colCount").val();
+
+        if (!groupId || !rows || !cols) { alert("모든 정보를 입력하세요"); return; }
+        if (!confirm("물리적 좌석을 생성하시겠습니까?")) return;
+
+        $.post(contextPath + "/seatmanager/seat/generate", {
+            seat_group_id: groupId,
+            rows: rows,
+            cols: cols
+        }, function (res) {
+            if(res === "success") {
+                alert("좌석 생성 완료");
+                location.reload();
+            } else {
+                alert("생성 실패: " + res);
+            }
+        });
+    }
+
+    // 5. 좌석 선택 시 호출되는 함수 (좌석 클릭 시)
+    function selectSeat(seatId, seatName, seatState) {
+        selectedSeatId = seatId;
+        $(".seat-box").removeClass("active-select");
+        $("#seat-" + seatId).addClass("active-select");
+
+        $("#selName").text(seatName);
+        $("#selState").text(seatState);
+    }
+
+    // 6. 셀렉트 박스 연동 (장소 -> 공연 -> 회차)
+    $("#placeSelect").change(function () {
+        const placeId = $(this).val();
+        if(!placeId) return;
+
+        $.get(contextPath + "/admin/work/list", { place_id: placeId }, function (data) {
+            let html = '<option value="">공연 선택</option>';
+            data.forEach(work => {
+                html += '<option value="' + work.work_id + '">' + work.work_name + '</option>';
+            });
+            $("#workSelect").html(html);
+        });
+    });
+</script>
 
 </body>
 </html>
