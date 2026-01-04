@@ -1,6 +1,5 @@
 package com.ch.tickethub.controller.tickethub;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -9,7 +8,11 @@ public class MainController {
 
 	@GetMapping("/")
 	public String getMain() {
-		
 		return "ticket/home";
+	}
+
+	@GetMapping("/waiting")
+	public String getWaitingPage() {
+		return "queue/waiting";
 	}
 }
