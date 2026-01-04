@@ -1,0 +1,143 @@
+@charset "UTF-8";
+
+/* 전체 초기화 */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #1a1a1a !important;
+    min-height: 100vh;
+}
+
+.admin-seat-page {
+    color: #fff;
+    font-family: 'Malgun Gothic', sans-serif;
+}
+
+/* 상단 필터 바 */
+.seat-option-bar {
+    display: flex;
+    align-items: center;
+    background: #1a1a1a;
+    padding: 15px 25px;
+    border-bottom: 1px solid #333;
+    gap: 20px;
+    height: 80px;
+}
+
+.nav-group { display: flex; flex-direction: column; }
+.nav-label { font-size: 11px; color: #888; font-weight: bold; margin-bottom: 4px; }
+
+.nav-select {
+    background: #252525; color: #fff; border: 1px solid #444;
+    padding: 6px 10px; border-radius: 4px; min-width: 150px;
+}
+
+/* ★ 수정된 조회 버튼: 배경을 어둡게 하고 테두리 강조 ★ */
+.nav-load-btn {
+    background: #333; /* 어두운 회색 */
+    color: #eee;
+    border: 1px solid #555;
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.nav-load-btn:hover {
+    background: #444;
+    border-color: #007bff; /* 호버 시 포인트 컬러 */
+    color: #fff;
+}
+
+.icon-search {
+    margin-right: 7px;
+    font-size: 14px;
+}
+
+/* 메인 레이아웃 */
+.admin-seat-wrapper {
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+    background-color: #1a1a1a;
+    min-height: calc(100vh - 80px);
+}
+
+/* 좌석 배치도 영역 */
+.seat-map-container {
+    flex: 1;
+    background: #222;
+    border-radius: 10px;
+    border: 1px solid #333;
+    padding: 50px;
+}
+
+.stage-label {
+    text-align: center; color: #333; font-size: 40px;
+    letter-spacing: 30px; margin-bottom: 100px; font-weight: 900;
+}
+
+/* 우측 관리 패널 */
+.management-side-panel {
+    width: 320px;
+    background: #252525;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #333;
+    height: fit-content;
+}
+
+.panel-title { color: #007bff; margin-top: 0; margin-bottom: 20px; }
+
+#selection-info {
+    background: #111; padding: 15px; border-radius: 8px;
+    margin-bottom: 20px; border: 1px solid #333;
+}
+#selection-info p { margin: 5px 0; font-size: 12px; color: #888; }
+#selection-info span { color: #fff; font-weight: bold; }
+
+/* 버튼 그리드 */
+.state-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.grade-btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
+
+.status-btn, .grade-btn {
+    padding: 10px 5px; border: none; border-radius: 4px; color: #fff;
+    cursor: pointer; font-size: 11px; font-weight: bold;
+}
+
+/* 등급 색상 (보라, 초록, 빨강, 하늘) */
+.btn-vip { background-color: #8e44ad; }
+.btn-r   { background-color: #27ae60; }
+.btn-s   { background-color: #e74c3c; }
+.btn-a   { background-color: #3498db; }
+
+/* 상태 색상 */
+.btn-available { background: #28a745; }
+.btn-preempted { background: #ffc107; color: #000; }
+.btn-reserved  { background: #dc3545; }
+.btn-canceled  { background: #6c757d; }
+
+/* 하단 자동 생성 박스 */
+.auto-gen-box { border-top: 1px solid #444; padding-top: 20px; margin-top: 10px; }
+.section-title { font-size: 12px; color: #555; margin-bottom: 10px; }
+.full-width-select { width: 100%; margin-bottom: 10px; }
+
+.input-group-row { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
+.admin-input-small {
+    width: 50%; background: #111; border: 1px solid #444;
+    color: #fff; padding: 10px; border-radius: 4px; outline: none;
+}
+
+.create-exec-btn {
+    width: 100%; padding: 12px; background: #007bff;
+    color: #fff; border: none; border-radius: 4px;
+    cursor: pointer; font-weight: bold;
+}

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Seat">
+
+    <!-- ===================== -->
+    <!-- ResultMap -->
+    <!-- ===================== -->
+    <resultMap id="seatMap" 						type="Seat">
+        <id property="seat_id" 						column="seat_id"/>
+        <result property="seat_group_id"		column="seat_group_id"/>
+        <result property="seat_grade_id"		column="seat_grade_id"/>
+        <result property="seat_x" 					column="seat_x"/>
+        <result property="seat_y" 					column="seat_y"/>
+        <result property="seat_name" 			column="seat_name"/>
+        <result property="floor" 					column="floor"/>
+        <result property="seat_state" 			column="seat_state"/>
+    </resultMap>
+
+    <!-- ===================== -->
+    <!-- 좌석 등록 -->
+    <!-- useGeneratedKeys pk값 생성시 들고와서 keyProperty 에 넣어주라 -->
+    <!-- ===================== -->
+    <insert id="insert" parameterType="Seat" useGeneratedKeys="true" keyProperty="seat_id">
+        insert into seat (seat_group_id,seat_grade_id,seat_x,seat_y,seat_name,floor,seat_state) 
+        values (#{seat_group_id},#{seat_grade_id},#{seat_x},#{seat_y},#{seat_name},#{floor},#{seat_state})
+    </insert>
+
+    <!-- ===================== -->
+    <!-- 좌석 1건 조회 -->
+    <!-- ===================== -->
+	<select id="select" parameterType="int" resultMap="seatMap">
+        select seat_id, seat_group_id,seat_grade_id, seat_x, seat_y, seat_name, floor, seat_state 
+        from seat where seat_id = #{seat_id}
+	</select>
+
+    <!-- ===================== -->
+    <!-- 좌석 활성 / 비활성 -->
+    <!-- ===================== -->
+    <update id="updateSeatState" parameterType="Seat">
+        update seat
+        set seat_state = #{seat_state}
+        where seat_id = #{seat_id}
+    </update>
+
+    <!-- ===================== -->
+    <!-- 좌석 삭제 -->
+    <!-- ===================== -->
+    <delete id="delete" parameterType="int">
+        delete from seat
+        where seat_id = #{seat_id}
+    </delete>
+    
+    <update id="updateSeatGrade" parameterType="Seat">
+		update seat
+		set seat_grade_id = #{seat_grade_id}
+		where seat_id = #{seat_id}
+	</update>
+    
+    <select id="selectByGroup" parameterType="int" resultMap="seatMap">
+    select seat_id, seat_group_id, seat_grade_id,seat_x, seat_y, seat_name, floor, seat_state
+    from seat
+    where seat_group_id = #{seat_group_id}
+    order by seat_x, seat_y
+</select>
+    
+
+
+</mapper>
