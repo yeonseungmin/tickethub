@@ -8,6 +8,7 @@
 		<typeAlias type = "com.ch.tickethub.dto.Work" alias = "Work"/>
 		<typeAlias type = "com.ch.tickethub.dto.Genre" alias = "Genre"/>
 		<typeAlias type = "com.ch.tickethub.dto.Round" alias = "Round"/>
+		<typeAlias type = "com.ch.tickethub.dto.RoundCasting" alias = "RoundCasting"/>
 		<typeAlias type = "com.ch.tickethub.dto.Seat" alias = "Seat"/>
 		<typeAlias type = "com.ch.tickethub.dto.SeatGroup" alias = "SeatGroup"/>
 		<typeAlias type = "com.ch.tickethub.dto.RoundSeat" alias = "RoundSeat"/>
@@ -25,6 +26,7 @@
 		<mapper resource = "com/ch/tickethub/config/mybatis/WorkMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/GenreMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/RoundMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/RoundCastingMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/SeatMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/SeatGroupMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/RoundSeatMapper.xml"/>

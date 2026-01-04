@@ -5,8 +5,10 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
+<link rel="stylesheet" href="static/assets/css/ImageModal.css">
 </head>
 <body>
+	<script src="static/assets/js/ImageModal.js"></script>
 	<script>
 	
 		// 이 함수는 상위, 하위를 모두 처리해야 하므로, 호출 시 상위를 원하는지, 하위를 원하는지 구분해줘야 한다.
@@ -67,9 +69,11 @@
 	
 		        const img = $("<img>")
 		            .attr("src", e.target.result)
+		            .addClass("preview-thumb")
 		            .css({
 		                width: "60px",
 		                height: "60px",
+		                cursor: "pointer"
 		            });
 	
 		        previewContainer.append(img);
@@ -119,6 +123,12 @@
 		}		
 
 		$(()=>{
+			$(".card-body").on("click", ".preview-thumb", function() {
+		        const src = $(this).attr("src");
+		        displayImageModal("card-body", src);
+		    });
+			
+			
 			/* https://www.w3schools.com/jquery/event_on.asp */
 			$(".card-body").on("change", "input[type=file]", function(e){
 				//console.log("this ", this);
@@ -129,10 +139,6 @@
 				
 				// 가장 가까운 위치의 dom 선택
 				previewImage(file, $(this).closest(".form-group"));
-			});
-		
-			$(function () {
-
 			});
 			
 			getGenre();
@@ -226,26 +232,6 @@
 									</select>
 							    </div>
 							</div>
-							<div class="form-group row align-items-center">
-								<div class="col-md-10">
-									<div class="custom-file">
-										<input type="file" class="custom-file-input" name="work_poster_img">
-										<label class="custom-file-label">작품 포스터 선택</label>
-									</div>
-								</div>
-								<div class="col-md-2 text-center preview-box">
-				                </div>
-							</div>
-							<div class="form-group row align-items-center">
-								<div class="col-md-10">
-									<div class="custom-file">
-										<input type="file" class="custom-file-input" name="work_content_img">
-										<label class="custom-file-label">작품 내용 선택</label>
-									</div>
-								</div>
-								<div class="col-md-2 text-center preview-box">
-				                </div>
-							</div>
 							<div class="form-group row">
 								<div class="col-md-4">
 									<label>티켓 예매 시간:</label>
@@ -275,6 +261,27 @@
 							        </div>
 							    </div>
 							</div>
+							<div class="form-group row align-items-center">
+								<div class="col-md-10">
+									<div class="custom-file">
+										<input type="file" class="custom-file-input" name="work_poster_img">
+										<label class="custom-file-label">작품 포스터 선택</label>
+									</div>
+								</div>
+								<div class="col-md-2 text-center preview-box">
+				                </div>
+							</div>
+							<div class="form-group row align-items-center">
+								<div class="col-md-10">
+									<div class="custom-file">
+										<input type="file" class="custom-file-input" name="work_content_img">
+										<label class="custom-file-label">작품 내용 선택</label>
+									</div>
+								</div>
+								<div class="col-md-2 text-center preview-box">
+				                </div>
+							</div>
+
 						</div>
 						<div class="card-footer text-center">
 							<button type="button" id="regist" class="btn btn-success">등록</button>
