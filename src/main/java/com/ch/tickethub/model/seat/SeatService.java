@@ -22,4 +22,7 @@ public interface SeatService {
 	    
 	    //좌석 생성
 	    public void createSeats(int rows, int cols, int seat_group_id);
+	    
+	    void updateSeatGrade(int seat_id, int seat_grade_id);
+
 }

@@ -71,4 +71,12 @@ public class SeatController {
             return "error: " + e.getMessage();
         }
     }
+    
+    @PostMapping("/grade/update")
+    @ResponseBody
+    public String updateGrade(int seat_id, int seat_grade_id) {
+        seatService.updateSeatGrade(seat_id, seat_grade_id);
+        return "success";
+    }
+
 }
