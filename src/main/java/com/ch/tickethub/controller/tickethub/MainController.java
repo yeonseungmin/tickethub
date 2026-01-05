@@ -15,4 +15,14 @@ public class MainController {
 	public String getWaitingPage() {
 		return "queue/waiting";
 	}
+	
+	@GetMapping("/reservation")
+	public String getReservation() {
+		return "ticket/reservation";
+	}
+	
+	@GetMapping("/payment")
+	public String getPayment() {
+		return "ticket/payment";
+	}
 }
