@@ -2,6 +2,7 @@ package com.ch.tickethub.controller.admin.performance;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +14,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.ch.tickethub.dto.Round;
 import com.ch.tickethub.exception.RoundCastingException;
 import com.ch.tickethub.exception.RoundException;
 import com.ch.tickethub.exception.UploadException;
@@ -79,6 +82,14 @@ public class RoundController {
 		body.put("message", "회차 등록 실패");
 		
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+	}
+	
+	// 기존 코드에 추가
+	@GetMapping("/performance/round/list") // seat.jsp의 URL과 맞춤
+	@ResponseBody
+	public List<Round> getRoundList(@RequestParam int work_id) {
+	    // Service에 목록 조회 기능이 필요합니다.
+	    return roundService.getRoundListByWork(work_id);
 	}
 	
 }

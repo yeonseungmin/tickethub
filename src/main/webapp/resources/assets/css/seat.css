@@ -1,3 +1,4 @@
+
 @charset "UTF-8";
 
 /* 전체 초기화 */
@@ -11,6 +12,7 @@ html, body {
     background-color: #1a1a1a !important;
     min-height: 100vh;
 }
+
 
 .admin-seat-page {
     color: #fff;

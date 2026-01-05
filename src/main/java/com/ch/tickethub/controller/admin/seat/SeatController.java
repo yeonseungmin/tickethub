@@ -7,8 +7,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import com.ch.tickethub.dto.Place;
 import com.ch.tickethub.dto.Seat;
 import com.ch.tickethub.dto.SeatGroup;
+import com.ch.tickethub.model.place.PlaceService;
 import com.ch.tickethub.model.seat.SeatService;
 import com.ch.tickethub.model.seatgroup.SeatGroupService;
 
@@ -25,6 +27,8 @@ public class SeatController {
     @Autowired
     private SeatGroupService seatGroupService;
 
+    @Autowired
+    private PlaceService placeService;
     /**
      * 좌석 관리자 페이지
      * SeatService 기준으로 좌석 조회
@@ -32,15 +36,18 @@ public class SeatController {
      */
     @GetMapping("/manager")
     public String seatManager(@RequestParam(required = false, defaultValue = "0") int seat_group_id, Model model) {
-    	
-        // 해당 그룹의 좌석 조회
-    	if(seat_group_id != 0) {
-	        List<Seat> seatList = seatService.selectByGroup(seat_group_id); // 새 메서드 필요
-	        SeatGroup seatGroup = seatGroupService.get(seat_group_id);
-	
-	        model.addAttribute("seatList", seatList);
-	        model.addAttribute("seatGroup", seatGroup);
-    	}
+        
+        // 2. 모든 장소 목록을 가져와서 모델에 추가 (이 코드가 반드시 있어야 함)
+        List<Place> placeList = placeService.getList();
+        model.addAttribute("placeList", placeList);
+
+        if(seat_group_id != 0) {
+            List<Seat> seatList = seatService.selectByGroup(seat_group_id);
+            SeatGroup seatGroup = seatGroupService.get(seat_group_id);
+
+            model.addAttribute("seatList", seatList);
+            model.addAttribute("seatGroup", seatGroup);
+        }
         return "admin/seatmanager/seat/seat";
     }
 

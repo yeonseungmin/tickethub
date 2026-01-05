@@ -6,6 +6,7 @@
 <%
     String contextPath = request.getContextPath();
     List<Place> placeList = (List<Place>)request.getAttribute("placeList");
+
 %>
 <!DOCTYPE html>
 <html>
@@ -20,19 +21,24 @@
 
 <div class="seat-option-bar">
     <div class="nav-group">
-        <span class="nav-label">LOCATION</span>
+        <span class="nav-label">PLACE</span>
         <select id="placeSelect" class="nav-select">
             <option value="">장소 선택</option>
             <% if(placeList != null) { 
                 for(Place place : placeList) { %>
                 <option value="<%=place.getPlace_id()%>"><%=place.getPlace_name()%></option>
             <% } } %>
+                <option value="${place.place_id}">${place.place_name}</option>
+
         </select>
     </div>
     
     <div class="nav-group">
-        <span class="nav-label">PERFORMANCE</span>
-        <select id="workSelect" class="nav-select"><option value="">공연 선택</option></select>
+        <span class="nav-label">WORK</span>
+        <select id="workSelect" class="nav-select">
+            <option value="">공연 선택</option>
+            
+        </select>
     </div>
     <div class="nav-group">
         <span class="nav-label">ROUND</span>
@@ -166,19 +172,67 @@
         $("#selState").text(seatState);
     }
 
-    // 6. 셀렉트 박스 연동 (장소 -> 공연 -> 회차)
-    $("#placeSelect").change(function () {
-        const placeId = $(this).val();
-        if(!placeId) return;
-
-        $.get(contextPath + "/admin/work/list", { place_id: placeId }, function (data) {
-            let html = '<option value="">공연 선택</option>';
-            data.forEach(work => {
-                html += '<option value="' + work.work_id + '">' + work.work_name + '</option>';
-            });
-            $("#workSelect").html(html);
-        });
-    });
+	 // 6. 셀렉트 박스 연동 (장소 -> 공연 -> 회차)
+	
+	 // [Step 1] 장소 선택 시 -> 공연(Work) 목록 가져오기
+	 $("#placeSelect").change(function () {
+	     const placeId = $(this).val();
+	     console.log("선택된 장소 ID:", placeId); // 확인용
+	     // 다음 단계 리스트들 초기화
+	     $("#workSelect").html('<option value="">공연 선택</option>');
+	     $("#roundSelect").html('<option value="">회차 선택</option>');
+	
+	     if(!placeId) return;
+	
+	     // WorkMapper.xml 기준 필드명은 work_title입니다.
+	     $.get(contextPath + "/admin/performance/work/list", { place_id: placeId }, function (data) {
+	    	 console.log("서버 응답 데이터:", data); // ★ 이 부분이 브라우저 콘솔에 찍히는지 확인하세요.
+	         let html = '<option value="">공연 선택</option>';
+	         if (data.length === 0) {
+	             console.warn("데이터가 비어있습니다. DB와 쿼리를 확인하세요.");
+	         }
+	         data.forEach(work => {
+	             // 주의: DTO 필드명이 work_title인지 확인하세요 (Mapper에는 work_title로 되어있음)
+	             html += `<option value="${work.work_id}">${work.work_title}</option>`;
+	         });
+	         $("#workSelect").html(html);
+	     });
+	 });
+	
+	 // [Step 2] 공연 선택 시 -> 회차(Round) 목록 가져오기 (추가된 부분)
+	 $("#workSelect").change(function () {
+	     const workId = $(this).val();
+	     
+	     $("#roundSelect").html('<option value="">회차 선택</option>');
+	
+	     if(!workId) return;
+	
+	     // RoundMapper.xml을 사용하는 컨트롤러 호출
+	     $.get(contextPath + "/admin/round/list", { work_id: workId }, function (data) {
+	         let html = '<option value="">회차 선택</option>';
+	         data.forEach(round => {
+	             // 날짜와 시간을 합쳐서 표시 (ex: 2023-12-25 14:00)
+	             html += `<option value="${round.round_id}">${round.round_date} ${round.round_start_time}</option>`;
+	         });
+	         $("#roundSelect").html(html);
+	     });
+	 });
+	
+	 // 1. 좌석 불러오기 (수정)
+	 function loadSeats() {
+	     const roundId = $("#roundSelect").val(); // 이제 회차 ID를 기준으로 불러옵니다.
+	     const groupId = $("#groupSelect").val(); // 구역도 필요하다면 유지
+	     
+	     if(!roundId) { alert("회차를 먼저 선택하세요."); return; }
+	
+	     // 만약 서버 컨트롤러가 round_id를 받도록 설계되어 있다면 아래와 같이 호출
+	     $.get(contextPath + "/seatmanager/seat/manager", { 
+	         round_id: roundId,
+	         seat_group_id: groupId 
+	     }, function(data) {
+	         $("#seatArea").html(data);
+	     });
+	 }
 </script>
 
 </body>

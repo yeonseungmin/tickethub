@@ -32,4 +32,14 @@ public class MybatisWorkDAO implements WorkDAO {
 		return sqlSessionTemplate.selectList("Work.selectAll");
 	}
 
+	@Override
+	public Work select(int work_id) {
+		return sqlSessionTemplate.selectOne("Work.select", work_id);
+	}
+
+	
+	@Override
+	public List<Work> selectByPlace(int place_id) {
+	    return sqlSessionTemplate.selectList("Work.selectByPlace", place_id);
+	}
 }

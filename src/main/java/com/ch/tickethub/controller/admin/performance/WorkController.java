@@ -12,6 +12,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -80,11 +81,18 @@ public class WorkController {
 		return "admin/performance/work/list";
 	}
 	
-	@GetMapping("/performance/work/list")
-	@ResponseBody
-	public List<Work> getList(){
-		
-		return workService.getList(); 
+//	@GetMapping("/performance/work/list")
+//	@ResponseBody
+//	public List<Work> getList(){
+//		
+//		return workService.getList(); 
+//	}
+	
+	@GetMapping("/admin/performance/work/list")
+	@ResponseBody // JSON 데이터를 반환하기 위해 반드시 필요
+	public List<Work> getWorkListByPlace(int place_id) {
+	    List<Work> workList = workService.getWorkListByPlace(place_id);
+	    return workList; // 이 리스트가 JSON 형태로 브라우저에 전달되어야 함
 	}
 	
 	// MissingServletRequestParameterException.class 값을 제대로 입력 받지 못했을 때의 에러. 난 이것도 처리했다.
@@ -99,4 +107,6 @@ public class WorkController {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
 	}
 	
+	
+
 }

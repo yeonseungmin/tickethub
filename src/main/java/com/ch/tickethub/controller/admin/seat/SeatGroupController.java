@@ -7,15 +7,23 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import com.ch.tickethub.dto.Place;
 import com.ch.tickethub.dto.SeatGroup;
+import com.ch.tickethub.model.place.PlaceService;
 import com.ch.tickethub.model.seatgroup.SeatGroupService;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequestMapping("/seatgroup")
+@Slf4j
 public class SeatGroupController {
 
     @Autowired
     private SeatGroupService seatGroupService;
+    
+    @Autowired
+    private PlaceService placeService;
 
     /**
      * 공연장별 구역 관리 페이지
@@ -23,10 +31,16 @@ public class SeatGroupController {
      */
     @GetMapping("/manager")
     public String manager(@RequestParam int place_id, Model model) {
+    	// 1. 전체 장소 목록을 DB에서 가져와 모델에 추가
         List<SeatGroup> groupList = seatGroupService.getByPlace(place_id);
-        model.addAttribute("groupList", groupList);
-        model.addAttribute("place_id", place_id);
+        List<Place> placeList = placeService.getList(); 
+        model.addAttribute("placeList", placeList);
         
+     // 2. 기존 로직 (선택된 장소의 구역 목록)
+        if (place_id > 0) {
+            model.addAttribute("groupList", seatGroupService.getByPlace(place_id));
+            model.addAttribute("place_id", place_id);
+        }
         // 공연장 전체 도면 위에서 구역들을 배치하는 관리자 페이지로 이동
         return "admin/seatmanager/group/manager";
     }

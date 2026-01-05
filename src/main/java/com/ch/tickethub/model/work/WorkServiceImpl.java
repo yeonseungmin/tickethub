@@ -1,6 +1,9 @@
 package com.ch.tickethub.model.work;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ch.tickethub.dto.Round;
+import com.ch.tickethub.dto.RoundCasting;
 import com.ch.tickethub.dto.Work;
 import com.ch.tickethub.exception.WorkException;
 import com.ch.tickethub.util.FileManager;
@@ -60,6 +65,40 @@ public class WorkServiceImpl implements WorkService{
 		
 		fileManager.remove(dirName);
 		
+	}
+
+	@Override
+	public Work getWork(int work_id) {
+		
+		return workDAO.select(work_id);
+	}
+
+	@Override
+	public List getUniqueCasting(Work work) {
+		Map<Integer, RoundCasting> uniqueCastingMap = new HashMap();
+		
+		for(Round round : work.getRoundList()) {
+			if(round.getRoundCastingList() != null) {
+				for(RoundCasting roundCasting : round.getRoundCastingList()) {
+					uniqueCastingMap.put(roundCasting.getPerson().getPerson_id(), roundCasting);
+				}
+			}
+		}
+		
+		List<RoundCasting> uniqueCastingList = new ArrayList(uniqueCastingMap.values());
+		
+		// 역할로 묶기. 문제점 내 DTO 특성상 주역 구분이 안 된다. 어쩔 수 없다. 
+		uniqueCastingList.sort((a, b) -> a.getRole().compareTo(b.getRole()));
+		
+		return uniqueCastingList;
+	}
+	
+	@Override
+	public List<Work> getWorkListByPlace(int place_id) {
+	    if (place_id == 0) {
+	        return workDAO.selectAll(); // 장소 선택 안했을 땐 전체 조회
+	    }
+	    return workDAO.selectByPlace(place_id); // 장소별 조회
 	}
 
 }

@@ -43,7 +43,8 @@
 	 	/>
 	</resultMap>
 	
-	<select id="selectAll" resultMap="workMap">
+	<!-- 공통 쿼리를 정의 -->
+	<sql id="sql_select">
 		select work_id, work_title, director, work_poster_url, work_content_url, work_like_count, age_limit, work_price
 		, running_time
 		, DATE_FORMAT(ticket_start_date, '%Y-%m-%d %H:%i') as ticket_start_date
@@ -52,7 +53,39 @@
 		, work_type
 		, genre_id, publisher_id
 		from work
+	</sql>
+	
+	<select id="selectAll" resultMap="workMap">
+		<include refid="sql_select"/>
 		order by work_id desc
+	</select>
+	
+	<select id="select" parameterType="int" resultMap="workMap">
+		<include refid="sql_select"/>
+		where work_id=#{work_id}
+	</select>
+	
+	<select id="selectByPlace" parameterType="int" resultMap="workMap">
+	    SELECT DISTINCT 
+	        w.work_id, 
+	        w.work_title, 
+	        w.director, 
+	        w.work_poster_url, 
+	        w.work_content_url, 
+	        w.work_like_count, 
+	        w.age_limit, 
+	        w.work_price,
+	        w.running_time,
+	        DATE_FORMAT(w.ticket_start_date, '%Y-%m-%d %H:%i') as ticket_start_date,
+	        DATE_FORMAT(w.work_start_date, '%Y-%m-%d') as work_start_date,
+	        DATE_FORMAT(w.work_end_date, '%Y-%m-%d') as work_end_date,
+	        w.work_type,
+	        w.genre_id,
+	        w.publisher_id
+	    FROM work w
+	    INNER JOIN round r ON w.work_id = r.work_id
+	    WHERE r.place_id = #{place_id}
+	    ORDER BY w.work_id DESC
 	</select>
 
 </mapper>

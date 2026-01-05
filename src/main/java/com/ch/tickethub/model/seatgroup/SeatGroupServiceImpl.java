@@ -4,14 +4,17 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.ch.tickethub.dto.Place;
 import com.ch.tickethub.dto.SeatGroup;
+import com.ch.tickethub.model.place.PlaceDAO;
 
 @Service
 public class SeatGroupServiceImpl implements SeatGroupService {
 
     @Autowired
     private SeatGroupDAO seatGroupDAO;
-
+    
     @Override
     public List<SeatGroup> getByPlace(int place_id) {
         return seatGroupDAO.selectByPlace(place_id);

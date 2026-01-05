@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ch.tickethub.dto.Seat;
+import com.ch.tickethub.dto.SeatGroup;
 import com.ch.tickethub.exception.SeatException;
 
 @Service
@@ -52,13 +53,18 @@ public class SeatServiceImpl implements SeatService {
             
             for (int c = 1; c <= cols; c++) {
                 Seat seat = new Seat();
-                seat.setSeat_group_id(seat_group_id);
-                seat.setSeat_grade_id(1);        // ★ 추가 (기본 등급, 예: A석)
+                
+                // 직접 ID를 세팅하는 대신 SeatGroup 객체를 생성해서 세팅
+                SeatGroup seatGroup = new SeatGroup();
+                seatGroup.setSeat_group_id(seat_group_id);
+                seat.setSeatGroup(seatGroup); 
+                
+                seat.setSeat_grade_id(1); 
                 seat.setSeat_x(String.valueOf(rowName));
                 seat.setSeat_y(c);
                 seat.setSeat_name(rowName + String.valueOf(c));
                 seat.setFloor(1);
-                seat.setSeat_state("AVAILABLE"); // ★ 변경 (영문 enum)
+                seat.setSeat_state("AVAILABLE");
 
                 seatDAO.insert(seat);
             }
