@@ -8,6 +8,11 @@
 		<typeAlias type = "com.ch.tickethub.dto.Work" alias = "Work"/>
 		<typeAlias type = "com.ch.tickethub.dto.Genre" alias = "Genre"/>
 		<typeAlias type = "com.ch.tickethub.dto.Round" alias = "Round"/>
+		<typeAlias type = "com.ch.tickethub.dto.Grade" alias = "Grade"/>
+		<typeAlias type = "com.ch.tickethub.dto.GradeBenefit" alias = "GradeBenefit"/>
+		<typeAlias type = "com.ch.tickethub.dto.GradeRule" alias = "GradeRule"/>
+		<typeAlias type = "com.ch.tickethub.dto.Member" alias = "Member"/>
+		
 	</typeAliases>
 
 	<mappers>
@@ -17,6 +22,9 @@
 		<mapper resource = "com/ch/tickethub/config/mybatis/WorkMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/GenreMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/RoundMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/GradeMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/GradeBenefitMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/GradeRuleMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/MemberMapper.xml"/>
 	</mappers>
-	
 </configuration>
