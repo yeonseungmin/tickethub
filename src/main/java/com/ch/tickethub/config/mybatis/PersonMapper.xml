@@ -15,4 +15,10 @@
 		order by person_id desc
 	</select>
 	
+	<select id="select" resultType="Person">
+		select person_id, person_name, profile_url from Person
+		where person_id = #{person_id}
+		order by person_id desc
+	</select>
+	
 </mapper>

@@ -81,18 +81,17 @@
     </style>
 </head>
 <body class="layout-top-nav" style="background-color: #ffffff;">
-<%System.out.println(work); %>
+<% System.out.println(work); %>
 <div class="wrapper">
     <div class="content-wrapper">
         <div class="container pt-5">
             <div class="row">
-                
                 <div class="col-lg-8">
                     
                     <div class="mb-4 pb-3 border-bottom">
-                        <h1 class="font-weight-bold mb-2" style="font-size: 32px;">뮤지컬 &lt;레미제라블&gt;</h1>
+                        <h1 class="font-weight-bold mb-2" style="font-size: 32px;"><%=work.getWork_title() %></h1>
                         <div class="d-flex align-items-center">
-                            <span class="badge badge-warning text-white mr-2 px-2 py-1" style="font-size: 14px;">뮤지컬 1위</span>
+                            <span class="badge badge-warning text-white mr-2 px-2 py-1" style="font-size: 14px;"><%=work.getGenre().getGenre_name() %> 1위</span>
                             <span class="text-warning mr-1"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></span>
                             <span class="font-weight-bold text-dark" style="font-size: 18px;">9.8</span>
                             <span class="text-muted ml-2 text-sm">(리뷰 1,240개)</span>
@@ -102,11 +101,11 @@
                     <div class="row mb-5">
                         
                         <div class="col-md-4">
-                            <img src="./데스노트1.gif" class="img-fluid rounded shadow" style="width: 100%;">
+                            <img src="/photo/work/p<%=work.getWork_id() %>/<%=work.getWork_poster_url() %>" class="img-fluid rounded shadow" style="width: 100%;">
                             
                             <div class="btn-like-wrapper">
                                 <button class="btn btn-like" onclick="toggleLike(this)">
-                                    <i class="far fa-heart mr-1"></i> <span id="likeCount">1,240</span>
+                                    <i class="far fa-heart mr-1"></i> <span id="likeCount"><%=work.getWork_like_count() %></span>
                                 </button>
                             </div>
                         </div>
@@ -189,7 +188,7 @@
 
                                     <div class="text-center py-4">
                                         <h5 class="font-weight-bold mb-3 text-left pl-3">공연 상세 내용</h5>
-                                        <img src="./데스노트2.jpg" class="img-fluid border">
+                                        <img src="/photo/work/p<%=work.getWork_id() %>/<%=work.getWork_content_url() %>" class="img-fluid border">
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="content-casting"><div id="ajax-casting-area" class="py-5 text-center"><i class="fas fa-spinner fa-spin fa-2x"></i></div></div>
