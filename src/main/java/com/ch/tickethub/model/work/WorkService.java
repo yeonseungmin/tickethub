@@ -12,4 +12,5 @@ public interface WorkService {
 	public Work getWork(int work_id);
 	
 	public void cancelUpload(Work work);
+	public List getUniqueCasting(Work work);
 }

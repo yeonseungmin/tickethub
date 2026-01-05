@@ -1,8 +1,11 @@
+<%@page import="com.ch.tickethub.dto.RoundCasting"%>
+<%@page import="java.util.List"%>
 <%@page import="com.ch.tickethub.dto.Work"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%
 	Work work = (Work)request.getAttribute("work");
+	List<RoundCasting> uniqueCastingList = (List)request.getAttribute("uniqueCastingList");
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -115,21 +118,21 @@
                                 <li>
                                     <span class="info-label">장소</span>
                                     <span class="info-content d-inline-flex align-items-center">
-                                        <span>블루스퀘어 신한카드홀</span>
+                                        <span>블루스퀘어 </span>
                                         <button class="btn btn-xs btn-outline-secondary ml-2 rounded-circle" onclick="openPlacePopup()" title="지도 보기"><i class="fas fa-map-marker-alt"></i></button>
                                     </span>
                                 </li>
                                 <li>
                                     <span class="info-label">공연기간</span>
-                                    <span class="info-content">2025.12.01 ~ 2026.02.28</span>
+                                    <span class="info-content"><%=work.getWork_start_date() %> ~ <%=work.getWork_end_date() %></span>
                                 </li>
                                 <li>
                                     <span class="info-label">공연시간</span>
-                                    <span class="info-content">180분 (인터미션 20분)</span>
+                                    <span class="info-content"><%=work.getRunning_time() %>분 (인터미션 20분)</span>
                                 </li>
                                 <li>
                                     <span class="info-label">관람연령</span>
-                                    <span class="info-content">8세 이상 관람가</span>
+                                    <span class="info-content"><%=work.getAge_limit() %>세 이상 관람가</span>
                                 </li>
                                 <li>
                                     <span class="info-label">가격</span>
@@ -139,10 +142,6 @@
                                         S석 <span class="price-emphasis">110,000</span>원 <br>
                                         A석 <span class="price-emphasis">80,000</span>원
                                     </span>
-                                </li>
-                                <li>
-                                    <span class="info-label">주최/기획</span>
-                                    <span class="info-content">레미제라블코리아</span>
                                 </li>
                             </ul>
                         </div>
@@ -172,12 +171,9 @@
                                     <div class="p-4 bg-light mb-4">
                                         <h5 class="font-weight-bold mb-3">캐스팅</h5>
                                         <div class="casting-container" id="castingList">
-                                            <div class="cast-member"><img src="https://via.placeholder.com/80" class="cast-img"><div class="font-weight-bold text-sm">장발장</div><div class="text-muted text-xs">홍길동</div></div>
-                                            <div class="cast-member"><img src="https://via.placeholder.com/80" class="cast-img"><div class="font-weight-bold text-sm">자베르</div><div class="text-muted text-xs">김철수</div></div>
-                                            <div class="cast-member"><img src="https://via.placeholder.com/80" class="cast-img"><div class="font-weight-bold text-sm">팡틴</div><div class="text-muted text-xs">이영희</div></div>
-                                            <div class="cast-member"><img src="https://via.placeholder.com/80" class="cast-img"><div class="font-weight-bold text-sm">코제트</div><div class="text-muted text-xs">박민수</div></div>
-                                            <div class="cast-member"><img src="https://via.placeholder.com/80" class="cast-img"><div class="font-weight-bold text-sm">마리우스</div><div class="text-muted text-xs">최지우</div></div>
-                                            <div class="cast-member"><img src="https://via.placeholder.com/80" class="cast-img"><div class="font-weight-bold text-sm">앙졸라</div><div class="text-muted text-xs">정재영</div></div>
+                                        <%for(RoundCasting roundCasting : uniqueCastingList) { %>
+                                            <div class="cast-member"><img src="/photo/person/p<%=roundCasting.getPerson().getPerson_id() %>/<%=roundCasting.getPerson().getProfile_url() %>" class="cast-img"><div class="font-weight-bold text-sm"><%=roundCasting.getRole() %></div><div class="text-muted text-xs"><%=roundCasting.getPerson().getPerson_name() %></div></div>
+										<%} %>
                                         </div>
                                         <div class="text-center mt-2">
                                             <button type="button" class="btn btn-sm btn-outline-secondary" id="btnMoreCasting" style="width: 200px; border-radius: 20px;">
