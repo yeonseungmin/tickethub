@@ -14,77 +14,154 @@
     <title>공연 상세 정보</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    
-    <style>
-        /* [스타일] Sticky Sidebar */
-        .sticky-sidebar { position: -webkit-sticky; position: sticky; top: 20px; z-index: 1000; }
-
-        /* [스타일] 탭 메뉴 커스텀 */
-        .custom-tabs .nav-link { color: #333; font-weight: 600; border-radius: 0; }
-        .custom-tabs .nav-link.active { color: #007bff !important; border-top: 3px solid #007bff; background-color: #fff; }
-
-        /* [스타일] 달력 */
-        .calendar-table { width: 100%; text-align: center; font-size: 14px; }
-        .calendar-table th { padding: 8px 0; font-weight: normal; }
-        .calendar-table th.sun { color: #dc3545; }
-        .calendar-day {
-            padding: 8px; cursor: pointer; border-radius: 50%; width: 35px; height: 35px; line-height: 19px; margin: 2px auto;
-        }
-        .calendar-day:hover:not(.disabled) { background-color: #f0f0f0; }
-        .calendar-day.disabled { color: #ccc; cursor: default; }
-        .calendar-day.sun:not(.disabled) { color: #dc3545; }
-        .calendar-day.active {
-            background-color: #007bff; color: white !important; font-weight: bold; box-shadow: 0 2px 5px rgba(0,123,255,0.4);
-        }
-
-        /* [스타일] 회차 선택 버튼 */
-        .btn-round-select {
-            border: 1px solid #ccc; color: #888; background-color: white; margin-right: 5px; margin-bottom: 5px; width: 80px;
-        }
-        .btn-round-select.active {
-            border: 2px solid #007bff !important; color: #007bff !important; font-weight: bold;
-        }
-
-        /* [스타일] 상세 정보 리스트 */
-        .info-list li {
-            margin-bottom: 16px; 
-            font-size: 15px; 
-            border-bottom: 1px solid #f9f9f9; 
-            padding-bottom: 16px;
-        }
-        .info-list li:last-child { border-bottom: none; }
-        .info-label { display: inline-block; width: 80px; font-weight: bold; color: #555; vertical-align: top; margin-top: 2px; }
-        
-        /* info-content: 기본적으로 inline-block이지만, 장소 등에서 flex 필요시 유틸리티 클래스 추가 사용 */
-        .info-content { display: inline-block; width: calc(100% - 90px); vertical-align: top; line-height: 1.6; }
-        
-        /* 가격 강조 스타일 */
-        .price-emphasis { font-weight: 700; font-size: 1.1em; color: #333; margin-right: 2px; }
-
-        /* [스타일] 캐스팅 리스트 (본문용) */
-        .cast-member { text-align: center; margin-right: 20px; margin-bottom: 20px; width: 90px; display: inline-block; vertical-align: top;}
-        .cast-img { width: 80px; height: 80px; object-fit: cover; border-radius: 50%; border: 1px solid #eee; margin-bottom: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .casting-container { max-height: 140px; overflow: hidden; transition: max-height 0.5s ease; }
-        .casting-container.expanded { max-height: 2000px; }
-
-        /* [스타일] 좋아요 버튼 */
-        .btn-like-wrapper { margin-top: 15px; text-align: center; }
-        .btn-like {
-            border: none; background: transparent; padding: 5px 10px; color: #555; font-weight: bold; font-size: 1.1em;
-            transition: transform 0.2s;
-        }
-        .btn-like:hover { transform: scale(1.1); color: #dc3545; }
-        .btn-like.active { color: #dc3545; }
-        
-        /* [스타일] 사이드바 컴팩트 텍스트 */
-        .sidebar-compact-text { font-size: 14px; line-height: 1.6; color: #333; }
-        .text-soldout { color: #aaa !important; text-decoration: line-through; }
-        .divider-slash { color: #ddd; margin: 0 5px; }
-
-    </style>
+	<link rel="stylesheet" href="/static/assets/css/detail.css">
 </head>
 <body class="layout-top-nav" style="background-color: #ffffff;">
 <% System.out.println(work); %>
+<script src="/static/assets/js/Util.js"></script>
+<script>
+	let currentDate;
+	
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // 1. 좋아요 버튼 토글
+    function toggleLike(btn) {
+        $(btn).toggleClass("active");
+        let $icon = $(btn).find('i');
+        let $count = $("#likeCount");
+        let currentVal = parseInt($count.text().replace(/,/g, ''));
+
+        if($(btn).hasClass("active")) {
+            $icon.removeClass('far').addClass('fas');
+            $count.text((currentVal + 1).toLocaleString());
+        } else {
+            $icon.removeClass('fas').addClass('far');
+            $count.text((currentVal - 1).toLocaleString());
+        }
+    }
+
+    // 2. 캐스팅 더보기
+    $("#btnMoreCasting").click(function() {
+        $("#castingList").toggleClass("expanded");
+        let isExpanded = $("#castingList").hasClass("expanded");
+        $(this).html(isExpanded ? '캐스팅 접기 <i class="fas fa-chevron-up"></i>' : '캐스팅 더보기 <i class="fas fa-chevron-down"></i>');
+    });
+
+    // 3. 회차 선택 (시뮬레이션)
+    function selectRound(element, roundId) {
+        $(".btn-round-select").removeClass("active");
+        $(element).addClass("active");
+        
+        updateSideInfo(roundId);
+    }
+
+    function updateSideInfo(roundId) {
+        if (roundId === 1) { // 14:00
+            $("#seat-info-area .sidebar-compact-text").html(`
+                <span class="font-weight-bold">VIP</span> <span class="text-soldout">매진</span> <span class="divider-slash">/</span> 
+                <span class="font-weight-bold">R</span> 5석 <span class="divider-slash">/</span> 
+                <span class="font-weight-bold">S</span> 20석 <span class="divider-slash">/</span> 
+                <span class="font-weight-bold">A</span> 50석
+            `);
+            $("#daily-casting-area").text("홍길동, 김철수, 이영희, 박민수, 최지우");
+        } else { // 19:00
+             $("#seat-info-area .sidebar-compact-text").html(`
+                <span class="font-weight-bold">VIP</span> 5석 <span class="divider-slash">/</span> 
+                <span class="font-weight-bold">R</span> 10석 <span class="divider-slash">/</span> 
+                <span class="font-weight-bold">S</span> 100석 <span class="divider-slash">/</span> 
+                <span class="font-weight-bold">A</span> <span class="text-soldout">매진</span>
+            `);
+             $("#daily-casting-area").text("정재영, 홍길동, 박민수, 김영철, 하니");
+        }
+    }
+    
+
+	$(document).on("click", ".calendar-day:not(.disabled)", function() {
+		
+		$(".calendar-day").removeClass("active");
+		$(this).addClass("active");
+	     
+	});
+    
+    // new Date("2025-11-09")	work_start_date work_end_date 쓸 때 참조
+
+	
+    
+    function getDayOfWeek(yy, mm, dd){
+    	// 0 일요일
+        let d = new Date(yy, mm, dd);
+        /*
+            생성자가 아닌 아래의 메서드로도 동일한 효과 남
+            d.setFullYear(yy);
+            d.setMonth(mm);
+            d.setDate(1);
+        */
+        return d.getDay();  // 조작한 객체로부터 요일을 구한다..
+    }
+
+    /*
+        해당 월의 총 일수 (예 - 12월은 31일까지임)
+            1) 해당 월보다 1 큰(다음날) 달로 이동 (조작)
+            2) 조작된 월을 대상으로 0일로 또 조작 (결국 0일은 이전 달의 마지막 날을 의미하게 되므로, 원하는 결과 구할 수 있음)
+    */
+   function getTotalDate(yy, mm) {
+        let d = new Date(yy, mm + 1, 0);
+        return d.getDate();     // 조작된 날짜 객체에게 며칠인지 물어본다.
+   }
+            
+	/*
+		달력 셀에 실제 날짜 뿌리기
+	*/
+        
+	function printCalendar(yy, mm){
+		let n = 0;		// 현재 박스의 순번을 알기 위한 변수
+		let num = 1;	// 실제 날짜에 사용할 변수
+		let tag = "";
+		//<td><div class="calendar-day sun active">4</div></td> <td><div class="calendar-day">5</div></td>
+		//<td><div class="calendar-day">6</div></td><td><div class="calendar-day">7</div></td>
+		//<td><div class="calendar-day">8</div></td><td><div class="calendar-day">9</div></td>
+		//<td><div class="calendar-day">10</div></td>
+		for(let i = 0; i < 6; i++){
+			tag += "<tr>";
+    		for(let j = 0; j < 7; j++){
+    			tag += "<td>";
+    			tag +="<div class='calendar-day";
+    			if(getDayOfWeek(yy, mm, num) == 0){
+    				tag += " sun";
+    			}
+       			// 이미 존재하는 박스의 셀에 출력
+				if(n >=getDayOfWeek(yy, mm, 1) && num <= getTotalDate(yy, mm)){   // 순번용 변수인 n이 각월의 시작 요일에 도달할 때부터~~
+					tag += "'>" + num;
+					
+					num++;
+				}else{
+					//<td><div class="calendar-day disabled sun">28</div></td>
+					tag += " disabled'>";
+				}
+    			tag += "</div></td>";
+				n++;
+			}
+    		tag += "</tr>";
+		}
+		
+		$(".calendar-table tbody").html(tag);
+	}
+    
+    function setTitle(){
+    	$(".calendar-title").html(currentDate.getFullYear() + "." + getZeroNum(currentDate.getMonth() + 1));
+    }
+    
+    $(()=>{
+    	currentDate = new Date();
+    	
+    	setTitle();
+    	printCalendar(currentDate.getFullYear(), currentDate.getMonth());
+    })
+</script>
 <div class="wrapper">
     <div class="content-wrapper">
         <div class="container pt-5">
@@ -203,7 +280,7 @@
                             <div class="card-body p-3">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <button class="btn btn-sm btn-light rounded-circle"><i class="fas fa-chevron-left"></i></button>
-                                    <h5 class="m-0 font-weight-bold">2026.01</h5>
+                                    <h5 class="m-0 font-weight-bold calendar-title"></h5>
                                     <button class="btn btn-sm btn-light rounded-circle"><i class="fas fa-chevron-right"></i></button>
                                 </div>
                                 <table class="calendar-table">
@@ -211,7 +288,7 @@
                                         <tr><th class="sun">일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
+<!--                                   <tr>
                                             <td><div class="calendar-day disabled sun">28</div></td><td><div class="calendar-day disabled">29</div></td><td><div class="calendar-day disabled">30</div></td><td><div class="calendar-day disabled">31</div></td><td><div class="calendar-day">1</div></td><td><div class="calendar-day">2</div></td><td><div class="calendar-day">3</div></td>
                                         </tr>
                                         <tr>
@@ -225,7 +302,8 @@
                                         </tr>
                                         <tr>
                                             <td><div class="calendar-day sun">25</div></td><td><div class="calendar-day">26</div></td><td><div class="calendar-day">27</div></td><td><div class="calendar-day">28</div></td><td><div class="calendar-day">29</div></td><td><div class="calendar-day">30</div></td><td><div class="calendar-day">31</div></td>
-                                        </tr>
+                                        </tr> -->
+                                        
                                     </tbody>
                                 </table>
                             </div>
@@ -269,67 +347,6 @@
         </div>
     </div>
 </div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-    // 1. 좋아요 버튼 토글
-    function toggleLike(btn) {
-        $(btn).toggleClass("active");
-        let $icon = $(btn).find('i');
-        let $count = $("#likeCount");
-        let currentVal = parseInt($count.text().replace(/,/g, ''));
-
-        if($(btn).hasClass("active")) {
-            $icon.removeClass('far').addClass('fas');
-            $count.text((currentVal + 1).toLocaleString());
-        } else {
-            $icon.removeClass('fas').addClass('far');
-            $count.text((currentVal - 1).toLocaleString());
-        }
-    }
-
-    // 2. 캐스팅 더보기
-    $("#btnMoreCasting").click(function() {
-        $("#castingList").toggleClass("expanded");
-        let isExpanded = $("#castingList").hasClass("expanded");
-        $(this).html(isExpanded ? '캐스팅 접기 <i class="fas fa-chevron-up"></i>' : '캐스팅 더보기 <i class="fas fa-chevron-down"></i>');
-    });
-
-    // 3. 회차 선택 (시뮬레이션)
-    function selectRound(element, roundId) {
-        $(".btn-round-select").removeClass("active");
-        $(element).addClass("active");
-        
-        updateSideInfo(roundId);
-    }
-
-    function updateSideInfo(roundId) {
-        if (roundId === 1) { // 14:00
-            $("#seat-info-area .sidebar-compact-text").html(`
-                <span class="font-weight-bold">VIP</span> <span class="text-soldout">매진</span> <span class="divider-slash">/</span> 
-                <span class="font-weight-bold">R</span> 5석 <span class="divider-slash">/</span> 
-                <span class="font-weight-bold">S</span> 20석 <span class="divider-slash">/</span> 
-                <span class="font-weight-bold">A</span> 50석
-            `);
-            $("#daily-casting-area").text("홍길동, 김철수, 이영희, 박민수, 최지우");
-        } else { // 19:00
-             $("#seat-info-area .sidebar-compact-text").html(`
-                <span class="font-weight-bold">VIP</span> 5석 <span class="divider-slash">/</span> 
-                <span class="font-weight-bold">R</span> 10석 <span class="divider-slash">/</span> 
-                <span class="font-weight-bold">S</span> 100석 <span class="divider-slash">/</span> 
-                <span class="font-weight-bold">A</span> <span class="text-soldout">매진</span>
-            `);
-             $("#daily-casting-area").text("정재영, 홍길동, 박민수, 김영철, 하니");
-        }
-    }
-
-    $(".calendar-day").not(".disabled").click(function() {
-        $(".calendar-day").removeClass("active");
-        $(this).addClass("active");
-    });
-</script>
 
 </body>
 </html>

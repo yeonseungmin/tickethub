@@ -1,0 +1,64 @@
+/* [스타일] Sticky Sidebar */
+.sticky-sidebar { position: -webkit-sticky; position: sticky; top: 20px; z-index: 1000; }
+
+/* [스타일] 탭 메뉴 커스텀 */
+.custom-tabs .nav-link { color: #333; font-weight: 600; border-radius: 0; }
+.custom-tabs .nav-link.active { color: #007bff !important; border-top: 3px solid #007bff; background-color: #fff; }
+
+/* [스타일] 달력 */
+.calendar-table { width: 100%; text-align: center; font-size: 14px; }
+.calendar-table th { padding: 8px 0; font-weight: normal; }
+.calendar-table th.sun { color: #dc3545; }
+.calendar-day {
+    padding: 8px; cursor: pointer; border-radius: 50%; width: 35px; height: 35px; line-height: 19px; margin: 2px auto;
+}
+.calendar-day:hover:not(.disabled) { background-color: #f0f0f0; }
+.calendar-day.disabled { color: #ccc; cursor: default; }
+.calendar-day.sun:not(.disabled) { color: #dc3545; }
+.calendar-day.active {
+    background-color: #007bff; color: white !important; font-weight: bold; box-shadow: 0 2px 5px rgba(0,123,255,0.4);
+}
+
+/* [스타일] 회차 선택 버튼 */
+.btn-round-select {
+    border: 1px solid #ccc; color: #888; background-color: white; margin-right: 5px; margin-bottom: 5px; width: 80px;
+}
+.btn-round-select.active {
+    border: 2px solid #007bff !important; color: #007bff !important; font-weight: bold;
+}
+
+/* [스타일] 상세 정보 리스트 */
+.info-list li {
+    margin-bottom: 16px; 
+    font-size: 15px; 
+    border-bottom: 1px solid #f9f9f9; 
+    padding-bottom: 16px;
+}
+.info-list li:last-child { border-bottom: none; }
+.info-label { display: inline-block; width: 80px; font-weight: bold; color: #555; vertical-align: top; margin-top: 2px; }
+
+/* info-content: 기본적으로 inline-block이지만, 장소 등에서 flex 필요시 유틸리티 클래스 추가 사용 */
+.info-content { display: inline-block; width: calc(100% - 90px); vertical-align: top; line-height: 1.6; }
+
+/* 가격 강조 스타일 */
+.price-emphasis { font-weight: 700; font-size: 1.1em; color: #333; margin-right: 2px; }
+
+/* [스타일] 캐스팅 리스트 (본문용) */
+.cast-member { text-align: center; margin-right: 20px; margin-bottom: 20px; width: 90px; display: inline-block; vertical-align: top;}
+.cast-img { width: 80px; height: 80px; object-fit: cover; border-radius: 50%; border: 1px solid #eee; margin-bottom: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.casting-container { max-height: 140px; overflow: hidden; transition: max-height 0.5s ease; }
+.casting-container.expanded { max-height: 2000px; }
+
+/* [스타일] 좋아요 버튼 */
+.btn-like-wrapper { margin-top: 15px; text-align: center; }
+.btn-like {
+    border: none; background: transparent; padding: 5px 10px; color: #555; font-weight: bold; font-size: 1.1em;
+    transition: transform 0.2s;
+}
+.btn-like:hover { transform: scale(1.1); color: #dc3545; }
+.btn-like.active { color: #dc3545; }
+
+/* [스타일] 사이드바 컴팩트 텍스트 */
+.sidebar-compact-text { font-size: 14px; line-height: 1.6; color: #333; }
+.text-soldout { color: #aaa !important; text-decoration: line-through; }
+.divider-slash { color: #ddd; margin: 0 5px; }
