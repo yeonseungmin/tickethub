@@ -18,6 +18,7 @@
 	<link rel="stylesheet" href="/static/assets/css/detail.css">
 </head>
 <body class="layout-top-nav" style="background-color: #ffffff;">
+<% System.out.println(uniqueCastingList); %>
 <% System.out.println(jsonWork); %>
 <script src="/static/assets/js/Util.js"></script>
 <script>
@@ -49,12 +50,6 @@
         }
     }
 
-    // 2. 캐스팅 더보기
-    $("#btnMoreCasting").click(function() {
-        $("#castingList").toggleClass("expanded");
-        let isExpanded = $("#castingList").hasClass("expanded");
-        $(this).html(isExpanded ? '캐스팅 접기 <i class="fas fa-chevron-up"></i>' : '캐스팅 더보기 <i class="fas fa-chevron-down"></i>');
-    });
 
     // 3. 회차 선택 (시뮬레이션)
     function selectRound(element, roundId) {
@@ -118,12 +113,17 @@
         return d.getDate();     // 조작된 날짜 객체에게 며칠인지 물어본다.
    }
 	
-	function formatYMD(yyyy, mm, dd){
+	function formatYMD(yyyy, mm, dd) {
 		let m = mm + 1;
 		m = getZeroNum(m);
 		dd = getZeroNum(dd);
 		
 		return yyyy + "-" + m + "-" + dd;
+	}
+	
+	function validateRoundStartTime(round_date_time){
+		
+		return new Date(round_date_time) > new Date();
 	}
             
 	/*
@@ -133,6 +133,7 @@
 	function printCalendar(yy, mm){
 		let n = 0;		// 현재 박스의 순번을 알기 위한 변수
 		let num = 1;	// 실제 날짜에 사용할 변수
+		let isFirstDate = true;
 		let tag = "";
 		//<td><div class="calendar-day sun active">4</div></td> <td><div class="calendar-day">5</div></td>
 		//<td><div class="calendar-day">6</div></td><td><div class="calendar-day">7</div></td>
@@ -152,7 +153,11 @@
 					let isSame = false;
 				
 					for(let round of work.roundList){
-						if(!round.is_cancelled && checkDate == round.round_date){
+						if(!round.is_cancelled && checkDate == round.round_date && validateRoundStartTime(round.round_date +" " + round.round_start_time)){
+							if(isFirstDate){
+								tag += " active";
+								isFirstDate = false;
+							}
 							isSame = true;
 							break;
 						}
@@ -198,7 +203,7 @@
         }
     } */
     
-    function updateNavButtons() {
+    function updateDisabledButton() {
         // .prop("disabled", true/false)를 사용합니다.
         $(".btn-left").prop("disabled", !validateBtnLeft());
         $(".btn-right").prop("disabled", !validateBtnRight());
@@ -227,7 +232,7 @@
     		
     		setTitle();
     		printCalendar(currentDate.getFullYear(), currentDate.getMonth());
-    		updateNavButtons();
+    		updateDisabledButton();
     	}
     }
     
@@ -238,7 +243,7 @@
     		
     		setTitle();
     		printCalendar(currentDate.getFullYear(), currentDate.getMonth());
-    		updateNavButtons();
+    		updateDisabledButton();
     	}
     }
     
@@ -249,7 +254,7 @@
     	
     	setTitle();
     	printCalendar(currentDate.getFullYear(), currentDate.getMonth());
-    	updateNavButtons();
+    	updateDisabledButton();
     	
     	$(".btn-left").click(()=>{
     		prev();
@@ -258,6 +263,13 @@
     	$(".btn-right").click(()=>{
     		next();
     	});
+    	
+        // 캐스팅 더보기
+        $("#btnMoreCasting").click(function() {
+            $("#castingList").toggleClass("expanded");
+            let isExpanded = $("#castingList").hasClass("expanded");
+            $(this).html(isExpanded ? '캐스팅 접기 <i class="fas fa-chevron-up"></i>' : '캐스팅 더보기 <i class="fas fa-chevron-down"></i>');
+        });
     })
 </script>
 <div class="wrapper">
