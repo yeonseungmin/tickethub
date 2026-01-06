@@ -1,7 +1,7 @@
 package com.ch.tickethub.controller.admin.performance;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +12,16 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.ch.tickethub.dto.Round;
+import com.ch.tickethub.exception.RoundCastingException;
 import com.ch.tickethub.exception.RoundException;
 import com.ch.tickethub.exception.UploadException;
+import com.ch.tickethub.model.round.RoundService;
+import com.ch.tickethub.request.Casting;
+import com.ch.tickethub.request.RoundDetail;
+import com.ch.tickethub.request.RoundRegistRequest;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RoundController {
 	
 	@Autowired
+	RoundService roundService;
 
 	@GetMapping("/performance/round")
 	public String person() {
@@ -41,13 +46,14 @@ public class RoundController {
 	
 	@PostMapping("/performance/round/regist")
 	@ResponseBody
-	public Map<String, String> regist(Round round, @RequestParam("round_start_time") List<String> roundStartTimeList){
-		log.debug("round_date " + round.getRound_date());
-		log.debug("place_id " + round.getPlace().getPlace_id());
-		log.debug("work_id " + round.getWork().getWork_id());
+	public Map<String, String> regist(@RequestBody RoundRegistRequest roundRegistRequest){
+		//log.debug("수신 데이터: {}", roundRegistRequest);
 		
-		for(String roundStartTime : roundStartTimeList) {
-			log.debug("round_start_time " + roundStartTime);
+		try {
+			roundService.regist(roundRegistRequest);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
 		}
 		
 		Map<String, String> body = new HashMap<>();
@@ -64,7 +70,7 @@ public class RoundController {
 	}
 	
 	// MissingServletRequestParameterException.class 값을 제대로 입력 받지 못했을 때의 에러. 난 이것도 처리했다.
-	@ExceptionHandler({RoundException.class, UploadException.class, MissingServletRequestParameterException.class})
+	@ExceptionHandler({RoundException.class, UploadException.class, MissingServletRequestParameterException.class, RoundCastingException.class, SQLIntegrityConstraintViolationException.class})
 	@ResponseBody
 	public ResponseEntity<Map<String, String>> handle(Exception e){
 		log.debug("회차 등록 시 예외가 발생하여, handler 메서드가 호출됨");

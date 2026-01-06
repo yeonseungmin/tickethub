@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="SeatGroup">
+
+
+    <resultMap id="seatGroupMap"				type="SeatGroup">
+        <id column="seat_group_id" 				property="seat_group_id"/>
+        <result column="place_id"				 	property="place_id"/>
+        <result column="group_name" 			property="group_name"/>
+        <result column="pos_x" 					property="pos_x"/>
+        <result column="pos_y" 					property="pos_y"/>
+        <result column="row_gap" 				property="row_gap"/>
+        <result column="col_gap" 					property="col_gap"/>
+        <result column="direction" 				property="direction"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="SeatGroup" useGeneratedKeys="true" keyProperty="seat_group_id">
+        INSERT INTO seat_group
+        (place_id, group_name, pos_x, pos_y, row_gap, col_gap, direction)
+        VALUES
+        (#{place_id}, #{group_name}, #{pos_x}, #{pos_y}, #{row_gap}, #{col_gap}, #{direction})
+    </insert>
+
+    <select id="selectByPlace" parameterType="int" resultMap="seatGroupMap">
+        SELECT * FROM seat_group WHERE place_id = #{place_id} ORDER BY seat_group_id
+    </select>
+
+    <select id="select" parameterType="int" resultMap="seatGroupMap">
+        SELECT * FROM seat_group WHERE seat_group_id = #{seat_group_id}
+    </select>
+
+    <update id="updatePosition" parameterType="map">
+        UPDATE seat_group
+        SET pos_x = #{pos_x}, pos_y = #{pos_y}
+        WHERE seat_group_id = #{seat_group_id}
+    </update>
+
+    <update id="updateLayout" parameterType="map">
+        UPDATE seat_group
+        SET row_gap = #{row_gap}, col_gap = #{col_gap}, direction = #{direction}
+        WHERE seat_group_id = #{seat_group_id}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM seat_group WHERE seat_group_id = #{seat_group_id}
+    </delete>
+
+</mapper>

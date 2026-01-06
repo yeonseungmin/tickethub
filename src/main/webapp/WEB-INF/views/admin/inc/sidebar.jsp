@@ -76,12 +76,6 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a href="#" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>회차별 캐스팅 관리</p>
-                </a>
-              </li>
-              <li class="nav-item">
                 <a href="./index3.html" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>댓글 관리</p>
@@ -119,6 +113,24 @@
               </li>
             </ul>
           </li>
+          
+		<li class="nav-item menu-open seat">
+		  <a href="#" class="nav-link active">
+		    <i class="nav-icon fas fa-tachometer-alt"></i>
+		    <p>
+		      좌석관리
+		      <i class="right fas fa-angle-left"></i>
+		    </p>
+		  </a>
+		  <ul class="nav nav-treeview">
+		    <li class="nav-item">
+		      <a href="#" class="nav-link">
+		        <i class="far fa-circle nav-icon"></i>
+		        <p>좌석상태관리</p>
+		      </a>
+		    </li>
+		  </ul>
+		</li>
                        
           <li class="nav-item menu">
             <a href="#" class="nav-link active">

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ch.tickethub.dto.Person;
 import com.ch.tickethub.exception.PersonException;
 import com.ch.tickethub.exception.UploadException;
 import com.ch.tickethub.model.person.PersonService;
@@ -49,10 +50,6 @@ public class PersonController {
 			@RequestParam("person_name") List<String> nameList,
 			@RequestParam("profile_img") List<MultipartFile> imgList) {
 		
-		for(String name : nameList) {
-			log.debug("이름 " + name);
-		}
-		
 		for(MultipartFile img : imgList) {
 			log.debug("프로필 이미지명은 " + img.getOriginalFilename());	
 		}
@@ -75,6 +72,13 @@ public class PersonController {
 	public String getListPage() {
 		
 		return "admin/performance/person/list";
+	}
+	
+	@GetMapping("/performance/person/list")
+	@ResponseBody
+	public List<Person> getList() {
+		
+		return personService.getList();
 	}
 	
 	// MissingServletRequestParameterException.class 값을 제대로 입력 받지 못했을 때의 에러. 난 이것도 처리했다.
