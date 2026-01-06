@@ -4,9 +4,20 @@
 	<insert id="insert" parameterType="Person">
 		insert into Person(person_name, profile_url)
 		values(#{person_name}, #{profile_url})
+		
+		<selectKey keyColumn="person_id" resultType="int" order="AFTER" keyProperty="person_id">
+			select last_insert_id() as person_id
+		</selectKey>
 	</insert>
+	
 	<select id="selectAll" resultType="Person">
 		select person_id, person_name, profile_url from Person
+		order by person_id desc
+	</select>
+	
+	<select id="select" resultType="Person">
+		select person_id, person_name, profile_url from Person
+		where person_id = #{person_id}
 		order by person_id desc
 	</select>
 	

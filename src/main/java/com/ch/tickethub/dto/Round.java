@@ -1,5 +1,7 @@
 package com.ch.tickethub.dto;
 
+import java.util.List;
+
 import lombok.Data;
 
 @Data
@@ -11,4 +13,6 @@ public class Round {
 	
 	private Work work;
 	private Place place;
+	
+	private List<RoundCasting> roundCastingList;
 }

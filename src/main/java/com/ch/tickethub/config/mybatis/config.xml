@@ -13,6 +13,15 @@
 		<typeAlias type = "com.ch.tickethub.dto.GradeRule" alias = "GradeRule"/>
 		<typeAlias type = "com.ch.tickethub.dto.Member" alias = "Member"/>
 		
+		<typeAlias type = "com.ch.tickethub.dto.RoundCasting" alias = "RoundCasting"/>
+		<typeAlias type = "com.ch.tickethub.dto.Seat" alias = "Seat"/>
+		<typeAlias type = "com.ch.tickethub.dto.SeatGroup" alias = "SeatGroup"/>
+		<typeAlias type = "com.ch.tickethub.dto.RoundSeat" alias = "RoundSeat"/>
+		<typeAlias type = "com.ch.tickethub.dto.SeatDetail" alias = "SeatDetail"/>
+		<typeAlias type = "com.ch.tickethub.dto.Reservation" alias = "Reservation"/>
+		<typeAlias type = "com.ch.tickethub.dto.SeatGrade" alias = "SeatGrade"/>
+		<typeAlias type = "com.ch.tickethub.dto.DiscountDetail" alias = "DiscountDetail"/>
+
 	</typeAliases>
 
 	<mappers>
@@ -26,5 +35,13 @@
 		<mapper resource = "com/ch/tickethub/config/mybatis/GradeBenefitMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/GradeRuleMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/MemberMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/RoundCastingMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/SeatMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/SeatGroupMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/RoundSeatMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/ReservationMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/SeatGradeMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/DiscountDetailMapper.xml"/>
+		
 	</mappers>
 </configuration>
