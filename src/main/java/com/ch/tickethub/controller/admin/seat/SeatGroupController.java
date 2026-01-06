@@ -105,4 +105,16 @@ public class SeatGroupController {
             return "error: " + e.getMessage();
         }
     }
+    
+    /**
+     * ✅ 추가: 특정 공연장의 구역 목록을 JSON으로 반환 (AJAX용)
+     * 주소: /seatgroup/list?place_id=숫자
+     */
+    @GetMapping("/list")
+    @ResponseBody // 데이터를 JSON 형태로 반환하기 위해 필수
+    public List<SeatGroup> getGroupList(@RequestParam("place_id") int placeId) {
+        log.debug("구역 목록 요청 수신 - 장소 ID: {}", placeId);
+        // 이미 서비스에 구현된 getByPlace 메서드를 호출합니다.
+        return seatGroupService.getByPlace(placeId);
+    }
 }

@@ -92,13 +92,5 @@ public class WorkServiceImpl implements WorkService{
 		
 		return uniqueCastingList;
 	}
-	
-	@Override
-	public List<Work> getWorkListByPlace(int place_id) {
-	    if (place_id == 0) {
-	        return workDAO.selectAll(); // 장소 선택 안했을 땐 전체 조회
-	    }
-	    return workDAO.selectByPlace(place_id); // 장소별 조회
-	}
 
 }

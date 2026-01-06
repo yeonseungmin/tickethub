@@ -9,13 +9,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ch.tickethub.dto.RoundSeat;
 import com.ch.tickethub.dto.SeatDetail;
+import com.ch.tickethub.dto.Work;
 import com.ch.tickethub.exception.SeatException;
+import com.ch.tickethub.model.round.RoundDAO;
+import com.ch.tickethub.model.work.WorkDAO;
 
 @Service
 public class RoundSeatServiceImpl implements RoundSeatService {
 
     @Autowired
     private RoundSeatDAO roundSeatDAO;
+    @Autowired
+    private WorkDAO workDAO; 
+    @Autowired
+    private RoundDAO roundDAO;
 
     @Override
     public List<SeatDetail> getSeatDetailByRound(int round_id) {
@@ -86,5 +93,25 @@ public class RoundSeatServiceImpl implements RoundSeatService {
         rs.setReservation_id(null); 
 
         roundSeatDAO.updateStatus(rs);
+    }
+    
+    @Override // 이제 인터페이스와 규격이 맞아 에러가 사라집니다.
+    public int updateStatus(int roundId, int seatId, String status) {
+        com.ch.tickethub.dto.RoundSeat rs = new com.ch.tickethub.dto.RoundSeat();
+        rs.setRound_id(roundId);
+        rs.setSeat_id(seatId);
+        rs.setStatus(status);
+        return roundSeatDAO.updateStatus(rs);
+    }
+    @Override
+    public List<Work> getWorkListByPlace(int placeId) {
+        // placeId에 해당하는 공연 목록을 가져오는 DAO 메서드 호출
+        return workDAO.selectListByPlace(placeId); 
+    }
+
+    @Override
+    public List<com.ch.tickethub.dto.Round> getRoundListByWork(int workId) {
+        // workId에 해당하는 회차 목록을 가져오는 DAO 메서드 호출
+        return roundDAO.selectListByWork(workId);
     }
 }

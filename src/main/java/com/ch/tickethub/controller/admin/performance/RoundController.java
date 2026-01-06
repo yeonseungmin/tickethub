@@ -84,12 +84,12 @@ public class RoundController {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
 	}
 	
-	// 기존 코드에 추가
-	@GetMapping("/performance/round/list") // seat.jsp의 URL과 맞춤
-	@ResponseBody
-	public List<Round> getRoundList(@RequestParam int work_id) {
-	    // Service에 목록 조회 기능이 필요합니다.
-	    return roundService.getRoundListByWork(work_id);
-	}
+	// 회차 목록 AJAX 요청 처리 (404 해결용)
+		@GetMapping("/performance/round/list")
+		@ResponseBody
+		public List<Round> getRoundList(@RequestParam("work_id") int workId) {
+			log.debug("회차 목록 요청 수신 - 공연 ID: {}", workId);
+			return roundService.findByWorkId(workId);
+		}
 	
 }

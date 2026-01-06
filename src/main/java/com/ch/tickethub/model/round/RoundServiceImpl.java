@@ -12,7 +12,6 @@ import com.ch.tickethub.dto.Round;
 import com.ch.tickethub.dto.RoundCasting;
 import com.ch.tickethub.dto.Work;
 import com.ch.tickethub.exception.RoundException;
-import com.ch.tickethub.model.roundseat.RoundSeatService;
 import com.ch.tickethub.request.Casting;
 import com.ch.tickethub.request.RoundDetail;
 import com.ch.tickethub.request.RoundRegistRequest;
@@ -28,9 +27,6 @@ public class RoundServiceImpl implements RoundService{
 	
 	@Autowired
 	RoundCastingDAO roundCastingDAO;
-	
-	@Autowired
-    private RoundSeatService roundSeatService;
 	
 	@Transactional
 	@Override
@@ -64,14 +60,14 @@ public class RoundServiceImpl implements RoundService{
 				
 				roundCastingDAO.insert(roundCasting);
 			}
-			
 		}
 		
 	}
 	
-		@Override
-		public List<Round> getRoundListByWork(int work_id) {
-		    return roundDAO.selectByWorkId(work_id);
-		}
-		
+	
+	@Override
+	public List<Round> findByWorkId(int workId) {
+		return roundDAO.selectByWorkId(workId);
+	}
+
 }

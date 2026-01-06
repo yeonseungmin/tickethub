@@ -4,10 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.ch.tickethub.dto.Place;
 import com.ch.tickethub.dto.SeatGroup;
-import com.ch.tickethub.model.place.PlaceDAO;
 
 @Service
 public class SeatGroupServiceImpl implements SeatGroupService {
@@ -15,8 +12,11 @@ public class SeatGroupServiceImpl implements SeatGroupService {
     @Autowired
     private SeatGroupDAO seatGroupDAO;
     
+    // 이 클래스 내부에 있던 @GetMapping 메서드는 삭제되었습니다. (Controller로 이동)
+
     @Override
     public List<SeatGroup> getByPlace(int place_id) {
+        // 인터페이스 정의에 따라 getByPlace를 구현하며 DAO의 selectByPlace를 호출합니다.
         return seatGroupDAO.selectByPlace(place_id);
     }
 

@@ -13,6 +13,4 @@ public interface WorkService {
 	
 	public void cancelUpload(Work work);
 	public List getUniqueCasting(Work work);
-	
-	public List<Work> getWorkListByPlace(int place_id);
 }

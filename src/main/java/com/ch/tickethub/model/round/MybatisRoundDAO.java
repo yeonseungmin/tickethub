@@ -21,6 +21,14 @@ public class MybatisRoundDAO implements RoundDAO{
 
 	@Override
 	public List<Round> selectByWorkId(int work_id) {
-	    return sqlSessionTemplate.selectList("Round.selectByWorkId", work_id);
+		// RoundMapper.xml의 namespace="Round", id="selectByWorkId" 호출
+		return sqlSessionTemplate.selectList("Round.selectByWorkId", work_id);
 	}
+	
+	
+	@Override
+    public List<Round> selectListByWork(int workId) {
+        // XML의 namespace="Round"이고 id="selectListByWork"인 쿼리를 실행
+        return sqlSessionTemplate.selectList("Round.selectListByWork", workId);
+    }
 }

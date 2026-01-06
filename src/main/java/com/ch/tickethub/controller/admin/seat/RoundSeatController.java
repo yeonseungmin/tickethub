@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import com.ch.tickethub.dto.SeatDetail;
+import com.ch.tickethub.dto.Work;
 import com.ch.tickethub.model.roundseat.RoundSeatService;
 
 @Controller
@@ -65,5 +66,30 @@ public class RoundSeatController {
         } catch (Exception e) {
             return "error: " + e.getMessage();
         }
+    }
+    
+    @PostMapping("/updateStatus")
+    @ResponseBody
+    public String updateSeatStatus(@RequestParam("round_id") int roundId,@RequestParam("seat_id") int seatId, @RequestParam("status") String status) {
+        try {
+            int result = roundSeatService.updateStatus(roundId, seatId, status);
+            return (result > 0) ? "success" : "fail";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "error";
+        }
+    }
+ // RoundSeatController.java 내부에 추가
+    @GetMapping("/workList")
+    @ResponseBody
+    public List<Work> workList(@RequestParam("place_id") int placeId) {
+        // RoundSeatService에 해당 메서드가 구현되어 있어야 합니다.
+        return roundSeatService.getWorkListByPlace(placeId); 
+    }
+
+    @GetMapping("/roundList")
+    @ResponseBody
+    public List<com.ch.tickethub.dto.Round> roundList(@RequestParam("work_id") int workId) {
+        return roundSeatService.getRoundListByWork(workId);
     }
 }
