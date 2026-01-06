@@ -7,7 +7,7 @@
 	</insert>
 	
 	<sql id="sql_select">
-		select place_id, place_name, address, latitude, longitude from Place
+		select place_id, place_name, address, latitude, longitude from place
 	</sql>
 	
 	<select id="selectAll" resultType="Place">
@@ -18,7 +18,6 @@
 	<select id="select" resultType="Place">
 		<include refid="sql_select"/>
 		where place_id=#{place_id}
-		order by place_id desc
 	</select>
 	
 </mapper>

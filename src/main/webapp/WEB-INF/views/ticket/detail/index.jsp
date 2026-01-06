@@ -6,6 +6,7 @@
 <%
 	Work work = (Work)request.getAttribute("work");
 	List<RoundCasting> uniqueCastingList = (List)request.getAttribute("uniqueCastingList");
+	String jsonWork = (String)request.getAttribute("jsonWork");
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -17,11 +18,15 @@
 	<link rel="stylesheet" href="/static/assets/css/detail.css">
 </head>
 <body class="layout-top-nav" style="background-color: #ffffff;">
-<% System.out.println(work); %>
+<% System.out.println(jsonWork); %>
 <script src="/static/assets/js/Util.js"></script>
 <script>
 	let currentDate;
-	
+	// 오늘 날짜 최소가 되는 달
+	let minDate;
+	// work_end_date가 달력의 마지막 달
+	let maxDate;
+	let work = <%=jsonWork%>;
 </script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -112,6 +117,14 @@
         let d = new Date(yy, mm + 1, 0);
         return d.getDate();     // 조작된 날짜 객체에게 며칠인지 물어본다.
    }
+	
+	function formatYMD(yyyy, mm, dd){
+		let m = mm + 1;
+		m = getZeroNum(m);
+		dd = getZeroNum(dd);
+		
+		return yyyy + "-" + m + "-" + dd;
+	}
             
 	/*
 		달력 셀에 실제 날짜 뿌리기
@@ -135,7 +148,21 @@
     			}
        			// 이미 존재하는 박스의 셀에 출력
 				if(n >=getDayOfWeek(yy, mm, 1) && num <= getTotalDate(yy, mm)){   // 순번용 변수인 n이 각월의 시작 요일에 도달할 때부터~~
-					tag += "'>" + num;
+					let checkDate = formatYMD(yy, mm, num);
+					let isSame = false;
+				
+					for(let round of work.roundList){
+						if(!round.is_cancelled && checkDate == round.round_date){
+							isSame = true;
+							break;
+						}
+					}
+					if(isSame){
+						// data-name=value custom data 속성 $(div).data("date"); 이렇게 접근 가능
+						tag += "' data-date='" + checkDate + "'>" + num;
+					}else {
+						tag += " disabled'>" + num;
+					}
 					
 					num++;
 				}else{
@@ -155,11 +182,82 @@
     	$(".calendar-title").html(currentDate.getFullYear() + "." + getZeroNum(currentDate.getMonth() + 1));
     }
     
+/*     function updateNavButtons() {
+        // 왼쪽 버튼 상태 업데이트
+        if (validateBtnLeft()) {
+            $(".btn-left").removeClass("nav-disabled");
+		} else {
+            $(".btn-left").addClass("nav-disabled");
+        }
+
+        // 오른쪽 버튼 상태 업데이트
+        if (validateBtnRight()) {
+            $(".btn-right").removeClass("nav-disabled");
+        } else {
+            $(".btn-right").addClass("nav-disabled");
+        }
+    } */
+    
+    function updateNavButtons() {
+        // .prop("disabled", true/false)를 사용합니다.
+        $(".btn-left").prop("disabled", !validateBtnLeft());
+        $(".btn-right").prop("disabled", !validateBtnRight());
+    }
+    
+    function validateBtnLeft(){
+    	
+    	let currentTotalMonth = currentDate.getFullYear() * 12 + currentDate.getMonth();
+    	let minTotalMonth = minDate.getFullYear() * 12 + minDate.getMonth();
+    	
+    	return  currentTotalMonth > minTotalMonth;
+    }
+    
+    function validateBtnRight(){
+    	
+    	let currentTotalMonth = currentDate.getFullYear() * 12 + currentDate.getMonth();
+    	let maxTotalMonth = maxDate.getFullYear() * 12 + maxDate.getMonth();
+    	
+    	return  currentTotalMonth < maxTotalMonth;
+    }
+    
+    function prev(){
+    	
+    	if(validateBtnLeft()){
+    		currentDate.setMonth(currentDate.getMonth() - 1);
+    		
+    		setTitle();
+    		printCalendar(currentDate.getFullYear(), currentDate.getMonth());
+    		updateNavButtons();
+    	}
+    }
+    
+    function next(){
+    	
+		if(validateBtnRight()){
+    		currentDate.setMonth(currentDate.getMonth() + 1);
+    		
+    		setTitle();
+    		printCalendar(currentDate.getFullYear(), currentDate.getMonth());
+    		updateNavButtons();
+    	}
+    }
+    
     $(()=>{
     	currentDate = new Date();
+    	minDate = new Date();
+    	maxDate = new Date(work.work_end_date);
     	
     	setTitle();
     	printCalendar(currentDate.getFullYear(), currentDate.getMonth());
+    	updateNavButtons();
+    	
+    	$(".btn-left").click(()=>{
+    		prev();
+    	});
+    	
+    	$(".btn-right").click(()=>{
+    		next();
+    	});
     })
 </script>
 <div class="wrapper">
@@ -272,16 +370,16 @@
                     </div>
                 </div>
 
-
+				<!-- calendar -->
                 <div class="col-lg-4">
                     <div class="sticky-sidebar">
                         <div class="card shadow-sm border-0" style="border-top: 4px solid #007bff;">
                             
                             <div class="card-body p-3">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <button class="btn btn-sm btn-light rounded-circle"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="btn btn-sm btn-light rounded-circle btn-left"><i class="fas fa-chevron-left"></i></button>
                                     <h5 class="m-0 font-weight-bold calendar-title"></h5>
-                                    <button class="btn btn-sm btn-light rounded-circle"><i class="fas fa-chevron-right"></i></button>
+                                    <button class="btn btn-sm btn-light rounded-circle btn-right"><i class="fas fa-chevron-right"></i></button>
                                 </div>
                                 <table class="calendar-table">
                                     <thead>

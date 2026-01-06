@@ -1,11 +1,11 @@
-/* [스타일] Sticky Sidebar */
+/* Sticky Sidebar */
 .sticky-sidebar { position: -webkit-sticky; position: sticky; top: 20px; z-index: 1000; }
 
-/* [스타일] 탭 메뉴 커스텀 */
+/* 탭 메뉴 커스텀 */
 .custom-tabs .nav-link { color: #333; font-weight: 600; border-radius: 0; }
 .custom-tabs .nav-link.active { color: #007bff !important; border-top: 3px solid #007bff; background-color: #fff; }
 
-/* [스타일] 달력 */
+/* 달력 */
 .calendar-table { width: 100%; text-align: center; font-size: 14px; }
 .calendar-table th { padding: 8px 0; font-weight: normal; }
 .calendar-table th.sun { color: #dc3545; }
@@ -17,6 +17,17 @@
 .calendar-day.sun:not(.disabled) { color: #dc3545; }
 .calendar-day.active {
     background-color: #007bff; color: white !important; font-weight: bold; box-shadow: 0 2px 5px rgba(0,123,255,0.4);
+}
+
+/* 버튼이 실제로 비활성화(disabled)되었을 때 */
+button:disabled {
+    background-color: transparent !important;
+    opacity: 0.3 !important; /* 전체적으로 흐릿하게 */
+    cursor: default !important;
+}
+
+button:disabled i {
+    color: #d2d2d2 !important;
 }
 
 /* [스타일] 회차 선택 버튼 */

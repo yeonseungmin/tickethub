@@ -6,9 +6,3 @@ function getZeroNum(n) {
 
     return result;
 }
-
-function getNum(n){
-	let result = parseInt(n);
-	
-	return result;
-}
