@@ -30,4 +30,5 @@ build/
 target/
 .classpath
 .project
-Severs/
+Severs/.DS_Store
+.DS_Store
