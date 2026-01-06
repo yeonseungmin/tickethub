@@ -1,4 +1,4 @@
-package com.ch.tickethub.controller.admin;
+package com.ch.tickethub.controller.tickethub;
 
 import java.security.PublicKey;
 
@@ -17,7 +17,7 @@ import com.ch.tickethub.dto.Member;
 import com.ch.tickethub.model.member.MemberService;
 
 @Controller
-@RequestMapping("/admin/auth")
+@RequestMapping("/tickethub/auth")
 public class AuthController {
 
 	@Autowired
@@ -26,7 +26,7 @@ public class AuthController {
 	// 로그인 화면
 	@GetMapping("/login")
 	public String loginForm() {
-		return "admin/auth/login"; // /WEB-INF/views/admin/auth/login.jsp
+		return "tickethub/auth/login"; // /WEB-INF/views/tickethub/auth/login.jsp
 	}
 
 	// 로그인 처리
@@ -37,7 +37,7 @@ public class AuthController {
 
 		if (member == null) {
 			model.addAttribute("error", "아이디 또는 비밀번호를 확인해주세요");
-			return "admin/auth/login";
+			return "tickethub/auth/login";
 		}
 
 		session.setAttribute("loginMember", member);
@@ -46,13 +46,13 @@ public class AuthController {
 			return "redirect:/admin/index";
 		}
 		
-		return "redirect:/mypage";
+		return "redirect:/";
 
 	}
 			// 로그아웃
 			@GetMapping("/logout")
 			public String logout(HttpSession session) {
 				session.invalidate();
-				return "redirect:/admin/auth/login";
+				return "redirect:/tickethub/auth/login";
 			}
 }
