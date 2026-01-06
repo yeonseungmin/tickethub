@@ -44,7 +44,7 @@ public class RootConfig extends WebMvcConfigurerAdapter {
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
 		registry.addResourceHandler("/static/**").addResourceLocations("/resources/");
-		registry.addResourceHandler("/photo/**").addResourceLocations("file:/C:/tickethub/performance/");
+		registry.addResourceHandler("/photo/**").addResourceLocations("file:/Users/nam-yeowon/WorkSpace/tickethub/performance");
 	}
 
 	@Override

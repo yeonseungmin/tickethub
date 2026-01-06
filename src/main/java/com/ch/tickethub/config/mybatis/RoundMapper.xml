@@ -11,8 +11,30 @@
 		</selectKey>
 	</insert>
 	
-	<select id="selectByWorkId" parameterType="int" resultType="Round">
-		select * from round where work_id = #{work_id}
+	<resultMap id="RoundMap" type="Round">
+		<id column="round_id"						property="round_id"/>
+		<result column="round_date"			property="round_date"/>
+		<result column="round_start_time"	property="round_start_time"/>
+		<result column="work_id"					property="work.work_id"/>
+		<result column="is_cancelled"			property="is_cancelled"/>
+		
+		<association column="place_id"	property="place"		javaType="Place"
+		select = "Place.select"/>
+		
+		<collection column="round_id"
+			select="RoundCasting.selectByRoundId"
+			property="roundCastingList"
+			javaType="java.util.List"
+			ofType="RoundCasting"
+		/>
+		
+	</resultMap>
+	
+	<select id="selectByWorkId" parameterType="int" resultMap="RoundMap">
+		select round_id, round_date, work_id, is_cancelled
+		, DATE_FORMAT(round_start_time, '%H:%i') as round_start_time
+		from round where work_id = #{work_id}
+		order by round_date, round_start_time
 	</select>
 	
 </mapper>
