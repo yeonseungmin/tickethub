@@ -636,12 +636,24 @@
 <!-- ./wrapper -->
 	<%@ include file="./inc/footer_link.jsp" %>
 	<script>
-		$(()=>{
+		$(()=>{	// ====== 비동기 클릭 이벤트 함수 =======
+			
+			// 메인배너 관리 클릭 이벤트
+			$("#menu-main-banner").click(function(e){
+			    e.preventDefault();
+			    $.ajax({
+			        url: "/admin/mainpage/mainbanner/banner",
+			        method: "GET",
+			        success: function(result){
+			        	console.log("메인배너관리 클릭됨!!");
+			            $(".content-wrapper").html(result); 
+			        }
+			    });
+			});
+			
 			// 인물 관리 클릭 이벤트
 			$($(".performance .nav-item")[0]).click(function(e){
 				e.preventDefault();
-				
-				
 				$.ajax({
 					url:"/admin/performance/person",
 					method:"GET",
@@ -655,8 +667,6 @@
 			// 장소 관리 클릭 이벤트
 			$($(".performance .nav-item")[1]).click(function(e){
 				e.preventDefault();
-				
-				
 				$.ajax({
 					url:"/admin/performance/place",
 					method:"GET",
@@ -670,8 +680,6 @@
 			// 주최/기획 관리 클릭 이벤트
 			$($(".performance .nav-item")[2]).click(function(e){
 				e.preventDefault();
-				
-				
 				$.ajax({
 					url:"/admin/performance/publisher",
 					method:"GET",
@@ -682,11 +690,9 @@
 				});
 			});
 			
-			// 주최/기획 관리 클릭 이벤트
+			// 작품 관리 클릭 이벤트
 			$($(".performance .nav-item")[3]).click(function(e){
 				e.preventDefault();
-				
-				
 				$.ajax({
 					url:"/admin/performance/work",
 					method:"GET",
@@ -697,11 +703,9 @@
 				});
 			});
 			
-			// 주최/기획 관리 클릭 이벤트
+			// 회차 관리 클릭 이벤트
 			$($(".performance .nav-item")[4]).click(function(e){
 				e.preventDefault();
-				
-				
 				$.ajax({
 					url:"/admin/performance/round",
 					method:"GET",
@@ -738,8 +742,8 @@
 		        });
 		    });
 			
+			
 		});
-		
   </script>
 </body>
 </html>

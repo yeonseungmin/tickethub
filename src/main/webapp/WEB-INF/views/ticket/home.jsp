@@ -92,14 +92,13 @@
                     alt="대표 인기작 포스터" />
                 </a>
                 <div class="hot-featured__info">
-                  <h3 class="hot-featured__name">대표 인기작</h3>
+                  <h3 class="hot-featured__name">작품 제목</h3>
                   <p class="hot-featured__meta">2026.02.15 - 2026.02.16 · 올림픽공원 체조경기장</p>
                 </div>
               </article>
 
               <!-- 오른쪽 6개 -->
               <div class="hot-cards">
-                <!-- TODO(백엔드 연동): 인기작 리스트 반복 -->
                 <article class="hot-card">
                   <a class="poster" href="#">
                     <img class="poster__img" src="static/assets/img/poster-placeholder.svg"
@@ -139,7 +138,6 @@
                   <a class="poster" href="#">
                     <img class="poster__img" src="static/assets/img/poster-placeholder.svg"
                       alt="인기작 포스터" />
-                    <span class="tag tag--orange">30%</span>
                     <span class="poster__overlay">
                       <span class="poster__name">연극 타지마할의 궁위병</span>
                       <span class="poster__meta">2025.11.12 - 2026.01.04 · LG아트센터</span>
@@ -180,7 +178,6 @@
             <h2 id="openingTitle" class="section-title section-title--center">오픈 예정</h2>
 
             <div class="opening-grid">
-              <!-- TODO(백엔드 연동): 오픈예정 리스트 반복 -->
               <article class="opening-card">
                 <a class="opening-card__thumb" href="#">
                   <img src="static/assets/img/poster-placeholder.svg" alt="포스터" />
@@ -266,7 +263,7 @@
         <!-- 장르별 랭킹 -->
         <main class="container page-main">
           <section class="ranking" aria-labelledby="rankingTitle">
-            <h2 id="rankingTitle" class="section-title section-title--center">장르별 랭킹</h2>
+            <h2 id="rankingTitle" class="section-title section-title--center">장르별 화제작</h2>
 
             <div class="genre-tabs" data-genre-tabs>
               <button class="genre-tabs__btn is-active" type="button">#뮤지컬</button>
@@ -277,7 +274,6 @@
             </div>
 
             <div class="ranking-grid">
-              <!-- TODO(백엔드 연동): 장르별 TOP3 반복 -->
               <article class="rank-card">
                 <a class="rank-card__poster" href="#">
                   <img src="static/assets/img/poster-placeholder.svg" alt="포스터" />
@@ -324,7 +320,6 @@
             <h2 id="reviewsTitle" class="section-title section-title--center">베스트 관람후기</h2>
 
             <div class="reviews-grid">
-              <!-- TODO(백엔드 연동): 후기 리스트 반복 -->
               <article class="review-item">
                 <div class="review-item__left">
                   <div class="review-item__category">뮤지컬 &lt;2026 KIM SEJEONG FAN CONCERT 〈열 번째 편지〉 TO SEOUL&gt;</div>

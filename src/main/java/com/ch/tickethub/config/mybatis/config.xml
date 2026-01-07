@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
+
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true" />
+	</settings>
+	
 	<typeAliases>
 		<typeAlias type = "com.ch.tickethub.dto.Person" alias = "Person"/>
 		<typeAlias type = "com.ch.tickethub.dto.Place" alias = "Place"/>
@@ -8,6 +13,11 @@
 		<typeAlias type = "com.ch.tickethub.dto.Work" alias = "Work"/>
 		<typeAlias type = "com.ch.tickethub.dto.Genre" alias = "Genre"/>
 		<typeAlias type = "com.ch.tickethub.dto.Round" alias = "Round"/>
+		<typeAlias type = "com.ch.tickethub.dto.Grade" alias = "Grade"/>
+		<typeAlias type = "com.ch.tickethub.dto.GradeBenefit" alias = "GradeBenefit"/>
+		<typeAlias type = "com.ch.tickethub.dto.GradeRule" alias = "GradeRule"/>
+		<typeAlias type = "com.ch.tickethub.dto.Member" alias = "Member"/>
+		
 		<typeAlias type = "com.ch.tickethub.dto.RoundCasting" alias = "RoundCasting"/>
 		<typeAlias type = "com.ch.tickethub.dto.Seat" alias = "Seat"/>
 		<typeAlias type = "com.ch.tickethub.dto.SeatGroup" alias = "SeatGroup"/>
@@ -26,6 +36,10 @@
 		<mapper resource = "com/ch/tickethub/config/mybatis/WorkMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/GenreMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/RoundMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/GradeMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/GradeBenefitMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/GradeRuleMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/MemberMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/RoundCastingMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/SeatMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/SeatGroupMapper.xml"/>
@@ -34,5 +48,5 @@
 		<mapper resource = "com/ch/tickethub/config/mybatis/DiscountDetailMapper.xml"/>
 		
 	</mappers>
-	
+
 </configuration>
