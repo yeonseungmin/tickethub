@@ -7,6 +7,8 @@ import com.ch.tickethub.dto.Member;
 
 public interface MemberDAO {
 	 	public Member selectByLoginId(String loginId);
+	 	public Member selectByOauth(Map<String, Object> param);
+	 	
 	    public int updateLastLoginAt(Integer memberId);
 
 	    public List<Member> adminSearchMembers(Map<String, Object> param);

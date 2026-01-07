@@ -90,4 +90,20 @@ public class MemberServiceImpl implements MemberService{
 		}
 	}
 
+	//
+	@Override
+	@Transactional
+	public Member loginOauth(String oauthProvider, String oauthId) {
+		
+		Map<String, Object> param = new HashMap<>();
+		param.put("oauthProvider", oauthProvider);
+		param.put("oauthId", oauthId);
+		
+		Member member = memberDAO.selectByOauth(param);
+		
+		memberDAO.updateLastLoginAt(member.getMemberId());
+		
+		return member;
+	}
+
 }

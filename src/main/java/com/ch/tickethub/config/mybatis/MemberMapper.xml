@@ -25,6 +25,30 @@
 		where
 		login_id = #{value}
 	</select>
+	
+	<select id="selectByOauth" parameterType="map" resultType="Member">
+		SELECT
+		member_id AS memberId,
+		login_id AS loginId,
+		password_hash AS passwordHash,
+		name,
+		birth_date AS birthDate,
+		phone,
+		zip_code AS zipCode,
+		addr,
+		status,
+		role,
+		grade_id AS gradeId,
+		created_at AS
+		createdAt,
+		updated_at AS updatedAt,
+		last_login_at AS lastLoginAt,
+		oauth_provider AS oauthProvider,
+		oauth_id AS oauthId
+		from member
+		where
+		oauth_id = #{outhId} AND oauth_provider = #{oauthProvider}
+	</select>
 
 	<update id="updateLastLoginAt" parameterType="int">
 		update member set
