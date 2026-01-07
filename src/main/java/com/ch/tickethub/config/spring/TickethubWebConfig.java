@@ -8,19 +8,39 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jndi.JndiTemplate;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+import com.ch.tickethub.controller.tickethub.QueueInterceptor;
 import com.ch.tickethub.dto.OAuthClient;
 
-@Configuration  // 단지 xml을 대신한 설정용 클래스에 불과해!!
+@Configuration  // 단지 xml을 대신한 설정용 클래스에 불과함
 @EnableWebMvc       // 필수 설정(스프링이 지원하는 MVC 프레임워크를 사용하기 위한 어노테이션)
-@ComponentScan(basePackages = {"com.ch.tickethub.controller"})
+@EnableScheduling
+@ComponentScan(basePackages = {"com.ch.tickethub"})
 public class TickethubWebConfig extends WebMvcConfigurerAdapter{
     
     /*context.xml 등에 명시된 외부 자원을 JNDI 방식으로 읽어들일 수 있는 스프링의 객체*/ 
     
+	/*--------------------------------------------------
+	 대기열 체크용 인터셉터 등록
+	--------------------------------------------------*/
+    @Bean
+    public QueueInterceptor queueInterceptor() {
+   	 return new QueueInterceptor();
+    }
+    
+    @Override
+    public void addInterceptors(org.springframework.web.servlet.config.annotation.InterceptorRegistry registry) {
+        registry.addInterceptor(queueInterceptor())
+                .addPathPatterns("/**") 
+                .excludePathPatterns("/queue/**") // 대기 페이지 예외
+                .excludePathPatterns("/assets/**") // 이미지, CSS 같은 정적 파일 예외
+                .excludePathPatterns("/auth/**");  // 로그인 관련 페이지,,, 일단 예외 > 추가 수정 필요.
+    }
+	
     @Bean
     public JndiTemplate jndiTemplate() {
         return new JndiTemplate();
@@ -118,6 +138,5 @@ public class TickethubWebConfig extends WebMvcConfigurerAdapter{
          map.put("kakao", kakao);
          
          return map;
-    
      }
 }
