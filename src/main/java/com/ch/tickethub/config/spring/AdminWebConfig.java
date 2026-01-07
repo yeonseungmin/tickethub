@@ -29,7 +29,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 @Configuration	// 단지 xml을 대신한 설정용 클래스에 불과해!!
 @EnableWebMvc		// 필수 설정(스프링이 지원하는 MVC 프레임워크를 사용하기 위한 어노테이션)
 
-@ComponentScan(basePackages = {"com.ch.tickethub.controller.admin"})
+@ComponentScan(basePackages = {"com.ch.tickethub.controller"})
 
 public class AdminWebConfig extends WebMvcConfigurerAdapter{
 	
