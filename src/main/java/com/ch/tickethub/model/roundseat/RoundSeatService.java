@@ -20,4 +20,8 @@ public interface RoundSeatService {
     
     List<Work> getWorkListByPlace(int placeId);
     List<Round> getRoundByWork(int workId);
+    void createBulkSeats(int seat_group_id, int row_count, int col_count);
+    
+    int countByRoundAndGroup(int roundId, int seatGroupId);
+    void insertBulkByGroup(int seatGroupId);
 }

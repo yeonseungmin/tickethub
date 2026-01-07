@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import com.ch.tickethub.dto.Place;
 import com.ch.tickethub.dto.SeatGroup;
 import com.ch.tickethub.model.place.PlaceService;
+import com.ch.tickethub.model.seat.SeatService;
 import com.ch.tickethub.model.seatgroup.SeatGroupService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,9 @@ public class SeatGroupController {
     
     @Autowired
     private PlaceService placeService;
+    
+    @Autowired
+    private SeatService seatService;
 
     /**
      * 공연장별 구역 관리 페이지
@@ -117,4 +121,32 @@ public class SeatGroupController {
         // 이미 서비스에 구현된 getByPlace 메서드를 호출합니다.
         return seatGroupService.getByPlace(placeId);
     }
+    
+    @PostMapping("/createBulk")
+    @ResponseBody
+    public String createBulk(@RequestParam int seat_group_id, @RequestParam int row_count, @RequestParam int col_count) {
+        try {
+            // 핵심: 서비스 호출
+        	log.debug("좌석 생성 시작...");
+            seatGroupService.createBulkSeats(seat_group_id, row_count, col_count);
+            return "success";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "error: " + e.getMessage();
+        }
+    }
+    
+    @PostMapping("/updateGroupPos")
+    @ResponseBody
+    public String updateGroupPos(@RequestParam int seat_group_id, @RequestParam int pos_x, @RequestParam int pos_y) {
+        try {
+        	log.debug("수신 ID: " + seat_group_id + ", X: " + pos_x + ", Y: " + pos_y);
+            // 서비스 호출
+            seatGroupService.updateGroupAndSeatPosition(seat_group_id, pos_x, pos_y);
+            return "success";
+        } catch (Exception e) {
+            return "error: " + e.getMessage();
+        }
+    }
+ 
 }

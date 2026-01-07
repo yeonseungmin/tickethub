@@ -62,4 +62,5 @@ public class SeatStateController {
             return "error: " + e.getMessage();
         }
     }
+
 }

@@ -45,37 +45,13 @@ public class SeatServiceImpl implements SeatService {
         return seatDAO.selectByGroup(seat_group_id);
     }
     
-    @Transactional
-    @Override
-    public void createSeats(int rows, int cols, int seat_group_id) {
-        for (int r = 0; r < rows; r++) {
-            char rowName = (char) ('A' + r); 
-            
-            for (int c = 1; c <= cols; c++) {
-                Seat seat = new Seat();
-                
-                // 직접 ID를 세팅하는 대신 SeatGroup 객체를 생성해서 세팅
-                SeatGroup seatGroup = new SeatGroup();
-                seatGroup.setSeat_group_id(seat_group_id);
-                seat.setSeatGroup(seatGroup); 
-                
-                seat.setSeat_grade_id(1); 
-                seat.setSeat_x(String.valueOf(rowName));
-                seat.setSeat_y(c);
-                seat.setSeat_name(rowName + String.valueOf(c));
-                seat.setFloor(1);
-                seat.setSeat_state("AVAILABLE");
-
-                seatDAO.insert(seat);
-            }
-        }
-    }
 
     @Transactional
     @Override
     public void updateSeatGrade(int seat_id, int seat_grade_id) {
         seatDAO.updateSeatGrade(seat_id, seat_grade_id);
     }
+
 
 
 }

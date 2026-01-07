@@ -26,7 +26,7 @@
         values (#{round_id}, #{seat_id}, #{status})
     </insert>
 
-	<select id="selectSeatDetailByRound" parameterType="int" resultType="com.ch.tickethub.dto.SeatDetail">
+	<select id="selectSeatDetailByRound" parameterType="int" resultType="SeatDetail">
 	    SELECT 
 	        s.seat_id, s.seat_x, s.seat_y, s.seat_name, s.floor,
 	        sg.seat_group_id, sg.group_name, sg.pos_x, sg.pos_y, sg.row_gap, sg.col_gap, sg.direction,
@@ -44,7 +44,7 @@
 	    SET 
 	        status = #{status}
 	        <if test="status == 'AVAILABLE'">
-	            , reservation_id = NULL
+	        	, reservation_id = NULL
 	            , preempted_at = NULL
 	            , reserved_at = NULL
 	            , canceled_at = NULL
@@ -61,5 +61,18 @@
 	    WHERE round_id = #{round_id} 
 	      AND seat_id = #{seat_id}
 	    </update>
+	    
+		<insert id="insertBulkByGroup" parameterType="int">
+		    INSERT INTO round_seat (round_id, seat_id, status)
+		    SELECT r.round_id, s.seat_id, 'AVAILABLE'
+		    FROM seat s
+		    JOIN seat_group sg ON s.seat_group_id = sg.seat_group_id
+		    JOIN round r ON sg.place_id = r.place_id
+		    WHERE s.seat_group_id = #{seat_group_id}
+		      AND NOT EXISTS (
+		          SELECT 1 FROM round_seat rs 
+		          WHERE rs.round_id = r.round_id AND rs.seat_id = s.seat_id
+		      )
+		</insert>
 
 </mapper>

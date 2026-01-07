@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="Round">
 
+
 <resultMap id="roundMap" 					type="Round">
     <id property="round_id" 					column="round_id" />
     <result property="round_date" 			column="round_date" />
@@ -31,20 +32,25 @@
 		</selectKey>
 	</insert>
 	
+	
+	<select id="selectRoundIdsByPlace" parameterType="int" resultType="int">
+        SELECT round_id 
+        FROM round 
+        WHERE place_id = #{place_id}
+    </select>
+	
 	<select id="selectByWorkId" parameterType="int" resultType="Round">
 		select * from round where work_id = #{work_id}
 	</select>
+
 	
-	
-	<select id="selectListByWork" parameterType="int" resultType="com.ch.tickethub.dto.Round">
-	    SELECT * FROM round WHERE work_id = #{workId}
-	</select>
 	
 	<select id="selectListByPlace" parameterType="int" resultType="Work">
 	    SELECT DISTINCT w.work_id,w.work_title,w.work_poster_url FROM work w
 	    JOIN round r ON w.work_id = r.work_id
 	    WHERE r.place_id = #{place_id}
 	</select>
+	
 	
 	<select id="selectRoundWithDetail" parameterType="int" resultMap="roundMap">
 	    SELECT 

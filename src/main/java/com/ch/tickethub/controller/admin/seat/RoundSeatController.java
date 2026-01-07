@@ -88,9 +88,33 @@ public class RoundSeatController {
         return roundSeatService.getWorkListByPlace(placeId); 
     }
 
+    
     @GetMapping("/roundList")
     @ResponseBody
     public List<Round> roundList(@RequestParam("work_id") int workId) {
         return roundSeatService.getRoundByWork(workId); 
+    }
+    /**
+     * 특정 회차/구역의 좌석 데이터를 로드하거나, 없으면 생성 후 반환 (비동기)
+     */
+    @PostMapping("/loadOrCreate")
+    @ResponseBody
+    public List<SeatDetail> loadOrCreate(@RequestParam("round_id") int roundId, 
+                                         @RequestParam("seat_group_id") int seatGroupId) {
+        try {
+            // 1. 해당 회차/구역에 좌석 데이터가 있는지 먼저 확인
+            int count = roundSeatService.countByRoundAndGroup(roundId, seatGroupId);
+            
+            if (count == 0) {
+                // 2. 데이터가 없다면 일괄 생성 (MyBatis의 insertBulkByGroup 호출)
+                roundSeatService.insertBulkByGroup(seatGroupId);
+            }
+            
+            // 3. 생성 직후(혹은 이미 있던) 좌석 상세 리스트 조회
+            return roundSeatService.getSeatDetailByRound(roundId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null; // 또는 에러 상황에 맞는 적절한 응답
+        }
     }
 }

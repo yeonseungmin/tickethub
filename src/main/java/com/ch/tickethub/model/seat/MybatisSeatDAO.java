@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.session.SqlSession;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -11,16 +12,26 @@ import org.springframework.stereotype.Repository;
 import com.ch.tickethub.dto.Seat;
 import com.ch.tickethub.exception.SeatException;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Repository
 public class MybatisSeatDAO implements SeatDAO {
 
+	@Autowired
+    private SqlSession sqlSession;
+    
     @Autowired
     private SqlSessionTemplate sqlSessionTemplate;
 
+    private static final String NAMESPACE = "com.ch.tickethub.config.mybatis.SeatMapper";
+    
+    
     @Override
     public void insert(Seat seat) {
     	try {
 			sqlSessionTemplate.insert("Seat.insert", seat);
+			log.debug("Seat.insert 가 맞는지 확인");
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new SeatException("좌석 등록 실패",e);
@@ -70,6 +81,16 @@ public class MybatisSeatDAO implements SeatDAO {
         } catch (Exception e) {
             throw new SeatException("좌석 등급 변경 실패", e);
         }
+    }
+
+    @Override
+    public void updateSeatsPositionInGroup(int seat_group_id, int pos_x, int pos_y) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("seat_group_id", seat_group_id);
+        params.put("pos_x", pos_x);
+        params.put("pos_y", pos_y);
+        
+        sqlSession.update(NAMESPACE + ".updateSeatsPositionInGroup", params);
     }
 
 
