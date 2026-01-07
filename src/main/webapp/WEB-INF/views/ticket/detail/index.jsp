@@ -311,6 +311,16 @@
     		displayRoundList(selectedDate);
     	});
     })
+    
+    // 예매 팝업창 열기
+    function openReservation() {
+        // 현재 보고 있는 공연의 ID (서버에서 넘겨준 work 객체 활용)
+        let workId = <%=work.getWork_id()%>;
+        let url = "reservation?work_id=" + workId;
+        let specs = "width=900,height=700,top=100,left=200,scrollbars=yes";
+        open(url, "reservationPopup", specs);
+    }
+    
 </script>
 <div class="wrapper">
     <div class="content-wrapper">
@@ -486,7 +496,7 @@
                             </div>
 
                             <div class="card-footer p-3">
-                                <button class="btn btn-primary btn-block btn-lg font-weight-bold shadow">예매하기</button>
+                                <button class="btn btn-primary btn-block btn-lg font-weight-bold shadow" onclick="openReservation()">예매하기</button>
                             </div>
 
                         </div>

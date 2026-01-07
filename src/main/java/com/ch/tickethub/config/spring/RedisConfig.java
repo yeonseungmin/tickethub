@@ -28,15 +28,16 @@ public class RedisConfig {
 	}
 	
 	@Bean
-	public RedisTemplate<String, Object> redisTemplate() {
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
 		// 3. redis 템플릿 설정 (데이터 읽고 쓰기)
-		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<String, Object>();
-		redisTemplate.setConnectionFactory(redisConnectionFactory());
-		
-		// 4. 시리얼라이저 설정 (redis 는 ram 이라서 1,0 밖에 인식 못하므로, 데이터 깨지지 않게 문자열로 변환)
-		redisTemplate.setKeySerializer(new StringRedisSerializer());
-		redisTemplate.setValueSerializer(new StringRedisSerializer());
-		
-		return redisTemplate;
-	}
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<String, Object>();
+        redisTemplate.setConnectionFactory(connectionFactory);
+        
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashValueSerializer(new StringRedisSerializer());
+        
+        return redisTemplate;
+    }
 }

@@ -3,6 +3,7 @@ package com.ch.tickethub.controller.tickethub;
 import java.net.URLEncoder;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ import com.ch.tickethub.dto.NaverUserResponse;
 import com.ch.tickethub.dto.OAuthClient;
 import com.ch.tickethub.dto.OAuthTokenResponse;
 import com.ch.tickethub.model.member.MemberService;
+import com.ch.tickethub.model.queue.QueueService;
 
 @Controller
 @RequestMapping("/auth")
@@ -45,6 +47,9 @@ public class AuthController {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private QueueService queueService;
+    
     // 로그인 화면
     @GetMapping("/login")
     public String loginForm() {
@@ -56,7 +61,7 @@ public class AuthController {
     public String login(@RequestParam("loginId") String loginId,
                         @RequestParam("password") String password,
                         HttpSession session,
-                        Model model) {
+                        Model model, HttpServletRequest httpRequest) {
 
         loginId = (loginId != null) ? loginId.trim() : null;
 
@@ -71,8 +76,17 @@ public class AuthController {
             model.addAttribute("error", "아이디 또는 비밀번호를 확인해주세요");
             return "tickethub/auth/login";
         }
+        
+    	/*--------------------------------------------------
+   	 	 redis 에 session ID 교체 및 로그인 정보 추가
+   		--------------------------------------------------*/        
+        String oldSessionId = session.getId();
+        String newSessionId = httpRequest.changeSessionId();	// session ID 새로 발급.
+        
+        // redis 에 있는 대기열 정보를 새 ID 로 이동
+        queueService.changeSessionId(oldSessionId, newSessionId);
 
-        session.setAttribute("loginMember", member);
+        session.setAttribute("loginMember", member);		// 로그인 정보 저장.
 
         if ("ADMIN".equals(member.getRole())) {
             return "redirect:/admin/index";
@@ -124,7 +138,7 @@ public class AuthController {
     public String handleGoogleCallback(@RequestParam(value = "code", required = false) String code,
                                        @RequestParam(value = "error", required = false) String error,
                                        HttpSession session,
-                                       Model model) {
+                                       Model model, HttpServletRequest httpRequest) {
 
         if (error != null) {
             model.addAttribute("error", "구글 로그인에 실패했습니다: " + error);
@@ -184,6 +198,13 @@ public class AuthController {
         // 3) 우리 회원 처리
         Member member = memberService.loginOauthOrRegister("google", user.getId(), user.getEmail(), user.getName());
 
+    	/*--------------------------------------------------
+  	 	 redis 에 session ID 교체 및 로그인 정보 추가
+  		--------------------------------------------------*/   
+        String oldSessionId = session.getId();
+        String newSessionId = httpRequest.changeSessionId(); 
+        queueService.changeSessionId(oldSessionId, newSessionId);
+        
         session.setAttribute("loginMember", member);
 
         if ("ADMIN".equals(member.getRole())) {
@@ -198,7 +219,7 @@ public class AuthController {
     public String handleNaverCallback(@RequestParam(value = "code", required = false) String code,
                                       @RequestParam(value = "error", required = false) String error,
                                       HttpSession session,
-                                      Model model) {
+                                      Model model, HttpServletRequest httpRequest) {
 
         if (error != null) {
             model.addAttribute("error", "네이버 로그인에 실패했습니다: " + error);
@@ -260,6 +281,13 @@ public class AuthController {
         // 3) 우리 회원 처리
         Member member = memberService.loginOauthOrRegister("naver", user.getId(), user.getEmail(), user.getName());
 
+    	/*--------------------------------------------------
+ 	 	 redis 에 session ID 교체 및 로그인 정보 추가
+ 		--------------------------------------------------*/  
+        String oldSessionId = session.getId();
+        String newSessionId = httpRequest.changeSessionId();
+        queueService.changeSessionId(oldSessionId, newSessionId);
+        
         session.setAttribute("loginMember", member);
 
         if ("ADMIN".equals(member.getRole())) {
@@ -274,7 +302,7 @@ public class AuthController {
     public String handleKakaoCallback(@RequestParam(value = "code", required = false) String code,
                                       @RequestParam(value = "error", required = false) String error,
                                       HttpSession session,
-                                      Model model) {
+                                      Model model, HttpServletRequest httpRequest) {
 
         if (error != null) {
             model.addAttribute("error", "카카오 로그인에 실패했습니다: " + error);
@@ -345,6 +373,13 @@ public class AuthController {
         // 3) 우리 회원 처리
         Member member = memberService.loginOauthOrRegister("kakao", oauthId, email, name);
 
+    	/*--------------------------------------------------
+ 	 	 redis 에 session ID 교체 및 로그인 정보 추가
+ 		--------------------------------------------------*/  
+        String oldSessionId = session.getId();
+        String newSessionId = httpRequest.changeSessionId();
+        queueService.changeSessionId(oldSessionId, newSessionId);
+        
         session.setAttribute("loginMember", member);
 
         if ("ADMIN".equals(member.getRole())) {
