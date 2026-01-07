@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import com.ch.tickethub.dto.RoundCasting;
 import com.ch.tickethub.dto.Work;
 import com.ch.tickethub.model.work.WorkService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,6 +29,15 @@ public class DetailController {
 		
 		model.addAttribute("work", work);
 		model.addAttribute("uniqueCastingList", uniqueCastingList);
+		
+		ObjectMapper mapper = new ObjectMapper();
+		
+		try {
+			String jsonWork = mapper.writeValueAsString(work);
+			model.addAttribute("jsonWork", jsonWork);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
 		
 		return "/ticket/detail/index";
 	}
