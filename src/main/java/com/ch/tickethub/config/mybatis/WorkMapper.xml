@@ -45,7 +45,7 @@
 	
 	<!-- 공통 쿼리를 정의 -->
 	<sql id="sql_select">
-		select work_id, work_title, director, work_poster_url, work_content_url, work_like_count, age_limit, work_price
+		select work_id, work_title, director, work_poster_url, work_content_url, work_like_count, age_limit, work_price, work_type
 		, running_time
 		, DATE_FORMAT(ticket_start_date, '%Y-%m-%d %H:%i') as ticket_start_date
 		, DATE_FORMAT(work_start_date, '%Y-%m-%d') as work_start_date
