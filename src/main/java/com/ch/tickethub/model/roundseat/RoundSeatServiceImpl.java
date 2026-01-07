@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ch.tickethub.dto.Round;
 import com.ch.tickethub.dto.RoundSeat;
 import com.ch.tickethub.dto.SeatDetail;
 import com.ch.tickethub.dto.Work;
@@ -97,10 +98,11 @@ public class RoundSeatServiceImpl implements RoundSeatService {
     
     @Override // 이제 인터페이스와 규격이 맞아 에러가 사라집니다.
     public int updateStatus(int roundId, int seatId, String status) {
-        com.ch.tickethub.dto.RoundSeat rs = new com.ch.tickethub.dto.RoundSeat();
+        RoundSeat rs = new RoundSeat();
         rs.setRound_id(roundId);
         rs.setSeat_id(seatId);
         rs.setStatus(status);
+        // 필요한 경우에만 추가 정보 세팅
         return roundSeatDAO.updateStatus(rs);
     }
     @Override
@@ -110,7 +112,7 @@ public class RoundSeatServiceImpl implements RoundSeatService {
     }
 
     @Override
-    public List<com.ch.tickethub.dto.Round> getRoundListByWork(int workId) {
+    public List<Round> getRoundByWork(int workId) {
         // workId에 해당하는 회차 목록을 가져오는 DAO 메서드 호출
         return roundDAO.selectListByWork(workId);
     }

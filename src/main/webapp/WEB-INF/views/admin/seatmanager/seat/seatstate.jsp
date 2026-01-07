@@ -90,22 +90,31 @@
     var contextPath = '<%=contextPath%>';
 
     $(document).ready(function() {
-        // 1. 장소 선택 시 -> 공연 목록
+        // 1. 장소 선택 시 -> 공연 목록 및 구역 목록 불러오기
         $('#placeSelect').on('change', function() {
             var placeId = $(this).val();
             $('#workSelect').empty().append('<option value="">공연 선택</option>');
             $('#roundSelect').empty().append('<option value="">회차 선택</option>');
+            $('#groupSelect').empty().append('<option value="">구역 선택</option>'); // 구역 초기화
+            
             if (!placeId) return;
 
+            // 공연 목록 로드
             $.get(contextPath + '/admin/roundseat/workList', { place_id: placeId }, function(data) {
                 data.forEach(function(work) {
-                    // work_name이 아니라 work_title입니다!
                     $('#workSelect').append('<option value="' + work.work_id + '">' + work.work_title + '</option>');
+                });
+            });
+
+            // 구역 목록 로드 (좌석 자동 생성용)
+            $.get(contextPath + '/admin/seatgroup/list', { place_id: placeId }, function(groupList) {
+                groupList.forEach(function(group) {
+                    $('#groupSelect').append('<option value="' + group.seat_group_id + '">' + group.seat_group_name + '</option>');
                 });
             });
         });
 
-        // 2. 공연 선택 시 -> 회차 목록
+        // 2. 공연 선택 시 -> 회차 목록 불러오기
         $('#workSelect').on('change', function() {
             var workId = $(this).val();
             $('#roundSelect').empty().append('<option value="">회차 선택</option>');
@@ -113,7 +122,6 @@
 
             $.get(contextPath + '/admin/roundseat/roundList', { work_id: workId }, function(data) {
                 data.forEach(function(round) {
-                    // round_time이 아니라 round_start_time입니다!
                     var roundText = round.round_date + ' (' + round.round_start_time + ')';
                     $('#roundSelect').append('<option value="' + round.round_id + '">' + roundText + '</option>');
                 });
@@ -121,56 +129,98 @@
         });
 
         // 3. 좌석 불러오기
-		 $('#btnLoadSeats').on('click', function() {
-		    var roundId = $('#roundSelect').val();
-		    if (!roundId) { alert('회차를 선택해주세요.'); return; }
-		    
-		    $.get(contextPath + '/admin/roundseat/list', { round_id: roundId }, function(seatList) {
-		        renderStatusMap(seatList); // 함수명 일치시킴
-		    });
-		});
-		
-		// 상태 관리 전용 렌더링
-		function renderStatusMap(seatList) {
-		    var $container = $('#seatArea'); // HTML의 id와 일치시킴
-		    $container.empty();
-		    
-		    seatList.forEach(function(seat) {
-		        var sStatus = (seat.status || 'AVAILABLE').toUpperCase();
-		        var folder = "/static/assets/adminSeatImg/";
-		        var finalImgUrl = contextPath + folder + sStatus + ".png";
-		
-		        var $seatDiv = $('<div class="admin-seat" data-seat-id="' + seat.seat_id + '"></div>');
-		        $seatDiv.css({
-		            'position': 'absolute',
-		            'left': (seat.pos_x + (seat.seat_y - 1) * seat.col_gap) + 'px',
-		            'top': (seat.pos_y + (seat.seat_x.charCodeAt(0) - 65) * seat.row_gap) + 'px',
-		            'background-image': "url('" + finalImgUrl + "')",
-		            'background-size': 'cover',
-		            'width': '25px', 'height': '25px', 'cursor': 'pointer'
-		        });
-		        
-		        // 클릭 시 정보 표시
-		        $seatDiv.on('click', function() {
-		            selectedSeatId = seat.seat_id;
-		            $('#selName').text(seat.seat_name);
-		            $('#selState').text(sStatus);
-		        });
-		
-		        $container.append($seatDiv);
-		    });
-		}
-		
-		// 상태 변경 함수 (버튼 onclick 연결)
-		function changeStatus(status) {
-		    if(!selectedSeatId) { alert('좌석을 먼저 선택하세요.'); return; }
-		    $.post(contextPath + '/admin/seatmanager/seat/state/update', {
-		        seat_id: selectedSeatId,
-		        seat_state: status
-		    }, function(res) {
-		        if(res === 'success') $('#btnLoadSeats').click(); // 새로고침
-		    });
-		}
+        $('#btnLoadSeats').on('click', function() {
+            var roundId = $('#roundSelect').val();
+            if (!roundId) { alert('회차를 선택해주세요.'); return; 
+            }
+            
+            $.get(contextPath + '/admin/roundseat/list', { round_id: roundId }, function(seatList) {
+                renderStatusMap(seatList);
+            });
+        });
+    });
+    /**
+     * ✅ 좌석 배치도 렌더링 (상태 관리용)
+     */
+    function renderStatusMap(seatList) {
+        var $container = $('#seatArea');
+        $container.empty();
+        
+        seatList.forEach(function(seat) {
+            // 상태값 (AVAILABLE, RESERVED, PREEMPTED, CANCELED)
+            var sStatus = (seat.status || 'AVAILABLE').toUpperCase();
+            var folder = "/static/assets/adminSeatImg/";
+            
+            // 이미지 파일명: AVAILABLE.png, RESERVED.png 등
+            var finalImgUrl = contextPath + folder + sStatus + ".png";
+
+            var $seatDiv = $('<div class="admin-seat" data-seat-id="' + seat.seat_id + '"></div>');
+            $seatDiv.css({
+                'position': 'absolute',
+                'left': (seat.pos_x + (seat.seat_y - 1) * seat.col_gap) + 'px',
+                'top': (seat.pos_y + (seat.seat_x.charCodeAt(0) - 65) * seat.row_gap) + 'px',
+                'background-image': "url('" + finalImgUrl + "')",
+                'background-size': 'cover',
+                'width': '25px', 
+                'height': '25px', 
+                'cursor': 'pointer',
+                'box-sizing': 'border-box'
+            });
+            
+            // 좌석 클릭 시 전역 변수에 ID 저장 및 UI 표시
+            $seatDiv.on('click', function() {
+                selectedSeatId = seat.seat_id;
+                $('#selName').text(seat.seat_name);
+                $('#selState').text(sStatus);
+                
+                // 선택 표시 (노란 테두리)
+                $('.admin-seat').css('border', 'none');
+                $(this).css('border', '2px solid yellow');
+            });
+
+            $container.append($seatDiv);
+        });
+    }
+
+    /**
+     * ✅ 버튼 클릭 시 호출되는 상태 변경 함수
+     * @param status 'AVAILABLE' | 'RESERVED' | 'PREEMPTED' | 'CANCELED'
+     */
+    function changeStatus(status) {
+        var roundId = $('#roundSelect').val();
+        
+        if(!roundId) { 
+            alert('회차를 먼저 선택해주세요.'); 
+            return; 
+        }
+        if(!selectedSeatId) { 
+            alert('변경할 좌석을 먼저 선택해주세요.'); 
+            return; 
+        }
+
+        if(confirm('선택한 좌석의 상태를 ' + status + '(으)로 변경하시겠습니까?')) {
+            $.post(contextPath + '/admin/roundseat/updateStatus', {
+                round_id: roundId,
+                seat_id: selectedSeatId,
+                status: status
+            }, function(res) {
+                if(res === 'success') {
+                    alert('상태가 정상적으로 변경되었습니다.');
+                    // 🔄 변경된 이미지를 확인하기 위해 목록 다시 불러오기
+                    $('#btnLoadSeats').click(); 
+                    
+                    // 상세 정보 창 초기화 (선택 해제 대응)
+                    selectedSeatId = null;
+                    $('#selName').text('-');
+                    $('#selState').text('-');
+                } else {
+                    alert('변경 실패: ' + res);
+                }
+            }).fail(function() {
+                alert('서버와의 통신에 실패했습니다.');
+            });
+        }
+    }
 </script>
 
 </body>

@@ -2,6 +2,7 @@ package com.ch.tickethub.model.roundseat;
 
 import java.util.List;
 
+import com.ch.tickethub.dto.Round;
 import com.ch.tickethub.dto.SeatDetail;
 import com.ch.tickethub.dto.Work;
 
@@ -18,5 +19,5 @@ public interface RoundSeatService {
     int updateStatus(int roundId, int seatId, String status);
     
     List<Work> getWorkListByPlace(int placeId);
-    List<com.ch.tickethub.dto.Round> getRoundListByWork(int workId);
+    List<Round> getRoundByWork(int workId);
 }

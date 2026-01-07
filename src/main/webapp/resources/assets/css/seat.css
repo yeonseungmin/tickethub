@@ -124,8 +124,8 @@ html, body {
 /* 상태 색상 */
 .btn-available { background: #28a745; }
 .btn-preempted { background: #ffc107; color: #000; }
-.btn-reserved  { background: #dc3545; }
-.btn-canceled  { background: #6c757d; }
+.btn-canceled  { background: #dc3545; }
+.btn-reserved  { background: #6c757d; }
 
 /* 하단 자동 생성 박스 */
 .auto-gen-box { border-top: 1px solid #444; padding-top: 20px; margin-top: 10px; }

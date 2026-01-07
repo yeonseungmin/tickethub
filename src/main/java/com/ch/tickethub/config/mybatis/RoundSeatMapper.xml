@@ -39,22 +39,27 @@
 	    WHERE rs.round_id = #{round_id}
 	</select>
 
-    <update id="updateStatus" parameterType="RoundSeat">
-        UPDATE round_seat
-        SET 
-            status = #{status},
-            reservation_id = #{reservation_id},
-            preempted_at = #{preempted_at},
-            reserved_at = #{reserved_at},
-            canceled_at = #{canceled_at}
-        WHERE round_id = #{round_id} 
-          AND seat_id = #{seat_id}
-        <if test="status == 'PREEMPTED'">
-          AND status = 'AVAILABLE'
-        </if>
-        <if test="status == 'RESERVED'">
-          AND status = 'PREEMPTED'
-        </if>
-    </update>
+	<update id="updateStatus" parameterType="RoundSeat">
+	    UPDATE round_seat
+	    SET 
+	        status = #{status}
+	        <if test="status == 'AVAILABLE'">
+	            , reservation_id = NULL
+	            , preempted_at = NULL
+	            , reserved_at = NULL
+	            , canceled_at = NULL
+	        </if>
+	        <if test="status == 'PREEMPTED'">
+	            , preempted_at = NOW()
+	        </if>
+	        <if test="status == 'RESERVED'">
+	            , reserved_at = NOW()
+	        </if>
+	        <if test="status == 'CANCELED'">
+	            , canceled_at = NOW()
+	        </if>
+	    WHERE round_id = #{round_id} 
+	      AND seat_id = #{seat_id}
+	    </update>
 
 </mapper>

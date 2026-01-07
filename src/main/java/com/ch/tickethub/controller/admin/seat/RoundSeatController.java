@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import com.ch.tickethub.dto.Round;
 import com.ch.tickethub.dto.SeatDetail;
 import com.ch.tickethub.dto.Work;
 import com.ch.tickethub.model.roundseat.RoundSeatService;
@@ -89,7 +90,7 @@ public class RoundSeatController {
 
     @GetMapping("/roundList")
     @ResponseBody
-    public List<com.ch.tickethub.dto.Round> roundList(@RequestParam("work_id") int workId) {
-        return roundSeatService.getRoundListByWork(workId);
+    public List<Round> roundList(@RequestParam("work_id") int workId) {
+        return roundSeatService.getRoundByWork(workId); 
     }
 }

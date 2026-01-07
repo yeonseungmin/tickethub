@@ -6,7 +6,7 @@
     <id property="round_id" 					column="round_id" />
     <result property="round_date" 			column="round_date" />
     <result property="round_start_time"	column="round_start_time" />
-    <result property="is_cancelled" 			column="is_cancelled" />
+    <result property="is_cancelled" 			column="round_start_time" />
 
     <association property="work" 			javaType="Work">
         <id property="work_id" 					column="work_id" />
@@ -41,14 +41,14 @@
 	</select>
 	
 	<select id="selectListByPlace" parameterType="int" resultType="Work">
-	    SELECT DISTINCT w.* FROM work w
+	    SELECT DISTINCT w.work_id,w.work_title,w.work_poster_url FROM work w
 	    JOIN round r ON w.work_id = r.work_id
 	    WHERE r.place_id = #{place_id}
 	</select>
 	
 	<select id="selectRoundWithDetail" parameterType="int" resultMap="roundMap">
 	    SELECT 
-	        r.*, 
+	        r.round_id,round_date,round_start_time, round_start_time,
 	        w.work_title, w.work_poster_url, 
 	        p.place_name, p.address
 	    FROM round r
