@@ -30,5 +30,5 @@ build/
 target/
 .classpath
 .project
-Severs/
-Servers/Tomcat v9.0 Server at localhost-config/
+Severs/.DS_Store
+.DS_Store
