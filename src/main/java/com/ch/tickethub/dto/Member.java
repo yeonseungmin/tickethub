@@ -8,6 +8,7 @@ public class Member {
 	private String loginId;
 	private String passwordHash; //일반 로그인 패스워드
 	private String name;
+	private String email;
 	private String birthDate;
 	private String phone;
 	private String zipCode;

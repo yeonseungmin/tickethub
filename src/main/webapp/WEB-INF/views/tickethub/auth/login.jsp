@@ -181,7 +181,7 @@
 
 						<form method="post" action="/auth/login" id="loginForm">
 							<div class="auth-field">
-								<input type="text" name="memberId"
+								<input type="text" name="loginId"
 									class="auth-input"
 									placeholder="아이디"
 									required>
@@ -224,41 +224,34 @@
 	<%@ include file="../inc/footer_link.jsp"%>
 
 	<script>
-	function requestProviderUrl(provider){
-		$.ajax({
-			url:"/oauth2/authorize/"+provider, //
-			method:"GET",
-			success:function(result, status, xhr){
-				console.log("서버로부터 받은 인증 요청 url은 ", result);
-				alert(result);
-				location.href=result;
-			}
-		});
-	}
-	
-		$(()=>{
-			$(".sns-btn.btn-google").click(()=>{
-				requestProviderUrl("google");
-			})
-			
-			$(".sns-btn.btn-naver").click(()=>{
-				requestProviderUrl("naver");
-			})
-			
-			$(".sns-btn.btn-kakao").click(()=>{
-				requestProviderUrl("kakao");
-			})
-			
-			$(".btn-login").click(()=>{
-				
-			})
-			$(".btn-join").click(()=>{
-				
-			})
-		})
-	
-		
-	</script>
+function requestProviderUrl(provider){
+    $.ajax({
+        url: "/auth/oauth2/authorize/" + provider,
+        method: "GET",
+        success: function(result, status, xhr){
+            console.log("서버로부터 받은 인증 요청 url은 ", result);
+
+            //ERROR면 이동하지 말고 안내만
+            if (typeof result === "string" && result.startsWith("ERROR")) {
+                alert("SNS 로그인 요청 실패: " + result);
+                return;
+            }
+
+            //정상 URL일 때만 이동
+            location.href = result;
+        },
+        error: function(xhr){
+            alert("SNS 로그인 요청 중 오류가 발생했습니다. (" + xhr.status + ")");
+        }
+    });
+}
+
+$(()=>{
+    $(".sns-btn.btn-google").click(()=> requestProviderUrl("google"));
+    $(".sns-btn.btn-naver").click(()=> requestProviderUrl("naver"));
+    $(".sns-btn.btn-kakao").click(()=> requestProviderUrl("kakao"));
+});
+</script>
 </body>
 
 </html>

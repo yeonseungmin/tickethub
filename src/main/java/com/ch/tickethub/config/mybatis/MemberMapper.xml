@@ -8,47 +8,93 @@
 		login_id AS loginId,
 		password_hash AS passwordHash,
 		name,
+		email,
 		birth_date AS birthDate,
 		phone,
 		zip_code AS zipCode,
-		addr,
+		address,
 		status,
 		role,
 		grade_id AS gradeId,
 		created_at AS
 		createdAt,
 		updated_at AS updatedAt,
-		last_login_at AS lastLoginAt,
+		last_login_at AS
+		lastLoginAt,
 		oauth_provider AS oauthProvider,
 		oauth_id AS oauthId
-		from member
+		from
+		member
 		where
 		login_id = #{value}
 	</select>
-	
-	<select id="selectByOauth" parameterType="map" resultType="Member">
+
+	<select id="selectByOauth" parameterType="map"
+		resultType="Member">
 		SELECT
 		member_id AS memberId,
 		login_id AS loginId,
 		password_hash AS passwordHash,
 		name,
+		email,
 		birth_date AS birthDate,
 		phone,
 		zip_code AS zipCode,
-		addr,
+		address,
 		status,
 		role,
 		grade_id AS gradeId,
 		created_at AS
 		createdAt,
 		updated_at AS updatedAt,
-		last_login_at AS lastLoginAt,
+		last_login_at AS
+		lastLoginAt,
 		oauth_provider AS oauthProvider,
 		oauth_id AS oauthId
-		from member
+		from
+		member
 		where
-		oauth_id = #{outhId} AND oauth_provider = #{oauthProvider}
+		oauth_id = #{oauthId} AND oauth_provider = #{oauthProvider}
 	</select>
+
+	
+
+	<insert id="insert" parameterType="Member">
+		INSERT INTO member (
+		login_id,
+		password_hash,
+		name,
+		email,
+		birth_date,
+		phone,
+		zip_code,
+		address,
+		status,
+		role,
+		grade_id,
+		oauth_provider,
+		oauth_id,
+		created_at,
+		updated_at
+		)
+		VALUES (
+		#{loginId},
+		#{passwordHash},
+		#{name},
+		#{email},
+		#{birthDate},
+		#{phone},
+		#{zipCode},
+		#{address},
+		#{status},
+		#{role},
+		#{gradeId},
+		#{oauthProvider},
+		#{oauthId},
+		NOW(),
+		NOW()
+		)
+	</insert>
 
 	<update id="updateLastLoginAt" parameterType="int">
 		update member set
@@ -62,11 +108,13 @@
 		m.member_id AS memberId,
 		m.login_id AS loginId,
 		m.name,
+		m.email,
 		m.phone,
 		m.status,
 		m.role,
 		m.grade_id AS gradeId,
-		m.created_at AS createdAt
+		m.created_at AS
+		createdAt
 		FROM
 		member m
 		WHERE 1=1
@@ -94,10 +142,12 @@
 		m.member_id as memberId,
 		m.login_id as loginId,
 		m.name,
+		m.email,
 		m.birth_date as birthDate,
 		m.phone,
-		m.zip_code as zipCode,
-		m.addr,
+		m.zip_code as
+		zipCode,
+		m.address,
 		m.status,
 		m.role,
 		m.created_at as createdAt,
@@ -105,10 +155,12 @@
 		m.last_login_at as lastLoginAt,
 		m.oauth_provider as oauthProvider,
 		m.oauth_id as oauthId,
-		g.grade_id as gradeId,
+		g.grade_id as
+		gradeId,
 		g.grade_name
 		FROM member m
-		LEFT JOIN grade g ON m.grade_id = g.grade_id
+		LEFT JOIN grade g ON m.grade_id =
+		g.grade_id
 		WHERE m.member_id = #{value}
 	</select>
 

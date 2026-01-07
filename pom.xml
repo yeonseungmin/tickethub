@@ -113,6 +113,12 @@
 	    <version>1.4</version>
 	</dependency>
 
+	<!-- https://mvnrepository.com/artifact/com.sun.mail/javax.mail -->
+<dependency>
+    <groupId>com.sun.mail</groupId>
+    <artifactId>javax.mail</artifactId>
+    <version>1.6.2</version>
+</dependency>
 		<!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-redis
 		대기열 기능 구현을 위한 redis 서버와 통신할 라이브러리
 	 -->

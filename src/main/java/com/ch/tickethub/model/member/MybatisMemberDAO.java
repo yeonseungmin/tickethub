@@ -50,4 +50,9 @@ public class MybatisMemberDAO implements MemberDAO{
 		return sqlSessionTemplate.selectOne("Member.selectByOauth", param);
 	}
 
+	@Override
+	public int insert(Member member) {
+		return sqlSessionTemplate.insert("Member.insert", member);
+	}
+
 }
