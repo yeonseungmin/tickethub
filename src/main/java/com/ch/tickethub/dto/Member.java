@@ -4,10 +4,11 @@ import lombok.Data;
 
 @Data
 public class Member {
-	private Integer memberId;
+	private Integer memberId; //일반 로그인 아이디
 	private String loginId;
-	private String passwordHash;
+	private String passwordHash; //일반 로그인 패스워드
 	private String name;
+	private String email;
 	private String birthDate;
 	private String phone;
 	private String zipCode;
@@ -18,6 +19,6 @@ public class Member {
 	private String createdAt;
 	private String updatedAt;
 	private String lastLoginAt;
-	private String oauthProvider;
-	private String oauthId;
+	private String oauthProvider; // 소셜 로그인 이름
+	private String oauthId; // 소셜 로그인 id
 }
