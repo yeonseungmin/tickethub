@@ -23,7 +23,7 @@ public class QueueController {
 	@PostMapping("/enter") // 대기열에 추가하는 건 서버의 상태를 변경시키므로 POST 방식으로
 	public QueueStatus enterQueue(HttpSession session) {
 		String user_id = session.getId(); // << 이 부분은 추후에 로그인 및 회원기능이 전부 구현 완료되면, memberId 로 교체예정. 지금은 session id 로 진행.
-		queueService.enterQueue(user_id);
+//		queueService.enterQueue(user_id);
 		return queueService.getQueueStatus(user_id);
 	}
 
