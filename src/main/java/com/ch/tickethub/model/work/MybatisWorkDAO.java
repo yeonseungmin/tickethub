@@ -37,4 +37,10 @@ public class MybatisWorkDAO implements WorkDAO {
 		return sqlSessionTemplate.selectOne("Work.select", work_id);
 	}
 
+	
+	@Override
+    public List<Work> selectListByPlace(int placeId) {
+        // XML의 namespace="Work"이고 id="selectListByPlace"인 쿼리를 실행
+        return sqlSessionTemplate.selectList("Work.selectListByPlace", placeId);
+    }
 }

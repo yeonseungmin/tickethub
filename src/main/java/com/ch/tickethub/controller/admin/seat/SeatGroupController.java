@@ -7,15 +7,27 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import com.ch.tickethub.dto.Place;
 import com.ch.tickethub.dto.SeatGroup;
+import com.ch.tickethub.model.place.PlaceService;
+import com.ch.tickethub.model.seat.SeatService;
 import com.ch.tickethub.model.seatgroup.SeatGroupService;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequestMapping("/seatgroup")
+@Slf4j
 public class SeatGroupController {
 
     @Autowired
     private SeatGroupService seatGroupService;
+    
+    @Autowired
+    private PlaceService placeService;
+    
+    @Autowired
+    private SeatService seatService;
 
     /**
      * 공연장별 구역 관리 페이지
@@ -23,10 +35,16 @@ public class SeatGroupController {
      */
     @GetMapping("/manager")
     public String manager(@RequestParam int place_id, Model model) {
+    	// 1. 전체 장소 목록을 DB에서 가져와 모델에 추가
         List<SeatGroup> groupList = seatGroupService.getByPlace(place_id);
-        model.addAttribute("groupList", groupList);
-        model.addAttribute("place_id", place_id);
+        List<Place> placeList = placeService.getList(); 
+        model.addAttribute("placeList", placeList);
         
+     // 2. 기존 로직 (선택된 장소의 구역 목록)
+        if (place_id > 0) {
+            model.addAttribute("groupList", seatGroupService.getByPlace(place_id));
+            model.addAttribute("place_id", place_id);
+        }
         // 공연장 전체 도면 위에서 구역들을 배치하는 관리자 페이지로 이동
         return "admin/seatmanager/group/manager";
     }
@@ -91,4 +109,44 @@ public class SeatGroupController {
             return "error: " + e.getMessage();
         }
     }
+    
+    /**
+     * ✅ 추가: 특정 공연장의 구역 목록을 JSON으로 반환 (AJAX용)
+     * 주소: /seatgroup/list?place_id=숫자
+     */
+    @GetMapping("/list")
+    @ResponseBody // 데이터를 JSON 형태로 반환하기 위해 필수
+    public List<SeatGroup> getGroupList(@RequestParam("place_id") int placeId) {
+        log.debug("구역 목록 요청 수신 - 장소 ID: {}", placeId);
+        // 이미 서비스에 구현된 getByPlace 메서드를 호출합니다.
+        return seatGroupService.getByPlace(placeId);
+    }
+    
+    @PostMapping("/createBulk")
+    @ResponseBody
+    public String createBulk(@RequestParam int seat_group_id, @RequestParam int row_count, @RequestParam int col_count) {
+        try {
+            // 핵심: 서비스 호출
+        	log.debug("좌석 생성 시작...");
+            seatGroupService.createBulkSeats(seat_group_id, row_count, col_count);
+            return "success";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "error: " + e.getMessage();
+        }
+    }
+    
+    @PostMapping("/updateGroupPos")
+    @ResponseBody
+    public String updateGroupPos(@RequestParam int seat_group_id, @RequestParam int pos_x, @RequestParam int pos_y) {
+        try {
+        	log.debug("수신 ID: " + seat_group_id + ", X: " + pos_x + ", Y: " + pos_y);
+            // 서비스 호출
+            seatGroupService.updateGroupAndSeatPosition(seat_group_id, pos_x, pos_y);
+            return "success";
+        } catch (Exception e) {
+            return "error: " + e.getMessage();
+        }
+    }
+ 
 }

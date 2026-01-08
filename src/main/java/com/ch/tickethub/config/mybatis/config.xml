@@ -45,7 +45,6 @@
 		<mapper resource = "com/ch/tickethub/config/mybatis/SeatGroupMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/RoundSeatMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/ReservationMapper.xml"/>
-		<mapper resource = "com/ch/tickethub/config/mybatis/SeatGradeMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/DiscountDetailMapper.xml"/>
 		
 	</mappers>

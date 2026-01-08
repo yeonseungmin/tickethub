@@ -6,6 +6,8 @@ import java.util.Map;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import com.ch.tickethub.dto.Round;
 import com.ch.tickethub.dto.RoundSeat;
 import com.ch.tickethub.dto.SeatDetail;
 
@@ -39,4 +41,10 @@ public class MybatisRoundSeatDAO implements RoundSeatDAO {
         // XML의 id="updateStatus"와 매핑
         return sqlSessionTemplate.update("RoundSeat.updateStatus", roundSeat);
     }
+
+    @Override
+    public void insertBulkByGroup(int seat_group_id) {
+        sqlSessionTemplate.insert("RoundSeat.insertBulkByGroup", seat_group_id);
+    }
+
 }
