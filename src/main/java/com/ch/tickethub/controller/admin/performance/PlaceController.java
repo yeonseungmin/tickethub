@@ -19,11 +19,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ch.tickethub.dto.Place;
+import com.ch.tickethub.dto.SeatGroup;
 import com.ch.tickethub.exception.PersonException;
 import com.ch.tickethub.exception.PlaceException;
 import com.ch.tickethub.exception.UploadException;
 import com.ch.tickethub.model.person.PersonService;
 import com.ch.tickethub.model.place.PlaceService;
+import com.ch.tickethub.model.seatgroup.SeatGroupService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,6 +36,8 @@ public class PlaceController {
 	
 	@Autowired
 	PlaceService placeService;
+	@Autowired
+	SeatGroupService seatGroupService;
 
 	@GetMapping("/performance/place")
 	public String person() {
@@ -98,4 +102,12 @@ public class PlaceController {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
 	}
 	
+	// 구역 목록 AJAX 요청 처리 (404 해결용)
+		@GetMapping("/performance/place/group/list")
+		@ResponseBody
+		public List<SeatGroup> getGroupList(@RequestParam("place_id") int placeId) {
+			log.debug("구역 목록 요청 수신 - 장소 ID: {}", placeId);
+			// 서비스의 메서드 명칭인 getByPlace를 사용합니다.
+			return seatGroupService.getByPlace(placeId);
+		}
 }

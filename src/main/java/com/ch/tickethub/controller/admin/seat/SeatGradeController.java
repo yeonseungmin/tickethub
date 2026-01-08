@@ -6,79 +6,48 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import com.ch.tickethub.dto.SeatGrade;
-import com.ch.tickethub.model.seatgrade.SeatGradeService;
+import com.ch.tickethub.dto.Place;
+import com.ch.tickethub.dto.Seat;
+import com.ch.tickethub.dto.SeatGroup;
+import com.ch.tickethub.model.place.PlaceService;
+import com.ch.tickethub.model.seat.SeatService;
+import com.ch.tickethub.model.seatgroup.SeatGroupService;
 
 @Controller
-@RequestMapping("/seatgrade")
+@RequestMapping("/seatmanager/seat/grade")
 public class SeatGradeController {
 
     @Autowired
-    private SeatGradeService seatGradeService;
+    private SeatService seatService;
+    @Autowired
+    private SeatGroupService seatGroupService;
+    @Autowired
+    private PlaceService placeService;
 
-    /**
-     * [사용자/관리자] 좌석 등급 전체 목록 조회
-     * 예매 페이지의 좌석 범례(Legend)나 관리자 목록 페이지에서 사용
-     */
-    @GetMapping("/list")
-    public String list(Model model) {
-        List<SeatGrade> list = seatGradeService.getList();
-        model.addAttribute("gradeList", list);
-        return "seatgrade/list"; // JSP 경로 예시
+    // 등급 관리 메인 페이지
+    @GetMapping("/main")
+    public String seatGradeMain(@RequestParam(required = false, defaultValue = "0") int seat_group_id, Model model) {
+        List<Place> placeList = placeService.getList();
+        model.addAttribute("placeList", placeList);
+
+        if(seat_group_id != 0) {
+            List<Seat> seatList = seatService.selectByGroup(seat_group_id);
+            SeatGroup seatGroup = seatGroupService.get(seat_group_id);
+            model.addAttribute("seatList", seatList);
+            model.addAttribute("seatGroup", seatGroup);
+        }
+        return "admin/seatmanager/seat/seatgrade";
     }
 
-    /**
-     * [관리자] 좌석 등급 등록 폼 이동
-     */
-    @GetMapping("/register")
-    public String registerForm() {
-        return "seatgrade/registerForm";
-    }
-
-    /**
-     * [관리자] 좌석 등급 등록 처리
-     */
-    @PostMapping("/register")
-    public String register(SeatGrade seatGrade) {
-        seatGradeService.register(seatGrade);
-        return "redirect:/seatgrade/list";
-    }
-
-    /**
-     * [관리자] 좌석 등급 수정 폼 이동
-     */
-    @GetMapping("/modify")
-    public String modifyForm(@RequestParam int seat_grade_id, Model model) {
-        SeatGrade sg = seatGradeService.getGrade(seat_grade_id);
-        model.addAttribute("seatGrade", sg);
-        return "seatgrade/modifyForm";
-    }
-
-    /**
-     * [관리자] 좌석 등급 수정 처리
-     */
-    @PostMapping("/modify")
-    public String modify(SeatGrade seatGrade) {
-        seatGradeService.modify(seatGrade);
-        return "redirect:/seatgrade/list";
-    }
-
-    /**
-     * [관리자] 좌석 등급 삭제 처리
-     */
-    @PostMapping("/delete")
+    // 좌석 등급 업데이트
+    @PostMapping("/update")
     @ResponseBody
-    public String delete(@RequestParam int seat_grade_id) {
-        int result = seatGradeService.remove(seat_grade_id);
-        return result > 0 ? "success" : "fail";
-    }
-    
-    /**
-     * [AJAX 전용] 예매 화면에서 좌석 등급 아이콘 정보 가져오기
-     */
-    @GetMapping("/api/legend")
-    @ResponseBody
-    public List<SeatGrade> getLegendApi() {
-        return seatGradeService.getList();
+    public String updateGrade(@RequestParam int seat_id, @RequestParam int seat_grade_id) {
+        try {
+            seatService.updateSeatGrade(seat_id, seat_grade_id);
+            return "success";
+        } catch (Exception e) {
+            return "error: " + e.getMessage();
+        }
     }
 }

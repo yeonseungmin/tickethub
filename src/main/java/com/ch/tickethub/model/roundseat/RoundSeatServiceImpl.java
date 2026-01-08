@@ -7,16 +7,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ch.tickethub.dto.Round;
 import com.ch.tickethub.dto.RoundSeat;
+import com.ch.tickethub.dto.Seat;
 import com.ch.tickethub.dto.SeatDetail;
+import com.ch.tickethub.dto.Work;
 import com.ch.tickethub.exception.SeatException;
+import com.ch.tickethub.model.round.RoundDAO;
+import com.ch.tickethub.model.seat.SeatDAO;
+import com.ch.tickethub.model.work.WorkDAO;
 
 @Service
 public class RoundSeatServiceImpl implements RoundSeatService {
 
     @Autowired
     private RoundSeatDAO roundSeatDAO;
-
+    @Autowired
+    private WorkDAO workDAO; 
+    @Autowired
+    private RoundDAO roundDAO;
+    @Autowired
+    private SeatDAO seatDAO;
+    
     @Override
     public List<SeatDetail> getSeatDetailByRound(int round_id) {
         return roundSeatDAO.selectSeatDetailByRound(round_id);
@@ -86,5 +98,52 @@ public class RoundSeatServiceImpl implements RoundSeatService {
         rs.setReservation_id(null); 
 
         roundSeatDAO.updateStatus(rs);
+    }
+    
+    @Override // 이제 인터페이스와 규격이 맞아 에러가 사라집니다.
+    public int updateStatus(int roundId, int seatId, String status) {
+        RoundSeat rs = new RoundSeat();
+        rs.setRound_id(roundId);
+        rs.setSeat_id(seatId);
+        rs.setStatus(status);
+        // 필요한 경우에만 추가 정보 세팅
+        return roundSeatDAO.updateStatus(rs);
+    }
+    @Override
+    public List<Work> getWorkListByPlace(int placeId) {
+        // placeId에 해당하는 공연 목록을 가져오는 DAO 메서드 호출
+        return workDAO.selectListByPlace(placeId); 
+    }
+
+    @Override
+    public List<Round> getRoundByWork(int workId) {
+        // workId에 해당하는 회차 목록을 가져오는 DAO 메서드 호출
+        return roundDAO.selectByWorkId(workId);
+    }
+    
+    @Override
+    @Transactional
+    public void createBulkSeats(int seat_group_id, int row_count, int col_count) {
+        // 1. 물리적 좌석(Seat)만 생성 (기존 for문 유지)
+        for (int i = 0; i < row_count; i++) {
+            for (int j = 0; j < col_count; j++) {
+                Seat seat = new Seat();
+                seatDAO.insert(seat);
+            }
+        }
+
+        // 2. [근본적 해결] RoundSeat 배정은 SQL 한 번으로 끝냄
+        // DTO 내부의 Place 객체를 건드릴 필요도 없이 DB에서 직접 처리합니다.
+        roundSeatDAO.insertBulkByGroup(seat_group_id);
+    }
+    @Override
+    public int countByRoundAndGroup(int roundId, int seatGroupId) {
+        return roundSeatDAO.countByRoundAndGroup(roundId, seatGroupId);
+    }
+
+    @Override
+    @Transactional
+    public void insertBulkByGroup(int seatGroupId) {
+        roundSeatDAO.insertBulkByGroup(seatGroupId);
     }
 }

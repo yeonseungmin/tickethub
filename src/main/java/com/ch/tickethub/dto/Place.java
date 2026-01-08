@@ -1,5 +1,7 @@
 package com.ch.tickethub.dto;
 
+import java.util.List;
+
 import lombok.Data;
 
 @Data
@@ -9,4 +11,5 @@ public class Place {
 	private String address;
 	private double latitude;
 	private double longitude;
+	private List<SeatGroup> seatGroupList;
 }

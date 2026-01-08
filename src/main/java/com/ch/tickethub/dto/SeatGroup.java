@@ -6,7 +6,7 @@ import lombok.Data;
 public class SeatGroup {
 
     private int seat_group_id;
-    private int place_id;
+    private Place place;
 
     private String group_name;
 
