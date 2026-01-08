@@ -7,12 +7,14 @@
 	Work work = (Work)request.getAttribute("work");
 	List<RoundCasting> uniqueCastingList = (List)request.getAttribute("uniqueCastingList");
 	String jsonWork = (String)request.getAttribute("jsonWork");
+	String naverMapClientId = (String)request.getAttribute("naverMapClientId");
 %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>공연 상세 정보</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 	<link rel="stylesheet" href="/static/assets/css/detail.css">
@@ -29,9 +31,10 @@
 	let maxDate;
 	let work = <%=jsonWork%>;
 </script>
-
+<script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=<%=naverMapClientId%>"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 
 <script>
     // 1. 좋아요 버튼 토글
@@ -211,9 +214,9 @@
     	const round = work.roundList.find((round)=>{return round.round_id == roundId});
     	
      	$(".place span").text(round.place.place_name);
-    	$(".place button").attr("data-id", round.place.place_id);
-    	
-    	console.log("장소 버튼이 가진 place_id", $(".place button").data("id"));
+     	
+     	// data-id 에 값 round_id 값 넣어주기
+    	$(".place button").attr("data-id", round.round_id);
 
 		$("#seat-info-area .sidebar-compact-text").html(`
 			<span class="font-weight-bold">VIP</span> <span class="text-soldout">매진</span> <span class="divider-slash">/</span> 
@@ -233,7 +236,11 @@
     	});
     	
 		$("#daily-casting-area").text(castingText || "캐스팅 정보가 없습니다.");
-
+		
+		// 예매하기 할 때 value의 값을 좌석 선택 페이지로 전달해야 한다.
+		$(".btn-reservation").val(roundId);
+		//console.log("예매하기 버튼의 값은 ", $(".btn-reservation").val());
+		
     }
     
     // 날짜를 눌렀을 때
@@ -272,9 +279,32 @@
         updateInfo(selectedRoundList[0].round_id);
     }
     
+    // 장소 팝업
     function openPlacePopup(btn){
-    	let place_id = $(btn).data("id");
-    	console.log("place_id ", place_id);
+    	let roundId = $(btn).data("id");
+    	const round = work.roundList.find((round)=>{return round.round_id == roundId});
+    	
+    	if(round == null) return;
+    	
+    	const place = round.place;
+    	
+        // .one 첫 한 번만 실행 Bootstrap이 제공하는 모달이름 shown.bs.modal
+        $("#placeModal").one("shown.bs.modal", function () {
+			$(".place_name").text(place.place_name);
+			$(".address").text("주소 : " + place.address);
+        	
+            let position = new naver.maps.LatLng(place.latitude, place.longitude);
+			
+            let map = new naver.maps.Map('map', {
+                center: position,
+                zoom: 17
+            });
+
+            let marker = new naver.maps.Marker({
+                position: position,
+                map: map
+            });
+        });
     }
     
     $(()=>{
@@ -346,7 +376,7 @@
                                     <span class="info-label">장소</span>
                                     <span class="info-content d-inline-flex align-items-center place">
                                         <span>블루스퀘어 </span>
-                                        <button class="btn btn-xs btn-outline-secondary ml-2 rounded-circle" data-id="" onclick="openPlacePopup(this)" title="지도 보기"><i class="fas fa-map-marker-alt"></i></button>
+                                        <button class="btn btn-xs btn-outline-secondary ml-2 rounded-circle" data-id="" onclick="openPlacePopup(this)" title="지도 보기" data-toggle="modal" data-target="#placeModal"><i class="fas fa-map-marker-alt"></i></button>
                                     </span>
                                 </li>
                                 <li>
@@ -486,13 +516,36 @@
                             </div>
 
                             <div class="card-footer p-3">
-                                <button class="btn btn-primary btn-block btn-lg font-weight-bold shadow">예매하기</button>
+                                <button class="btn btn-primary btn-block btn-lg font-weight-bold shadow btn-reservation">예매하기</button>
                             </div>
 
                         </div>
                     </div>
                 </div>
-
+                
+				<!-- The PlaceModal -->
+			    <div class="modal" id="placeModal">
+			        <div class="modal-dialog modal-lg">
+			            <div class="modal-content">
+			                <!-- Modal Header -->
+			                <div class="modal-header">
+			                    <h5 class="modal-title">공연장 정보</h5>
+			                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+			                </div>
+			                
+			                <!-- Modal body -->
+			                <div class="modal-body">
+			                    <div class="font-weight-bold mb-1 place_name">예술의전당</div>
+			                    <div class="text-muted mb-3 address">
+			                        주소: 서울특별시 서초구 서초동 700번지
+			                    </div>
+			                    <div id="map" style="width:100%; height:500px;"></div>
+			                </div>
+			        
+			            </div>
+			        </div>
+			    </div>
+			    
             </div>
         </div>
     </div>

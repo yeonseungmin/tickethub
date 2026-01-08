@@ -15,7 +15,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 @Configuration	// 단지 xml을 대신한 설정용 클래스에 불과해!!
 @EnableWebMvc		// 필수 설정(스프링이 지원하는 MVC 프레임워크를 사용하기 위한 어노테이션)
-@ComponentScan(basePackages = {"com.ch.tickethub.controller"})
+@ComponentScan(basePackages = {"com.ch.tickethub.controller.tickethub"})
 
 public class TickethubWebConfig extends WebMvcConfigurerAdapter{
 	
@@ -30,6 +30,9 @@ public class TickethubWebConfig extends WebMvcConfigurerAdapter{
 		return new RestTemplate();
 	}
 	
-	
+	@Bean
+	public String naverMapClientId(JndiTemplate jndiTemplate) throws Exception {
+	    return (String) jndiTemplate.lookup("java:comp/env/naver/map/client/id");
+	}
 	
 }
