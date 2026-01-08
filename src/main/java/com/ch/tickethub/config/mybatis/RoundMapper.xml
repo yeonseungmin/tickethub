@@ -2,25 +2,45 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="Round">
 
+	<!-- work에서 round 끌고 가기 -->
+	<resultMap id="roundMapForWork" type="Round">
+		<id 	column="round_id"					property="round_id"/>
+		<result column="round_date"			property="round_date"/>
+		<result column="round_start_time"	property="round_start_time"/>
+		<result column="work_id"					property="work.work_id"/>
+		<result column="is_cancelled"			property="is_cancelled"/>
+		
+		<association column="place_id"	property="place"		javaType="Place"
+		select = "Place.select"/>
+		
+		<collection column="round_id"
+			select="RoundCasting.selectByRoundId"
+			property="roundCastingList"
+			javaType="java.util.List"
+			ofType="RoundCasting"
+		/>
+		
+	</resultMap>
 
-<resultMap id="roundMap" 					type="Round">
-    <id property="round_id" 					column="round_id" />
-    <result property="round_date" 			column="round_date" />
-    <result property="round_start_time"	column="round_start_time" />
-    <result property="is_cancelled" 			column="round_start_time" />
-
-    <association property="work" 			javaType="Work">
-        <id property="work_id" 					column="work_id" />
-        <result property="work_title" 			column="work_title" />
-        <result property="work_poster_url" column="work_poster_url" />
-        </association>
-
-    <association property="place" 			javaType="Place">
-        <id property="place_id" 				column="place_id" />
-        <result property="place_name" 		column="place_name" />
-        <result property="address" 			column="address" />
-        </association>
-</resultMap>
+	<resultMap id="roundMap" 					type="Round">
+	    <id property="round_id" 					column="round_id" />
+	    <result property="round_date" 			column="round_date" />
+	    <result property="round_start_time"	column="round_start_time" />
+	    <result property="is_cancelled" 			column="is_cancelled" />
+	
+	    <association property="work" 			javaType="Work">
+	        <id property="work_id" 					column="work_id" />
+	        <result property="work_title" 			column="work_title" />
+	        <result property="work_poster_url" column="work_poster_url" />
+	        </association>
+	
+	    <association property="place" 			javaType="Place">
+	        <id property="place_id" 				column="place_id" />
+	        <result property="place_name" 		column="place_name" />
+	        <result property="address" 			column="address" />
+	        
+	        </association>
+	</resultMap>
 
 
 	<insert id="insert" parameterType="Round">
@@ -39,8 +59,11 @@
         WHERE place_id = #{place_id}
     </select>
 	
-	<select id="selectByWorkId" parameterType="int" resultType="Round">
-		select * from round where work_id = #{work_id}
+	<select id="selectByWorkId" parameterType="int" resultMap="roundMapForWork">
+		select round_id, round_date, work_id, place_id, is_cancelled
+		, DATE_FORMAT(round_start_time, '%H:%i') as round_start_time 
+		from round where work_id = #{work_id}
+		order by round_date, round_start_time 
 	</select>
 
 	

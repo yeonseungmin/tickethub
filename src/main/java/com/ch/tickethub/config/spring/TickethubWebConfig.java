@@ -56,16 +56,6 @@ public class TickethubWebConfig extends WebMvcConfigurerAdapter{
 	public String naverMapClientId(JndiTemplate jndiTemplate) throws Exception {
 	    return (String) jndiTemplate.lookup("java:comp/env/naver/map/client/id");
 	}
-	
-    @Bean
-    public JndiTemplate jndiTemplate() {
-        return new JndiTemplate();
-    }
-
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
 
      @Bean
      public String googleClientId(JndiTemplate jndiTemplate) throws Exception{
