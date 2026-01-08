@@ -47,8 +47,7 @@
     <!-- 좌석 삭제 -->
     <!-- ===================== -->
     <delete id="delete" parameterType="int">
-        delete from seat
-        where seat_id = #{seat_id}
+        DELETE FROM seat WHERE seat_id = #{seat_id}
     </delete>
     
     <update id="updateSeatGrade" parameterType="Seat">

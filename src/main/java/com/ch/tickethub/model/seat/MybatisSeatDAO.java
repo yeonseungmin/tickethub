@@ -24,7 +24,7 @@ public class MybatisSeatDAO implements SeatDAO {
     @Autowired
     private SqlSessionTemplate sqlSessionTemplate;
 
-    private static final String NAMESPACE = "com.ch.tickethub.config.mybatis.SeatMapper";
+    private static final String NAMESPACE = "Seat";
     
     
     @Override

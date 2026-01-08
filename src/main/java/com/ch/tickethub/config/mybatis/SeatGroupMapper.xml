@@ -34,7 +34,8 @@
 	    WHERE seat_group_id = #{seat_group_id}
 	</select>
 	
-	<update id="updateGroupPosition">
+	
+	<update id="updateGroupPosition" >
 	    UPDATE seat_group 
 	    SET pos_x = #{pos_x}, 
 	        pos_y = #{pos_y} 

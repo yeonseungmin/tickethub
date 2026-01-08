@@ -28,4 +28,5 @@ public interface SeatDAO {
 
     // 특정 구역에 속한 모든 좌석의 좌표 업데이트 메서드 추가
     void updateSeatsPositionInGroup(int seat_group_id, int pos_x, int pos_y);
+
 }

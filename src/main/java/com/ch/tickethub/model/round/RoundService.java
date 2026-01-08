@@ -8,4 +8,5 @@ import com.ch.tickethub.request.RoundRegistRequest;
 public interface RoundService {
 	public void regist(RoundRegistRequest roundRegistRequest);
 	public List<Round> findByWorkId(int workId); // 추가
+	public List<Round> selectByWorkAndPlace(int workId, int placeId);
 }
