@@ -305,3 +305,31 @@ html, body {
 .group-name-label {
     user-select: none; /* 드래그 시 텍스트 선택 방지 */
 }
+
+/* 삭제 버튼 전용 스타일 */
+.btn-delete {
+    background-color: #e74c3c !important; /* 강렬한 레드 */
+    color: white !important;
+    grid-column: span 2;      /* 2열 구조일 경우 가로로 길게 배치 */
+    margin-top: 8px;
+    font-weight: bold;
+    border: 1px solid #c0392b;
+}
+
+.btn-delete:hover {
+    background-color: #c0392b !important; /* 호버 시 더 어두운 레드 */
+    cursor: pointer;
+}
+
+/* (참고) 기존 버튼들과의 간격 조정 */
+.state-btn-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+}
+/* 삭제 중인 좌석에 적용될 효과 (필요 시) */
+.admin-seat.removing {
+    transform: scale(0);
+    opacity: 0;
+    transition: all 0.3s ease;
+}

@@ -16,6 +16,10 @@ public class MybatisRoundSeatDAO implements RoundSeatDAO {
 
     @Autowired
     private SqlSessionTemplate sqlSessionTemplate;
+    @Autowired
+    private SqlSessionTemplate sqlSession;
+    
+    private static final String NAMESPACE = "RoundSeat";
 
     @Override
     public int countByRoundAndGroup(int round_id, int seat_group_id) {
@@ -45,6 +49,28 @@ public class MybatisRoundSeatDAO implements RoundSeatDAO {
     @Override
     public void insertBulkByGroup(int seat_group_id) {
         sqlSessionTemplate.insert("RoundSeat.insertBulkByGroup", seat_group_id);
+    }
+
+    @Override
+    public void updateStateBySeatId(int seat_id, String seat_state) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("seat_id", seat_id);
+        params.put("seat_state", seat_state);
+        sqlSession.update(NAMESPACE + ".updateStateBySeatId", params);
+    }
+
+    @Override
+    public void updateGradeBySeatId(int seat_id, int seat_grade_id) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("seat_id", seat_id);
+        params.put("seat_grade_id", seat_grade_id);
+        sqlSession.update(NAMESPACE + ".updateGradeBySeatId", params);
+    }
+    
+    @Override
+    public void deleteBySeatId(int seat_id) {
+        // Mapper의 namespace="RoundSeat", id="deleteBySeatId"를 호출
+        sqlSessionTemplate.delete("RoundSeat.deleteBySeatId", seat_id);
     }
 
 }

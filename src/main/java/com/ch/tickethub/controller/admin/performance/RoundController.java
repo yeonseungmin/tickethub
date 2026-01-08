@@ -91,5 +91,14 @@ public class RoundController {
 			log.debug("회차 목록 요청 수신 - 공연 ID: {}", workId);
 			return roundService.findByWorkId(workId);
 		}
+		
+		// 관리자 좌석 관리 페이지에서 회차 목록을 불러올 때 사용
+		@GetMapping("/roundseat/roundList")
+		@ResponseBody
+		public List<Round> getAdminRoundList(@RequestParam("work_id") int work_id, @RequestParam("place_id") int place_id) {
+			log.debug("관리자 회차 필터링 요청 - 공연: {}, 장소: {}", work_id, place_id);
+			// 서비스 호출 시 두 ID를 모두 전달
+		    return roundService.selectByWorkAndPlace(work_id, place_id); 
+		}
 	
 }

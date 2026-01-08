@@ -89,11 +89,7 @@ public class RoundSeatController {
     }
 
     
-    @GetMapping("/roundList")
-    @ResponseBody
-    public List<Round> roundList(@RequestParam("work_id") int workId) {
-        return roundSeatService.getRoundByWork(workId); 
-    }
+
     /**
      * 특정 회차/구역의 좌석 데이터를 로드하거나, 없으면 생성 후 반환 (비동기)
      */

@@ -1,6 +1,8 @@
 package com.ch.tickethub.model.round;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,16 @@ public class MybatisRoundDAO implements RoundDAO{
 	public List<Integer> selectRoundIdsByPlace(int place_id) {
 	    // RoundMapper.xml 의 id="selectRoundIdsByPlace" 호출
 	    return sqlSessionTemplate.selectList("Round.selectRoundIdsByPlace", place_id);
+	}
+	
+	@Override
+	public List<Round> selectByWorkAndPlace(int work_id, int place_id) {
+	    Map<String, Object> params = new HashMap<>();
+	    params.put("work_id", work_id);
+	    params.put("place_id", place_id);
+	    
+	    // RoundMapper.xml의 id="selectByWorkAndPlace" 호출
+	    return sqlSessionTemplate.selectList("Round.selectByWorkAndPlace", params);
 	}
 	
 
