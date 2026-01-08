@@ -70,4 +70,15 @@ public class RoundServiceImpl implements RoundService{
 		return roundDAO.selectByWorkId(workId);
 	}
 
+
+	@Override
+	public List<Round> selectByWorkAndPlace(int workId, int placeId) {
+		if (placeId > 0) {
+	        // 관리자 페이지에서 장소를 선택한 경우 (정밀 필터링)
+	        return roundDAO.selectByWorkAndPlace(workId, placeId);
+	    } else {
+	        // 일반 사용자 페이지 등 장소 상관없이 공연 회차를 다 보여줄 경우
+	        return roundDAO.selectByWorkId(workId);
+	    }
+	}
 }

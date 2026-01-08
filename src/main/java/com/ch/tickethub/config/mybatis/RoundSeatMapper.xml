@@ -74,5 +74,21 @@
 		          WHERE rs.round_id = r.round_id AND rs.seat_id = s.seat_id
 		      )
 		</insert>
+		
+		<update id="updateStateBySeatId">
+	        UPDATE round_seat 
+	        SET seat_state = #{seat_state} 
+	        WHERE seat_id = #{seat_id}
+	    </update>
+	
+	    <update id="updateGradeBySeatId">
+	        UPDATE round_seat 
+	        SET seat_grade_id = #{seat_grade_id} 
+	        WHERE seat_id = #{seat_id}
+	    </update>	
+	    
+	    <delete id="deleteBySeatId" parameterType="int">
+		    DELETE FROM round_seat WHERE seat_id = #{seat_id}
+		</delete>	
 
 </mapper>
