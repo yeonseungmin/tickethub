@@ -56,7 +56,7 @@ public class QueueController {
         model.addAttribute("type", type);
         model.addAttribute("work_id", work_id);
         
-        return "queue/waiting";
+        return "ticket/queue/waiting";
     }
 	
 }
