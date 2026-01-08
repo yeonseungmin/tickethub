@@ -16,10 +16,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import com.ch.tickethub.controller.tickethub.QueueInterceptor;
 import com.ch.tickethub.dto.OAuthClient;
 
-@Configuration  // 단지 xml을 대신한 설정용 클래스에 불과함
-@EnableWebMvc       // 필수 설정(스프링이 지원하는 MVC 프레임워크를 사용하기 위한 어노테이션)
-@EnableScheduling
-@ComponentScan(basePackages = {"com.ch.tickethub"})
+@Configuration	// 단지 xml을 대신한 설정용 클래스에 불과해!!
+@EnableWebMvc		// 필수 설정(스프링이 지원하는 MVC 프레임워크를 사용하기 위한 어노테이션)
+@ComponentScan(basePackages = {"com.ch.tickethub.controller.tickethub"})
+
 public class TickethubWebConfig extends WebMvcConfigurerAdapter{
     
     /*context.xml 등에 명시된 외부 자원을 JNDI 방식으로 읽어들일 수 있는 스프링의 객체*/ 
@@ -40,6 +40,22 @@ public class TickethubWebConfig extends WebMvcConfigurerAdapter{
                 .excludePathPatterns("/assets/**") // 이미지, CSS 같은 정적 파일 예외
                 .excludePathPatterns("/auth/**");  // 로그인 관련 페이지,,, 일단 예외 > 추가 수정 필요.
     }
+	
+	/*context.xml 등에 명시된 외부 자원을 JNDI 방식으로 읽어들일 수 있는 스프링의 객체*/ 
+	@Bean
+	public JndiTemplate jndiTemplate() {
+		return new JndiTemplate();
+	}
+	
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+	
+	@Bean
+	public String naverMapClientId(JndiTemplate jndiTemplate) throws Exception {
+	    return (String) jndiTemplate.lookup("java:comp/env/naver/map/client/id");
+	}
 	
     @Bean
     public JndiTemplate jndiTemplate() {
