@@ -15,8 +15,10 @@ public class QueueScheduler {
 
 	@Scheduled(fixedDelay = 700) // 0.7초마다 실행
 	public void moveUserToActive() {
+		// 1. 사이트 입장 대기열 처리
+		queueService.processQueue("ENTRY", "0");
 
-		// 한 번에 n 명씩 대기방(Waiting) 에서 활동방(Active)으로 이동
-		queueService.processQueue("ENTRY", "0"); // 지금의 경우 시연을 위해 5명만 이동.
+		// 2. 모든 공연 예매 대기열 처리 
+		queueService.processAllWorkQueues();
 	}
 }

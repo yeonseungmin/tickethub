@@ -8,21 +8,6 @@ public class MainController {
 
 	@GetMapping("/")
 	public String getMain() {
-		return "ticket/home";
-	}
-
-	@GetMapping("/waiting")
-	public String getWaitingPage() {
-		return "queue/waiting";
-	}
-	
-	@GetMapping("/reservation")
-	public String getReservation() {
-		return "ticket/reservation";
-	}
-	
-	@GetMapping("/payment")
-	public String getPayment() {
-		return "ticket/payment";
+		return "ticket/index";
 	}
 }

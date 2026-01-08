@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>TicketHub - 예매하기</title>
+    
 </head>
 <body style="text-align: center; padding-top: 100px;">
     <h1>축하합니다! 대기열을 통과하셨습니다.</h1>

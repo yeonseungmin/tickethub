@@ -48,7 +48,7 @@
 		                        if (type === "WORK") {
 		                            // 2차 대기열(예매) 통과했으면 예매 페이지로!
 		                            // 주의: 팝업창이라면 window.location.href 대신 다른 걸 써야 할 수도 있지만 일단 이렇게!
-		                            location.href = "../reservation?work_id=" + work_id;
+		                            location.href = "/reservation/seat?work_id=" + work_id;
 		                        } else {
 		                            // 1차 대기열(사이트 입장) 통과했으면 홈으로!
 		                            location.href = "../";
