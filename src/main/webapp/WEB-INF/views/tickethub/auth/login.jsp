@@ -220,7 +220,7 @@
 		</div>
 	</section>
 
-	<%@ include file="../inc/footer.jsp"%>
+	<%@ include file="../../ticket/inc/footer.jsp"%>
 	<%@ include file="../inc/footer_link.jsp"%>
 
 	<script>
