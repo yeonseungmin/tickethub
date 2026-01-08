@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.ch.tickethub.dto.SeatGroup;
@@ -15,6 +16,8 @@ public class MybatisSeatGroupDAO implements SeatGroupDAO {
 
     @Autowired
     private SqlSessionTemplate sqlSession;
+    
+    private static final String NAMESPACE = "com.ch.tickethub.config.mybatis.SeatGroupMapper.xml";
 
     @Override
     public int insert(SeatGroup seatGroup) {
@@ -56,4 +59,16 @@ public class MybatisSeatGroupDAO implements SeatGroupDAO {
     public int delete(int seat_group_id) {
         return sqlSession.delete("SeatGroup.delete", seat_group_id);
     }
+
+    @Override
+    public void updateGroupPosition(@Param("seat_group_id") int seat_group_id, @Param("pos_x") int pos_x, @Param("pos_y") int pos_y) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("seat_group_id", seat_group_id);
+        params.put("pos_x", pos_x);
+        params.put("pos_y", pos_y);
+        
+        sqlSession.update(NAMESPACE + ".updateGroupPosition", params);
+    }
+    
+    
 }

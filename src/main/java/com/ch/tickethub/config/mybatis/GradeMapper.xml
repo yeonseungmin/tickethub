@@ -13,4 +13,11 @@
 	<select id="selectByGradeId" resultType="Grade" parameterType="int">
 		<include refid="sql_select_grade"/> where grade_id = #{value}
 	</select>
+	
+	<select id="selectGradeIdByCode" parameterType="string"
+		resultType="int">
+		SELECT grade_id
+		FROM grade
+		WHERE grade_code = #{value}
+	</select>
 </mapper>

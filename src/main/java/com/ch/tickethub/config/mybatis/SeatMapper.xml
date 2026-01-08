@@ -5,24 +5,25 @@
     <!-- ===================== -->
     <!-- ResultMap -->
     <!-- ===================== -->
-    <resultMap id="seatMap" 						type="Seat">
-        <id property="seat_id" 						column="seat_id"/>
-        <result property="seat_group_id"		column="seat_group_id"/>
-        <result property="seat_grade_id"		column="seat_grade_id"/>
-        <result property="seat_x" 					column="seat_x"/>
-        <result property="seat_y" 					column="seat_y"/>
-        <result property="seat_name" 			column="seat_name"/>
-        <result property="floor" 					column="floor"/>
-        <result property="seat_state" 			column="seat_state"/>
+    
+    <resultMap id="seatMap" 									type="Seat">
+        <id property="seat_id" 									column="seat_id"/>
+        <result property="seat_group_id" 					column="seat_group_id"/>
+        <result property="seat_grade_id"					column="seat_grade_id"/>
+        <result property="seat_x" 								column="seat_x"/>
+        <result property="seat_y" 								column="seat_y"/>
+        <result property="seat_name" 						column="seat_name"/>
+        <result property="floor" 								column="floor"/>
+        <result property="seat_state" 						column="seat_state"/>
     </resultMap>
 
     <!-- ===================== -->
     <!-- 좌석 등록 -->
     <!-- useGeneratedKeys pk값 생성시 들고와서 keyProperty 에 넣어주라 -->
     <!-- ===================== -->
-    <insert id="insert" parameterType="Seat" useGeneratedKeys="true" keyProperty="seat_id">
-        insert into seat (seat_group_id,seat_grade_id,seat_x,seat_y,seat_name,floor,seat_state) 
-        values (#{seat_group_id},#{seat_grade_id},#{seat_x},#{seat_y},#{seat_name},#{floor},#{seat_state})
+	<insert id="insert" parameterType="Seat" useGeneratedKeys="true" keyProperty="seat_id">
+        INSERT INTO seat (seat_group_id, seat_name, seat_x, seat_y, seat_grade_id,floor)
+        VALUES (#{seat_group_id}, #{seat_name}, #{seat_x}, #{seat_y}, #{seat_grade_id},#{floor})
     </insert>
 
     <!-- ===================== -->
@@ -57,11 +58,18 @@
 	</update>
     
     <select id="selectByGroup" parameterType="int" resultMap="seatMap">
-    select seat_id, seat_group_id, seat_grade_id,seat_x, seat_y, seat_name, floor, seat_state
-    from seat
-    where seat_group_id = #{seat_group_id}
-    order by seat_x, seat_y
-</select>
+	    select seat_id, seat_group_id, seat_grade_id,seat_x, seat_y, seat_name, floor, seat_state
+	    from seat
+	    where seat_group_id = #{seat_group_id}
+	    order by seat_x, seat_y
+	</select>
+	
+	<update id="updateSeatsPositionInGroup">
+	    UPDATE seat 
+	    SET pos_x = #{pos_x}, 
+	        pos_y = #{pos_y} 
+	    WHERE seat_group_id = #{seat_group_id}
+	</update>
     
 
 

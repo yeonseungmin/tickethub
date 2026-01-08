@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<link rel="stylesheet" href="static/assets/css/waiting.css">
+	<link rel="stylesheet" href="../static/assets/css/waiting.css">
 	<meta charset="UTF-8">
 	<title>대기열 - TicketHub</title>
 </head>
@@ -20,11 +20,14 @@
 	</div>
 
 	<script>
+		let type = "${type}";
+		let work_id = "${work_id}";
+	
 		let initialRank = 0; // 처음 내 순번을 기억할 변수
 		
 		document.addEventListener("DOMContentLoaded", function() {
 		    // 진입. 페이지 열리자마자 대기열 등록
-		    fetch("queue/enter", { method: "POST" })
+		    fetch("enter?type=" + type + "&work_id=" + work_id, { method: "POST" })
 		        .then(res => res.json())
 		        .then(data => {
 		            initialRank = data.rank; // 처음 순번 저장 (예: 100)
@@ -33,16 +36,23 @@
 		        });
 		
 		    function startPolling() {
-		        const timer = setInterval(() => {
+		    	let timer = setInterval(() => {
 		            // 조회. 0.7초마다 내 상태 물어보기
-		            fetch("queue/status")
-		                .then(res => res.json())
-		                .then(data => {
-		                    updateUI(data);
+		            fetch("status?type=" + type + "&work_id=" + work_id) 
+             		   .then(res => res.json())
+             		   .then(data => {
+                		    updateUI(data);
 		                    if (data.allowed) {
 		                        clearInterval(timer);
 		                        alert("입장합니다!");
-		                        location.href = "./"; // 홈으로 이동
+		                        if (type === "WORK") {
+		                            // 2차 대기열(예매) 통과했으면 예매 페이지로!
+		                            // 주의: 팝업창이라면 window.location.href 대신 다른 걸 써야 할 수도 있지만 일단 이렇게!
+		                            location.href = "../reservation?work_id=" + work_id;
+		                        } else {
+		                            // 1차 대기열(사이트 입장) 통과했으면 홈으로!
+		                            location.href = "../";
+		                        }
 		                    }
 		                });
 		        }, 700);

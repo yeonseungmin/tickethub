@@ -2,6 +2,7 @@ package com.ch.tickethub.controller.admin.performance;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +14,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.ch.tickethub.dto.Round;
 import com.ch.tickethub.exception.RoundCastingException;
 import com.ch.tickethub.exception.RoundException;
 import com.ch.tickethub.exception.UploadException;
@@ -80,5 +83,13 @@ public class RoundController {
 		
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
 	}
+	
+	// 회차 목록 AJAX 요청 처리 (404 해결용)
+		@GetMapping("/performance/round/list")
+		@ResponseBody
+		public List<Round> getRoundList(@RequestParam("work_id") int workId) {
+			log.debug("회차 목록 요청 수신 - 공연 ID: {}", workId);
+			return roundService.findByWorkId(workId);
+		}
 	
 }

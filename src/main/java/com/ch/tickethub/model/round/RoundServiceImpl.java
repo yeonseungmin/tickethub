@@ -63,5 +63,11 @@ public class RoundServiceImpl implements RoundService{
 		}
 		
 	}
+	
+	
+	@Override
+	public List<Round> findByWorkId(int workId) {
+		return roundDAO.selectByWorkId(workId);
+	}
 
 }

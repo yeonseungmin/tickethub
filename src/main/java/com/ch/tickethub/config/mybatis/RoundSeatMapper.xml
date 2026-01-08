@@ -26,33 +26,53 @@
         values (#{round_id}, #{seat_id}, #{status})
     </insert>
 
-    <select id="selectSeatDetailByRound" parameterType="int" resultType="com.ch.tickethub.dto.SeatDetail">
-        SELECT 
-            s.seat_id, s.seat_x, s.seat_y, s.seat_name, s.floor,
-            sg.seat_group_id, sg.group_name, sg.pos_x, sg.pos_y, sg.row_gap, sg.col_gap, sg.direction,
-            rs.round_id, rs.status, rs.reservation_id
-        FROM round_seat rs
-        JOIN seat s ON rs.seat_id = s.seat_id
-        JOIN seat_group sg ON s.seat_group_id = sg.seat_group_id
-        WHERE rs.round_id = #{round_id}
-    </select>
+	<select id="selectSeatDetailByRound" parameterType="int" resultType="SeatDetail">
+	    SELECT 
+	        s.seat_id, s.seat_x, s.seat_y, s.seat_name, s.floor,
+	        sg.seat_group_id, sg.group_name, sg.pos_x, sg.pos_y, sg.row_gap, sg.col_gap, sg.direction,
+	        sgr.on_img_url, sgr.sold_img_url,
+	        rs.round_id, rs.status, rs.reservation_id
+	    FROM round_seat rs
+	    JOIN seat s ON rs.seat_id = s.seat_id
+	    JOIN seat_group sg ON s.seat_group_id = sg.seat_group_id
+	    JOIN seat_grade sgr ON s.seat_grade_id = sgr.seat_grade_id 
+	    WHERE rs.round_id = #{round_id}
+	</select>
 
-    <update id="updateStatus" parameterType="RoundSeat">
-        UPDATE round_seat
-        SET 
-            status = #{status},
-            reservation_id = #{reservation_id},
-            preempted_at = #{preempted_at},
-            reserved_at = #{reserved_at},
-            canceled_at = #{canceled_at}
-        WHERE round_id = #{round_id} 
-          AND seat_id = #{seat_id}
-        <if test="status == 'PREEMPTED'">
-          AND status = 'AVAILABLE'
-        </if>
-        <if test="status == 'RESERVED'">
-          AND status = 'PREEMPTED'
-        </if>
-    </update>
+	<update id="updateStatus" parameterType="RoundSeat">
+	    UPDATE round_seat
+	    SET 
+	        status = #{status}
+	        <if test="status == 'AVAILABLE'">
+	        	, reservation_id = NULL
+	            , preempted_at = NULL
+	            , reserved_at = NULL
+	            , canceled_at = NULL
+	        </if>
+	        <if test="status == 'PREEMPTED'">
+	            , preempted_at = NOW()
+	        </if>
+	        <if test="status == 'RESERVED'">
+	            , reserved_at = NOW()
+	        </if>
+	        <if test="status == 'CANCELED'">
+	            , canceled_at = NOW()
+	        </if>
+	    WHERE round_id = #{round_id} 
+	      AND seat_id = #{seat_id}
+	    </update>
+	    
+		<insert id="insertBulkByGroup" parameterType="int">
+		    INSERT INTO round_seat (round_id, seat_id, status)
+		    SELECT r.round_id, s.seat_id, 'AVAILABLE'
+		    FROM seat s
+		    JOIN seat_group sg ON s.seat_group_id = sg.seat_group_id
+		    JOIN round r ON sg.place_id = r.place_id
+		    WHERE s.seat_group_id = #{seat_group_id}
+		      AND NOT EXISTS (
+		          SELECT 1 FROM round_seat rs 
+		          WHERE rs.round_id = r.round_id AND rs.seat_id = s.seat_id
+		      )
+		</insert>
 
 </mapper>

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
+
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true" />
+	</settings>
+	
 	<typeAliases>
 		<typeAlias type = "com.ch.tickethub.dto.Person" alias = "Person"/>
 		<typeAlias type = "com.ch.tickethub.dto.Place" alias = "Place"/>
@@ -40,8 +45,8 @@
 		<mapper resource = "com/ch/tickethub/config/mybatis/SeatGroupMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/RoundSeatMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/ReservationMapper.xml"/>
-		<mapper resource = "com/ch/tickethub/config/mybatis/SeatGradeMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/DiscountDetailMapper.xml"/>
 		
 	</mappers>
+
 </configuration>

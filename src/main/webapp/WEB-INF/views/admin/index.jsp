@@ -717,18 +717,30 @@
 			});
 			
 			
-			// 좌석 관리 클릭 이벤트
-			$($(".seat .nav-item")[0]).click(function(e){
-				e.preventDefault();
-				$.ajax({
-					url:"/admin/seatmanager/seat/manager",
-					method:"GET",
-					success:function(result){
-						console.log("좌석관리 클릭됨!!");
-						$(".content-wrapper").html(result);
-					}
-				});
-			});
+			
+			// 좌석 상태 관리 클릭 (첫 번째 메뉴)
+		    $($(".seat .nav-item")[0]).click(function(e){
+		        e.preventDefault();
+		        $.ajax({
+		            url: "/admin/seatmanager/seat/state/main", // 수정됨
+		            method: "GET",
+		            success: function(result){
+		                $(".content-wrapper").html(result);
+		            }
+		        });
+		    });
+
+		    // 좌석 등급 관리 클릭 (두 번째 메뉴)
+		    $($(".seat .nav-item")[1]).click(function(e){
+		        e.preventDefault();
+		        $.ajax({
+		            url: "/admin/seatmanager/seat/grade/main", // 수정됨
+		            method: "GET",
+		            success: function(result){
+		                $(".content-wrapper").html(result);
+		            }
+		        });
+		    });
 			
 			
 		});

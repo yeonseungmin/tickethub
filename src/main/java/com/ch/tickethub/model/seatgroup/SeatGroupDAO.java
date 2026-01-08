@@ -1,6 +1,9 @@
 package com.ch.tickethub.model.seatgroup;
 
 import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
 import com.ch.tickethub.dto.SeatGroup;
 
 public interface SeatGroupDAO {
@@ -27,4 +30,6 @@ public interface SeatGroupDAO {
 
     // 구역 삭제
 	public int delete(int seat_group_id);
+	// 구역 좌표 업데이트 메서드 추가
+	void updateGroupPosition(@Param("seat_group_id") int seat_group_id, @Param("pos_x") int pos_x, @Param("pos_y") int pos_y);
 }

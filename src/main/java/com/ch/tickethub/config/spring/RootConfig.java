@@ -79,4 +79,17 @@ public class RootConfig extends WebMvcConfigurerAdapter {
 	public SqlSessionTemplate sqlSessionTemplate(SqlSessionFactory sqlSessionFactory) throws Exception {
 		return new SqlSessionTemplate(sqlSessionFactory);
 	}
+	
+
+	@Bean
+	public JndiTemplate jndiTemplate() {
+	    return new JndiTemplate();
+	}
+
+	@Bean(name = "emailPassword")
+	public String emailPassword(JndiTemplate jndiTemplate) throws NamingException {
+	    return (String) jndiTemplate.lookup("java:comp/env/email/app/password");
+	}
+	
+	
 }
