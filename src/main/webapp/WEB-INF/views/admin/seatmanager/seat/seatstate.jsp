@@ -76,6 +76,24 @@
             <button class="status-btn btn-canceled" onclick="changeStatus('CANCELED')">CANCELED</button>
             <button class="status-btn btn-delete" onclick="deleteSeat()">DELETE SEAT</button>
         </div>
+		<h3 class="panel-title">Seat Control</h3>
+	    <div class="area-registration-box">
+	        <p class="section-title">새 구역 등록</p>
+	        <div class="input-group-vertical">
+	            <select id="newGroupName" class="admin-input-full">
+		            <option value="">등급 선택</option>
+		            <option value="VIP 석">VIP 석</option>
+		            <option value="R 석">R 석</option>
+		            <option value="S 석">S 석</option>
+		            <option value="A 석">A 석</option>
+		            <option value="장애인 석">장애인 석</option>
+		        </select>
+	            <button class="add-area-btn" onclick="addNewArea()">
+	                <span class="icon-plus">+</span> 구역 추가하기
+	            </button>
+	        </div>
+	    </div>
+	    <hr class="panel-divider">
 
         <div class="auto-gen-box">
             <p class="section-title">좌석 자동 생성</p>
@@ -483,6 +501,59 @@ $(document).ready(function() {
 	        },
 	        error: function(xhr) {
 	            alert("서버와 통신 중 오류가 발생했습니다.");
+	        }
+	    });
+	}
+	
+	function addNewArea() {
+	    const placeId = $('#placeSelect').val();
+	    const groupName = $('#newGroupName').val();
+
+	    if (!placeId) {
+	        alert("먼저 상단에서 장소(PLACE)를 선택해주세요.");
+	        return;
+	    }
+	    if (!groupName.trim()) {
+	        alert("추가할 구역 이름을 입력해주세요.");
+	        return;
+	    }
+
+	    if (!confirm(`[${groupName}] 구역을 추가하시겠습니까?`)) return;
+
+	    $.ajax({
+	        url: contextPath + '/admin/seatgroup/area/add', // 컨트롤러 RequestMapping 확인 필요
+	        type: 'POST',
+	        data: {
+	            place_id: placeId,
+	            group_name: groupName
+	        },
+	        success: function(res) {
+	            if (res === "success") {
+	                alert("구역이 성공적으로 추가되었습니다.");
+	                $('#newGroupName').val(''); // 입력창 비우기
+	                
+	                // [핵심] 구역 목록 드롭다운만 다시 불러와서 갱신
+	                refreshGroupSelect(placeId);
+	            } else {
+	                console.log("추가 실패: " + res);
+	            }
+	        },
+	        error: function() {
+	            alert("서버 통신 중 오류가 발생했습니다.");
+	        }
+	    });
+	}
+
+	// 구역 드롭다운을 최신화하는 공통 함수
+	function refreshGroupSelect(placeId) {
+	    $.get(contextPath + '/admin/seatgroup/list', { place_id: placeId }, function(groupList) {
+	        const $groupSelect = $('#groupSelect');
+	        $groupSelect.empty().append('<option value="">구역 선택</option>');
+	        
+	        if (groupList && groupList.length > 0) {
+	            groupList.forEach(function(group) {
+	                $groupSelect.append('<option value="' + group.seat_group_id + '">' + group.group_name + '</option>');
+	            });
 	        }
 	    });
 	}

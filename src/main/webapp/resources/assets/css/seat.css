@@ -333,3 +333,66 @@ html, body {
     opacity: 0;
     transition: all 0.3s ease;
 }
+
+/* 구역 등록 섹션 스타일 */
+.area-registration-box {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.section-title {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #495057;
+    margin-bottom: 10px;
+}
+
+.input-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.admin-input-full {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.admin-input-full:focus {
+    border-color: #80bdff;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.add-area-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #28a745; /* 성공/추가 의미의 초록색 */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.add-area-btn:hover {
+    background-color: #218838;
+}
+
+.panel-divider {
+    margin: 20px 0;
+    border: 0;
+    border-top: 1px dashed #ccc;
+}
+
+.icon-plus {
+    margin-right: 5px;
+    font-size: 1.1rem;
+}
