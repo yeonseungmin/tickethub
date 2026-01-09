@@ -76,16 +76,22 @@
             <button class="status-btn btn-canceled" onclick="changeStatus('CANCELED')">CANCELED</button>
             <button class="status-btn btn-delete" onclick="deleteSeat()">DELETE SEAT</button>
         </div>
-		<h3 class="panel-title">Seat Control</h3>
 	    <div class="area-registration-box">
 	        <p class="section-title">새 구역 등록</p>
 	        <div class="input-group-vertical">
 	            <select id="newGroupName" class="admin-input-full">
 		            <option value="">등급 선택</option>
-		            <option value="VIP 석">VIP 석</option>
-		            <option value="R 석">R 석</option>
-		            <option value="S 석">S 석</option>
-		            <option value="A 석">A 석</option>
+		            <option value="중앙 1F">중앙 1F</option>
+		            <option value="중앙 2F">중앙 2F</option>
+		            <option value="좌측 하단 1F">좌측 하단 1F</option>
+		            <option value="좌측 상단 1F">좌측 상단 1F</option>
+		            <option value="우측 하단 1F">우측 하단 1F</option>
+		            <option value="우측 상단 1F">우측 상단 1F</option>
+		            <option value="좌측 하단 2F">좌측 하단 2F</option>
+		            <option value="좌측 상단 2F">좌측 상단 2F</option>
+		            <option value="우측 하단 2F">우측 하단 2F</option>
+		            <option value="우측 상단 2F">우측 상단 2F</option>
+
 		            <option value="장애인 석">장애인 석</option>
 		        </select>
 	            <button class="add-area-btn" onclick="addNewArea()">
@@ -111,244 +117,214 @@
 </div>
 
 <script>
-/* 1. 전역 상태 변수 */
-var selectedSeatId = null;
-var contextPath = '<%=contextPath%>';
-let isDragging = false;
-let currentGroup = null;
-let offset = { x: 0, y: 0 };
-let groupsData = {}; // 모든 구역의 최신 좌표를 보관
-
-$(document).ready(function() {
-    
-    // [A] 장소 선택 시 -> 공연 목록 및 구역 목록 불러오기
-    $('#placeSelect').on('change', function() {
-        var placeId = $(this).val();
-        $('#workSelect').empty().append('<option value="">공연 선택</option>');
-        $('#roundSelect').empty().append('<option value="">회차 선택</option>');
-        $('#groupSelect').empty().append('<option value="">구역 선택</option>'); 
-        
-        if (!placeId) return;
-
-        // 1. 공연 목록 로드
-        $.get(contextPath + '/admin/roundseat/workList', { place_id: placeId }, function(data) {
-            data.forEach(function(work) {
-                $('#workSelect').append('<option value="' + work.work_id + '">' + work.work_title + '</option>');
-            });
-        });
-
-        // 2. 구역 목록 로드 (좌석 자동 생성용 드롭다운)
-        $.get(contextPath + '/admin/seatgroup/list', { place_id: placeId }, function(groupList) {
-            var $groupSelect = $('#groupSelect');
-            if (groupList && groupList.length > 0) {
-                groupList.forEach(function(group) {
-                    $groupSelect.append('<option value="' + group.seat_group_id + '">' + group.group_name + '</option>');
-                });
-            }
-        });
-    });
-
-    // [B] 공연 선택 시 -> 회차 목록 불러오기
-	$('#workSelect').on('change', function() {
-	    var workId = $(this).val();
-	    var placeId = $('#placeSelect').val(); // 현재 선택된 장소 ID 가져오기
-	    
-	    $('#roundSelect').empty().append('<option value="">회차 선택</option>');
-	    
-	    // 장소와 공연이 모두 선택되어야 요청함
-	    if (!workId || !placeId) return;
+	/* 1. 전역 상태 변수 */
+	var selectedSeatIds = [];
+	var contextPath = '<%=contextPath%>';
+	let isDragging = false;
+	let currentGroup = null;
+	let offset = { x: 0, y: 0 };
+	let groupsData = {}; 
 	
-	    $.get(contextPath + '/admin/roundseat/roundList', { 
-	        work_id: workId, 
-	        place_id: placeId  // 서버로 장소 ID도 함께 보냄
-	    }, function(data) {
-	        data.forEach(function(round) {
-	            // 사용자에게 보일 때 장소 정보를 살짝 표시해주면 더 확실합니다.
-	            var roundText = round.round_date + ' (' + round.round_start_time + ')';
-	            $('#roundSelect').append('<option value="' + round.round_id + '">' + roundText + '</option>');
+	/* [추가] Lasso 선택용 변수 */
+	let isSelecting = false;
+	let startX, startY;
+	let $selectionBox = $('<div class="selection-box"></div>');
+	
+	$(document).ready(function() {
+	    // [기존 코드 그대로] 장소 선택
+	    $('#placeSelect').on('change', function() {
+	        var placeId = $(this).val();
+	        $('#workSelect').empty().append('<option value="">공연 선택</option>');
+	        $('#roundSelect').empty().append('<option value="">회차 선택</option>');
+	        $('#groupSelect').empty().append('<option value="">구역 선택</option>'); 
+	        if (!placeId) return;
+	        $.get(contextPath + '/admin/roundseat/workList', { place_id: placeId }, function(data) {
+	            data.forEach(function(work) {
+	                $('#workSelect').append('<option value="' + work.work_id + '">' + work.work_title + '</option>');
+	            });
+	        });
+	        $.get(contextPath + '/admin/seatgroup/list', { place_id: placeId }, function(groupList) {
+	            var $groupSelect = $('#groupSelect');
+	            if (groupList && groupList.length > 0) {
+	                groupList.forEach(function(group) {
+	                    $groupSelect.append('<option value="' + group.seat_group_id + '">' + group.group_name + '</option>');
+	                });
+	            }
 	        });
 	    });
+	
+	    // [기존 코드 그대로] 공연 선택
+	    $('#workSelect').on('change', function() {
+	        var workId = $(this).val();
+	        var placeId = $('#placeSelect').val(); 
+	        $('#roundSelect').empty().append('<option value="">회차 선택</option>');
+	        if (!workId || !placeId) return;
+	        $.get(contextPath + '/admin/roundseat/roundList', { 
+	            work_id: workId, 
+	            place_id: placeId  
+	        }, function(data) {
+	            data.forEach(function(round) {
+	                var roundText = round.round_date + ' (' + round.round_start_time + ')';
+	                $('#roundSelect').append('<option value="' + round.round_id + '">' + roundText + '</option>');
+	            });
+	        });
+	    });
+
+	    // [기존 코드 그대로] 좌석 불러오기
+	    $('#btnLoadSeats').on('click', function() {
+	        var roundId = $('#roundSelect').val();
+	        if (!roundId) { alert('회차를 선택해주세요.'); return; }
+	        $.get(contextPath + '/admin/roundseat/list', { round_id: roundId }, function(seatList) {
+	            renderStatusMap(seatList);
+	        });
+	    });
+	
+	    // [기존 코드 그대로] 배치 저장
+	    $(document).on('click', '#btnSaveLayout', function() {
+	        const groupIds = Object.keys(groupsData);
+	        if (groupIds.length === 0) { alert("저장할 구역 데이터가 없습니다."); return; }
+	        if (!confirm("변경된 모든 구역의 위치를 DB에 저장하시겠습니까?")) return;
+	        let total = groupIds.length;
+	        groupIds.forEach(function(gid) {
+	            const g = groupsData[gid];
+	            $.ajax({
+	                url: contextPath + '/admin/seatgroup/updateGroupPos',
+	                type: 'POST',
+	                data: { "seat_group_id": gid, "pos_x": Math.round(g.posX), "pos_y": Math.round(g.posY) },
+	                success: function() { if (--total === 0) alert("성공적으로 저장되었습니다."); },
+	                error: function() { if (--total === 0) alert("저장 중 오류 발생"); }
+	            });
+	        });
+	    });
+	
+	    /* --- [신규 추가] 다중 선택(Lasso) 마우스 이벤트 --- */
+	    $('#seatArea').on('mousedown', function(e) {
+	        if (isDragging || $(e.target).closest('.admin-seat').length > 0) return;
+	        isSelecting = true;
+	        const areaOffset = $(this).offset();
+	        startX = e.pageX - areaOffset.left;
+	        startY = e.pageY - areaOffset.top;
+	        $selectionBox.css({ left: startX, top: startY, width: 0, height: 0 });
+	        $(this).append($selectionBox);
+	        if (!e.ctrlKey) {
+	            selectedSeatIds = [];
+	            $('.admin-seat').removeClass('selected-multi');
+	        }
+	    });
+	
+	    $(document).on('mousemove', function(e) {
+	        if (!isSelecting) return;
+	        const areaOffset = $('#seatArea').offset();
+	        let curX = e.pageX - areaOffset.left;
+	        let curY = e.pageY - areaOffset.top;
+	        let left = Math.min(startX, curX), top = Math.min(startY, curY);
+	        let width = Math.abs(startX - curX), height = Math.abs(startY - curY);
+	        $selectionBox.css({ left: left, top: top, width: width, height: height });
+	
+	        $('.admin-seat').each(function() {
+	            let $s = $(this), sPos = $s.position(), sId = $s.data('seat-id');
+	            let isInside = (sPos.left >= left && sPos.left <= left + width && sPos.top >= top && sPos.top <= top + height);
+	            if (isInside) {
+	                if (!selectedSeatIds.includes(sId)) { selectedSeatIds.push(sId); $s.addClass('selected-multi'); }
+	            } else if (!e.ctrlKey) {
+	                const idx = selectedSeatIds.indexOf(sId);
+	                if (idx > -1) { selectedSeatIds.splice(idx, 1); $s.removeClass('selected-multi'); }
+	            }
+	        });
+	        updateSelectionInfo();
+	    });
+	
+	    $(document).on('mouseup', function() {
+	        if (isSelecting) { isSelecting = false; $selectionBox.remove(); }
+	    });
 	});
-
-    // [C] 좌석 불러오기 버튼 클릭
-    $('#btnLoadSeats').on('click', function() {
-        var roundId = $('#roundSelect').val();
-        if (!roundId) { alert('회차를 선택해주세요.'); return; }
-        
-        $.get(contextPath + '/admin/roundseat/list', { round_id: roundId }, function(seatList) {
-            renderStatusMap(seatList);
-        });
-    });
-
-    // [D] ★ 일괄 배치 저장 버튼 클릭 ★
-    $(document).on('click', '#btnSaveLayout', function() {
-        const groupIds = Object.keys(groupsData);
-        if (groupIds.length === 0) {
-            alert("저장할 구역 데이터가 없습니다. 먼저 좌석을 불러와주세요.");
-            return;
-        }
-
-        if (!confirm("변경된 모든 구역의 위치를 DB에 저장하시겠습니까?")) return;
-
-        let total = groupIds.length;
-        let successCount = 0;
-
-        groupIds.forEach(function(gid) {
-            const g = groupsData[gid];
-            $.ajax({
-                url: contextPath + '/admin/seatgroup/updateGroupPos',
-                type: 'POST',
-                data: {
-                    "seat_group_id": gid,
-                    "pos_x": Math.round(g.posX),
-                    "pos_y": Math.round(g.posY)
-                },
-                success: function(res) {
-                    successCount++;
-                    if (--total === 0) alert("성공적으로 저장되었습니다.");
-                },
-                error: function() {
-                    if (--total === 0) alert("저장 중 일부 오류가 발생했습니다.");
-                }
-            });
-        });
-    });
-});
-
-/* -------------------------------------------------------------------------- */
-/* 렌더링 및 드래그 관련 함수 (기존 로직 유지 + CSS 클래스화)
-/* -------------------------------------------------------------------------- */
-	/* [수정] 좌석 불러오기 전용 함수 (중복 제거 및 비동기 재사용을 위해 분리) */
+	
+	/* -------------------------------------------------------------------------- */
+	/* 전역 함수부 (HTML onclick에서 호출하는 함수들 - 중복 유지)
+	/* -------------------------------------------------------------------------- */
+	
+	function updateSelectionInfo(status) {
+	    const count = selectedSeatIds.length;
+	    $('#selName').text(count > 0 ? count + "개 선택됨" : "-");
+	    $('#selState').text(count === 1 ? (status || "SELECTED") : (count > 1 ? "MULTI" : "-"));
+	}
+	
 	function loadSeatLayout() {
 	    var roundId = $('#roundSelect').val();
-	    console.log("현재 요청하는 회차 ID:", roundId);
-	    if (!roundId) {
-	        alert('회차를 선택해주세요.');
-	        return;
-	    }
-	    
-	    // 불러오기 전 기존 좌석 및 구역 박스 완전히 삭제 (장소 변경 시 잔상 방지)
+	    if (!roundId) { alert('회차를 선택해주세요.'); return; }
 	    $('#seatArea').find('.admin-seat, .group-boundary-box').remove();
-	    
 	    $.get(contextPath + '/admin/roundseat/list', { round_id: roundId }, function(seatList) {
-	        if (!seatList || seatList.length === 0) {
-	            alert("해당 회차에 생성된 좌석이 없습니다. [좌석 자동 생성]을 먼저 진행해주세요.");
-	            return;
-	        }
 	        renderStatusMap(seatList);
-	        console.log("Loaded round_id: " + roundId + ", Seats: " + seatList.length);
 	    });
 	}
 	
-	/* [수정] 좌석 상태 변경 함수 */
+	//[수정] 상태 변경 (유효성 검사 강화)
 	function changeStatus(status) {
-	    if (!selectedSeatId) {
-	        alert("변경할 좌석을 먼저 선택해주세요.");
-	        return;
-	    }
-	
-	    var roundId = $('#roundSelect').val();
-	    if (!roundId) {
-	        alert("회차 정보를 확인할 수 없습니다.");
-	        return;
-	    }
-	
-	    if (!confirm("선택한 좌석의 상태를 [" + status + "]로 변경하시겠습니까?")) return;
-	
-	    $.ajax({
-	        url: contextPath + '/admin/roundseat/updateStatus', 
-	        type: 'POST',
-	        data: {
-	            "seat_id": selectedSeatId,
-	            "round_id": roundId,
-	            "status": status 
-	        },
-	        success: function(res) {
-	            if(res === "success") {
-	                alert("상태가 변경되었습니다.");
-	                loadSeatLayout(); // 새로고침 없이 비동기로 다시 로드
-	            } else {
-	                alert("변경 실패: " + res);
-	            }
-	        },
-	        error: function(xhr) {
-	            alert("통신 오류가 발생했습니다.");
-	        }
-	    });
-	}
-	
-	/* [수정] 좌석 자동 생성 함수 (비동기 최적화 및 모든 Place 대응) */
-	function createSeats() {
-	    var groupId = $('#groupSelect').val(); 
-	    var rowCount = $('#rowCount').val();
-	    var colCount = $('#colCount').val();
-	    var placeId = $('#placeSelect').val(); // 현재 선택된 장소 ID
-	
-	    if (!groupId || !rowCount || !colCount) {
-	        alert("구역 및 행/열 정보를 입력해주세요.");
-	        return;
-	    }
-	
-	    if (!confirm("선택한 구역(ID:" + groupId + ")에 좌석을 생성하시겠습니까?")) return;
-	
-	    // 생성 중 화면 클릭 방지 및 로딩 표시
-	    $('#admin-seat-wrapper').css('opacity', '0.5');
-	
-	    $.ajax({
-	        url: contextPath + '/admin/seatgroup/createBulk',
-	        type: 'POST',
-	        data: {
-	            "seat_group_id": groupId,
-	            "row_count": rowCount,
-	            "col_count": colCount
-	        },
-	        success: function(res) {
-	            if (res === "success") {
-	                alert("좌석 생성이 완료되었습니다.");
-	                // location.reload()를 삭제하고, 현재 선택된 회차가 있다면 즉시 비동기 로드
-	                if($('#roundSelect').val()) {
-	                    loadSeatLayout();
-	                }
-	            } else {
-	                alert("생성 실패: " + res);
-	            }
-	        },
-	        error: function(xhr) {
-	            alert("서버 오류가 발생했습니다.");
-	        },
-	        complete: function() {
-	            $('#admin-seat-wrapper').css('opacity', '1.0');
-	        }
-	    });
-	}
-	
-	/* [이벤트 바인딩] 기존 '좌석 불러오기' 버튼에 함수 연결 */
-	$(document).ready(function() {
-	    $('#btnLoadSeats').off('click').on('click', function() {
-	        loadSeatLayout();
-	    });
+	    // 1. 유효한 ID만 남기기 (null, undefined 제거)
+	    selectedSeatIds = selectedSeatIds.filter(id => id != null && id !== "");
 	    
-	    // 장소가 바뀌면 화면을 즉시 비움 (다른 장소 데이터 혼선 방지)
-	    $('#placeSelect').on('change', function() {
-	        // [수정] $('#seatArea').empty(); 를 아래 줄로 교체
-	        $('#seatArea').find('.admin-seat, .group-boundary-box').remove();
-	        groupsData = {}; 
+	    if (selectedSeatIds.length === 0) { 
+	        alert("변경할 좌석을 선택해주세요."); 
+	        return; 
+	    }
+	    
+	    var roundId = $('#roundSelect').val();
+	    if (!roundId) { alert("회차를 먼저 선택해주세요."); return; }
+	    
+	    if (!confirm(selectedSeatIds.length + "개 좌석을 [" + status + "]로 변경하시겠습니까?")) return;
+	
+	    let requests = selectedSeatIds.map(id => 
+	        $.post(contextPath + '/admin/roundseat/updateStatus', { 
+	            seat_id: id, 
+	            round_id: roundId, 
+	            status: status 
+	        })
+	    );
+	    
+	    Promise.all(requests).then(() => { 
+	        alert("변경 완료"); 
+	        loadSeatLayout(); 
+	    }).catch(err => {
+	        console.error("상태 변경 중 오류:", err);
+	        alert("일부 좌석 변경에 실패했습니다.");
 	    });
-	});
+	}
+	
+	// [수정] 삭제 (유효성 검사 강화)
+	function deleteSeat() {
+	    selectedSeatIds = selectedSeatIds.filter(id => id != null && id !== "");
+	    
+	    if (selectedSeatIds.length === 0) { 
+	        alert("삭제할 좌석을 선택해주세요."); 
+	        return; 
+	    }
+	    
+	    if (!confirm("선택한 " + selectedSeatIds.length + "개 좌석을 삭제하시겠습니까?")) return;
+	
+	    let requests = selectedSeatIds.map(id => 
+	        $.post(contextPath + '/admin/seatmanager/seat/state/delete', { seat_id: id })
+	    );
+	    
+	    Promise.all(requests).then(() => { 
+	        alert("삭제 완료"); 
+	        selectedSeatIds = []; 
+	        loadSeatLayout(); 
+	    }).catch(err => {
+	        console.error("삭제 중 오류:", err);
+	        alert("일부 좌석 삭제에 실패했습니다.");
+	    });
+	}
+	
 	function renderStatusMap(seatList) {
 	    var $container = $('#seatArea');
 	    $container.find('.admin-seat, .group-boundary-box').remove();
-	    if (!seatList || seatList.length === 0) return;
-	
-	    // 1. 구역 데이터 계산
 	    var groups = {};
 	    seatList.forEach(function(seat) {
 	        if (!groups[seat.seat_group_id]) {
 	            groups[seat.seat_group_id] = {
 	                name: seat.group_name || 'Unknown',
 	                minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity,
-	                posX: seat.pos_x, posY: seat.pos_y,
-	                rowGap: seat.row_gap, colGap: seat.col_gap
+	                posX: seat.pos_x, posY: seat.pos_y, rowGap: seat.row_gap, colGap: seat.col_gap
 	            };
 	        }
 	        var curX = seat.pos_x + (seat.seat_x.charCodeAt(0) - 65) * seat.col_gap;
@@ -359,49 +335,35 @@ $(document).ready(function() {
 	    });
 	    groupsData = groups;
 	
-	    // 2. 구역 경계 박스 생성
 	    Object.keys(groups).forEach(function(groupId) {
 	        var g = groups[groupId];
-	        var padding = 20;
-	        var $box = $('<div class="group-boundary-box"></div>')
-	            .attr('data-group-id', groupId)
-	            .css({
-	                'left': (g.minX - padding) + 'px',
-	                'top': (g.minY - padding) + 'px',
-	                'width': (g.maxX - g.minX + 32 + padding * 2) + 'px',
-	                'height': (g.maxY - g.minY + 32 + padding * 2) + 'px'
-	            });
+	        var $box = $('<div class="group-boundary-box"></div>').attr('data-group-id', groupId)
+	            .css({ left: (g.minX - 20) + 'px', top: (g.minY - 20) + 'px', width: (g.maxX - g.minX + 72) + 'px', height: (g.maxY - g.minY + 72) + 'px' });
 	        $box.append($('<div class="group-name-label"></div>').text(g.name));
 	        $container.append($box);
 	        initGroupDrag($box, groupId);
 	    });
 	
-	    // 3. 개별 좌석 생성
 	    seatList.forEach(function(seat) {
 	        var sStatus = (seat.status || 'AVAILABLE').toUpperCase();
 	        var finalX = seat.pos_x + (seat.seat_x.charCodeAt(0) - 65) * seat.col_gap;
 	        var finalY = seat.pos_y + (seat.seat_y - 1) * seat.row_gap;
-	
 	        var $seatDiv = $('<div class="admin-seat"></div>')
-	            .attr({
-	                'data-seat-id': seat.seat_id,
-	                'data-group-id': seat.seat_group_id,
-	                'data-orig-x': finalX,
-	                'data-orig-y': finalY
-	            })
-	            .css({
-	                'left': finalX + 'px',
-	                'top': finalY + 'px',
-	                'background-image': "url('" + contextPath + "/static/assets/adminSeatImg/" + sStatus + ".png')"
-	            });
+	            .attr({ 'data-seat-id': seat.seat_id, 'data-group-id': seat.seat_group_id, 'data-orig-x': finalX, 'data-orig-y': finalY })
+	            .css({ left: finalX + 'px', top: finalY + 'px', backgroundImage: "url('" + contextPath + "/static/assets/adminSeatImg/" + sStatus + ".png')" });
 	
 	        $seatDiv.on('click', function(e) {
 	            e.stopPropagation();
-	            selectedSeatId = seat.seat_id;
-	            $('#selName').text(seat.seat_name);
-	            $('#selState').text(sStatus);
-	            $('.admin-seat').css('outline', 'none');
-	            $(this).css('outline', '2px solid yellow');
+	            if (e.ctrlKey) {
+	                const idx = selectedSeatIds.indexOf(seat.seat_id);
+	                if (idx > -1) { selectedSeatIds.splice(idx, 1); $(this).removeClass('selected-multi'); }
+	                else { selectedSeatIds.push(seat.seat_id); $(this).addClass('selected-multi'); }
+	            } else {
+	                $('.admin-seat').removeClass('selected-multi');
+	                selectedSeatIds = [seat.seat_id];
+	                $(this).addClass('selected-multi');
+	            }
+	            updateSelectionInfo(sStatus);
 	        });
 	        $container.append($seatDiv);
 	    });
@@ -410,151 +372,58 @@ $(document).ready(function() {
 	function initGroupDrag($box, groupId) {
 	    $box.on('mousedown', function(e) {
 	        if ($(e.target).hasClass('admin-seat')) return;
-	        isDragging = true;
-	        currentGroup = groupId;
+	        isDragging = true; currentGroup = groupId;
 	        var boxOffset = $box.position();
-	        offset.x = e.pageX - boxOffset.left;
-	        offset.y = e.pageY - boxOffset.top;
-	        $box.addClass('dragging');
-	        e.preventDefault();
+	        offset.x = e.pageX - boxOffset.left; offset.y = e.pageY - boxOffset.top;
+	        $box.addClass('dragging'); e.preventDefault();
 	    });
 	}
 	
 	$(document).on('mousemove', function(e) {
 	    if (!isDragging || !currentGroup) return;
-	    var g = groupsData[currentGroup];
-	    var $box = $('.group-boundary-box[data-group-id="' + currentGroup + '"]');
-	    var newL = e.pageX - offset.x;
-	    var newT = e.pageY - offset.y;
+	    var g = groupsData[currentGroup], $box = $('.group-boundary-box[data-group-id="' + currentGroup + '"]');
+	    var newL = e.pageX - offset.x, newT = e.pageY - offset.y;
 	    $box.css({ left: newL + 'px', top: newT + 'px' });
-	
-	    var dx = (newL + 20) - g.minX;
-	    var dy = (newT + 20) - g.minY;
-	
+	    var dx = (newL + 20) - g.minX, dy = (newT + 20) - g.minY;
 	    $('.admin-seat[data-group-id="' + currentGroup + '"]').each(function() {
-	        var $s = $(this);
-	        var ox = parseFloat($s.attr('data-orig-x'));
-	        var oy = parseFloat($s.attr('data-orig-y'));
+	        var $s = $(this), ox = parseFloat($s.attr('data-orig-x')), oy = parseFloat($s.attr('data-orig-y'));
 	        $s.css({ left: (ox + dx) + 'px', top: (oy + dy) + 'px' });
 	    });
 	});
 	
 	$(document).on('mouseup', function() {
 	    if (isDragging && currentGroup) {
-	        var $box = $('.group-boundary-box[data-group-id="' + currentGroup + '"]');
-	        var g = groupsData[currentGroup];
-	        var dx = (parseFloat($box.css('left')) + 20) - g.minX;
-	        var dy = (parseFloat($box.css('top')) + 20) - g.minY;
-	
-	        g.posX += dx; g.posY += dy;
-	        g.minX += dx; g.minY += dy;
-	
+	        var $box = $('.group-boundary-box[data-group-id="' + currentGroup + '"]'), g = groupsData[currentGroup];
+	        var dx = (parseFloat($box.css('left')) + 20) - g.minX, dy = (parseFloat($box.css('top')) + 20) - g.minY;
+	        g.posX += dx; g.posY += dy; g.minX += dx; g.minY += dy;
 	        $('.admin-seat[data-group-id="' + currentGroup + '"]').each(function() {
-	            var $s = $(this);
-	            $s.attr('data-orig-x', parseFloat($s.css('left')));
-	            $s.attr('data-orig-y', parseFloat($s.css('top')));
+	            var $s = $(this); $s.attr('data-orig-x', parseFloat($s.css('left'))).attr('data-orig-y', parseFloat($s.css('top')));
 	        });
-	
-	        $box.removeClass('dragging');
-	        isDragging = false;
-	        currentGroup = null;
+	        $box.removeClass('dragging'); isDragging = false; currentGroup = null;
 	    }
 	});
 	
-	function deleteSeat() {
-	    if (!selectedSeatId) {
-	        alert("삭제할 좌석을 선택해주세요.");
-	        return;
-	    }
-
-	    if (!confirm("정말로 이 좌석을 삭제하시겠습니까?\n이 작업은 즉시 반영되며 복구할 수 없습니다.")) {
-	        return;
-	    }
-
-	    $.ajax({
-	        url: contextPath + '/admin/seatmanager/seat/state/delete',
-	        type: 'POST',
-	        data: { seat_id: selectedSeatId },
-	        success: function(response) {
-	            // response.trim()을 사용하여 혹시 모를 공백 제거
-	            if (response.trim() === "success") {
-	                // ✅ 수정: data-id -> data-seat-id 로 변경
-	                var $targetSeat = $('.admin-seat[data-seat-id="' + selectedSeatId + '"]');
-	                
-	                if ($targetSeat.length > 0) {
-	                    $targetSeat.fadeOut(300, function() {
-	                        $(this).remove(); // 화면에서 제거
-	                    });
-	                } else {
-	                    // 선택자로 못 찾을 경우를 대비해 목록 다시 불러오기 실행
-	                    loadSeatLayout();
-	                }
-
-	                $('#selName').text('-');
-	                $('#selState').text('-');
-	                selectedSeatId = null;
-	                
-	                alert("좌석이 성공적으로 삭제되었습니다.");
-	            } else {
-	                alert("삭제 실패: " + response);
-	            }
-	        },
-	        error: function(xhr) {
-	            alert("서버와 통신 중 오류가 발생했습니다.");
-	        }
+	function createSeats() {
+	    var groupId = $('#groupSelect').val(), rowCount = $('#rowCount').val(), colCount = $('#colCount').val();
+	    if (!groupId || !rowCount || !colCount) return alert("정보를 입력하세요.");
+	    $.post(contextPath + '/admin/seatgroup/createBulk', { "seat_group_id": groupId, "row_count": rowCount, "col_count": colCount }, function(res) {
+	        if (res.trim() === "success") { alert("완료"); loadSeatLayout(); }
 	    });
 	}
 	
 	function addNewArea() {
-	    const placeId = $('#placeSelect').val();
-	    const groupName = $('#newGroupName').val();
-
-	    if (!placeId) {
-	        alert("먼저 상단에서 장소(PLACE)를 선택해주세요.");
-	        return;
-	    }
-	    if (!groupName.trim()) {
-	        alert("추가할 구역 이름을 입력해주세요.");
-	        return;
-	    }
-
-	    if (!confirm(`[${groupName}] 구역을 추가하시겠습니까?`)) return;
-
-	    $.ajax({
-	        url: contextPath + '/admin/seatgroup/area/add', // 컨트롤러 RequestMapping 확인 필요
-	        type: 'POST',
-	        data: {
-	            place_id: placeId,
-	            group_name: groupName
-	        },
-	        success: function(res) {
-	            if (res === "success") {
-	                alert("구역이 성공적으로 추가되었습니다.");
-	                $('#newGroupName').val(''); // 입력창 비우기
-	                
-	                // [핵심] 구역 목록 드롭다운만 다시 불러와서 갱신
-	                refreshGroupSelect(placeId);
-	            } else {
-	                console.log("추가 실패: " + res);
-	            }
-	        },
-	        error: function() {
-	            alert("서버 통신 중 오류가 발생했습니다.");
-	        }
+	    const placeId = $('#placeSelect').val(), groupName = $('#newGroupName').val();
+	    if (!placeId || !groupName) return alert("정보를 확인하세요.");
+	    $.post(contextPath + '/admin/seatgroup/area/add', { place_id: placeId, group_name: groupName }, function(res) {
+	        if (res === "success") { alert("성공"); $('#newGroupName').val(''); refreshGroupSelect(placeId); }
 	    });
 	}
-
-	// 구역 드롭다운을 최신화하는 공통 함수
+	
 	function refreshGroupSelect(placeId) {
 	    $.get(contextPath + '/admin/seatgroup/list', { place_id: placeId }, function(groupList) {
 	        const $groupSelect = $('#groupSelect');
 	        $groupSelect.empty().append('<option value="">구역 선택</option>');
-	        
-	        if (groupList && groupList.length > 0) {
-	            groupList.forEach(function(group) {
-	                $groupSelect.append('<option value="' + group.seat_group_id + '">' + group.group_name + '</option>');
-	            });
-	        }
+	        if (groupList) groupList.forEach(g => $groupSelect.append('<option value="' + g.seat_group_id + '">' + g.group_name + '</option>'));
 	    });
 	}
 </script>
