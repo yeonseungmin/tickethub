@@ -17,7 +17,7 @@ public class MybatisSeatGroupDAO implements SeatGroupDAO {
     @Autowired
     private SqlSessionTemplate sqlSession;
     
-    private static final String NAMESPACE = "com.ch.tickethub.config.mybatis.SeatGroupMapper.xml";
+    private static final String NAMESPACE = "SeatGroup";
 
     @Override
     public int insert(SeatGroup seatGroup) {

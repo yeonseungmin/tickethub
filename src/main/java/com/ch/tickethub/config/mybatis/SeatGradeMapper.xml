@@ -2,20 +2,20 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="SeatGrade">
 
-    <insert id="insert" parameterType="com.ch.tickethub.dto.SeatGrade" useGeneratedKeys="true" keyProperty="seat_grade_id">
+    <insert id="insert" parameterType="SeatGrade" useGeneratedKeys="true" keyProperty="seat_grade_id">
         INSERT INTO seat_grade (grade_name, on_img_url, off_img_url)
         VALUES (#{grade_name}, #{on_img_url}, #{off_img_url})
     </insert>
 
-    <select id="selectAll" resultType="com.ch.tickethub.dto.SeatGrade">
+    <select id="selectAll" resultType="SeatGrade">
         SELECT * FROM seat_grade ORDER BY seat_grade_id ASC
     </select>
 
-    <select id="select" parameterType="int" resultType="com.ch.tickethub.dto.SeatGrade">
+    <select id="select" parameterType="int" resultType="SeatGrade">
         SELECT * FROM seat_grade WHERE seat_grade_id = #{seat_grade_id}
     </select>
 
-    <update id="update" parameterType="com.ch.tickethub.dto.SeatGrade">
+    <update id="update" parameterType="SeatGrade">
         UPDATE seat_grade
         SET grade_name = #{grade_name},
             on_img_url = #{on_img_url},

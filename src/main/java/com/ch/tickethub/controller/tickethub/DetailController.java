@@ -1,7 +1,9 @@
 package com.ch.tickethub.controller.tickethub;
 
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,14 +23,21 @@ public class DetailController {
 	@Autowired
 	WorkService workService;
 	
+    @Autowired
+    @Qualifier("naverMapClientId")
+    private String naverMapClientId;
+	
 	@GetMapping("/detail")
 	public String getDetail(int work_id, Model model) {
 		
 		Work work = workService.getWork(work_id);
 		List<RoundCasting> uniqueCastingList = workService.getUniqueCasting(work);
 		
+
+		
 		model.addAttribute("work", work);
 		model.addAttribute("uniqueCastingList", uniqueCastingList);
+		model.addAttribute("naverMapClientId", naverMapClientId);
 		
 		ObjectMapper mapper = new ObjectMapper();
 		
