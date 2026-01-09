@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Round">
+
+	<!-- work에서 round 끌고 가기 -->
+	<resultMap id="roundMapForWork" type="Round">
+		<id 	column="round_id"					property="round_id"/>
+		<result column="round_date"			property="round_date"/>
+		<result column="round_start_time"	property="round_start_time"/>
+		<result column="work_id"					property="work.work_id"/>
+		<result column="is_cancelled"			property="is_cancelled"/>
+		
+		<association column="place_id"	property="place"		javaType="Place"
+		select = "Place.select"/>
+		
+		<collection column="round_id"
+			select="RoundCasting.selectByRoundId"
+			property="roundCastingList"
+			javaType="java.util.List"
+			ofType="RoundCasting"
+		/>
+		
+	</resultMap>
+
+
+	<resultMap id="roundMap" 					type="Round">
+	    <id property="round_id" 					column="round_id" />
+	    <result property="round_date" 			column="round_date" />
+	    <result property="round_start_time"	column="round_start_time" />
+	    <result property="is_cancelled" 			column="is_cancelled" />
+	
+	    <association property="work" 			javaType="Work">
+	        <id property="work_id" 					column="work_id" />
+	        <result property="work_title" 			column="work_title" />
+	        <result property="work_poster_url" column="work_poster_url" />
+	        </association>
+	
+	    <association property="place" 			javaType="Place">
+	        <id property="place_id" 				column="place_id" />
+	        <result property="place_name" 		column="place_name" />
+	        <result property="address" 			column="address" />
+	        </association>
+	</resultMap>
+
+
+
+	<insert id="insert" parameterType="Round">
+		insert into Round(round_date, round_start_time, work_id, place_id)
+		values(#{round_date}, #{round_start_time}, #{work.work_id}, #{place.place_id})
+		
+		<selectKey keyColumn="round_id" resultType="int" order="AFTER" keyProperty="round_id">
+			select last_insert_id() as round_id
+		</selectKey>
+	</insert>
+	
+	
+	<select id="selectRoundIdsByPlace" parameterType="int" resultType="int">
+        SELECT round_id 
+        FROM round 
+        WHERE place_id = #{place_id}
+    </select>
+	
+	<select id="selectByWorkId" parameterType="int" resultMap="roundMapForWork">
+		select round_id, round_date, work_id, place_id, is_cancelled
+		, DATE_FORMAT(round_start_time, '%H:%i') as round_start_time 
+		from round where work_id = #{work_id}
+		order by round_date, round_start_time 
+	</select>
+
+	
+	
+	<select id="selectListByPlace" parameterType="int" resultType="Work">
+	    SELECT DISTINCT w.work_id,w.work_title,w.work_poster_url FROM work w
+	    JOIN round r ON w.work_id = r.work_id
+	    WHERE r.place_id = #{place_id}
+	</select>
+	
+	
+	<select id="selectRoundWithDetail" parameterType="int" resultMap="roundMap">
+	    SELECT 
+	        r.round_id,round_date,round_start_time, round_start_time,
+	        w.work_title, w.work_poster_url, 
+	        p.place_name, p.address
+	    FROM round r
+	    JOIN work w ON r.work_id = w.work_id
+	    JOIN place p ON r.place_id = p.place_id
+	    WHERE r.round_id = #{round_id}
+	</select>
+	
+	<select id="selectByWorkAndPlace" parameterType="map" resultType="Round">
+        SELECT * FROM round 
+        WHERE work_id = #{work_id} 
+          AND place_id = #{place_id}
+        ORDER BY round_date ASC, round_start_time ASC
+    </select>
+    
+	
+</mapper>

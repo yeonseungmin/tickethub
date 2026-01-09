@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" id="WebApp_ID" version="3.1">
+  <display-name>tickethub</display-name>
+	<context-param>
+		<param-name>contextClass</param-name>
+		<param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
+	</context-param>
+	 <context-param>
+	 	<param-name>contextConfigLocation</param-name>
+	 	<param-value>com.ch.tickethub.config.spring.RootConfig</param-value>
+	 </context-param>
+	 
+	 <listener>
+	 	<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	 </listener>
+
+	<filter>
+		<filter-name>encodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>encodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<servlet>
+		<servlet-name>admin-dispatcher</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		 
+		 <init-param>
+		 	<param-name>contextClass</param-name>
+			<param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
+		 </init-param>
+		 
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>com.ch.tickethub.config.spring.AdminWebConfig</param-value>
+		</init-param>
+		
+		<!-- 업로드 관련 설정 -->
+		<multipart-config>
+			<location>/Users/nam-yeowon/shopdata/temp</location>	<!-- 이미지가 임시로 저장될 곳  -->
+			<max-file-size>5242880</max-file-size>		<!-- 파일 1개의 최대 용량 5M 제한 -->
+			<max-request-size>10485760</max-request-size>		<!-- 요청 전체 크기 10M 제한-->
+			<file-size-threshold>0</file-size-threshold>		<!-- 0일 경우 무조건 디스크 사용 -->
+		</multipart-config>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>admin-dispatcher</servlet-name>
+		<url-pattern>/admin/*</url-pattern>		<!-- /* 이후의 값이 controller에 적용되므로 controller /admin을 붙이면 안된다 -->
+	</servlet-mapping>
+	
+	<!--  관리자가 아닌 일반 사용자들의 요청을 처리할 DispatcherServlet 매핑 -->
+	<servlet>
+		<servlet-name>tickethub-dispatcher</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		
+		 <init-param>
+		 	<param-name>contextClass</param-name>
+			<param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
+		 </init-param>
+		 
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>com.ch.tickethub.config.spring.TickethubWebConfig</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>tickethub-dispatcher</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+	
+</web-app>

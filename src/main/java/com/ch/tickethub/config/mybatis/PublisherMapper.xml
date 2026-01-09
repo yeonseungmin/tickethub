@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Publisher">
+	<insert id="insert" parameterType="Publisher">
+		insert into publisher(publisher_name, publisher_phone)
+		values(#{publisher_name}, #{publisher_phone})
+	</insert>
+	
+	<select id="selectAll" resultType="Publisher">
+		select publisher_id, publisher_name, publisher_phone from publisher
+		order by publisher_id desc
+	</select>
+	
+	<select id="selectByContainedName" parameterType="String" resultType="Publisher">
+		select publisher_id, publisher_name, publisher_phone from publisher
+		where publisher_name like concat('%', #{name}, '%')
+		order by publisher_id desc
+	</select>
+	
+	<select id="select" parameterType="int" resultType="Publisher">
+		select publisher_id, publisher_name, publisher_phone from publisher
+		where publisher_id = #{publisher_id}
+	</select>
+	
+</mapper>
