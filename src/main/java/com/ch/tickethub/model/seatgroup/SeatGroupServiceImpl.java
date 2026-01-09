@@ -98,4 +98,8 @@ public class SeatGroupServiceImpl implements SeatGroupService {
     	// 1. 구역 업데이트 (이것만 실행)
         seatGroupDAO.updateGroupPosition(seatGroupId, posX, posY);
     }
+    
+    public void insertGroupByPlace(SeatGroup seatGroup) {
+        seatGroupDAO.insertGroupByPlace(seatGroup);
+    }
 }

@@ -26,5 +26,7 @@
     <delete id="delete" parameterType="int">
         DELETE FROM seat_grade WHERE seat_grade_id = #{seat_grade_id}
     </delete>
+    
+
 
 </mapper>

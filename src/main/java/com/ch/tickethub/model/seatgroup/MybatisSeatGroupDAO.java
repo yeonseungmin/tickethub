@@ -15,23 +15,23 @@ import com.ch.tickethub.dto.SeatGroup;
 public class MybatisSeatGroupDAO implements SeatGroupDAO {
 
     @Autowired
-    private SqlSessionTemplate sqlSession;
+    private SqlSessionTemplate sqlSessionTemplate;
     
     private static final String NAMESPACE = "SeatGroup";
 
     @Override
     public int insert(SeatGroup seatGroup) {
-        return sqlSession.insert("SeatGroup.insert", seatGroup);
+        return sqlSessionTemplate.insert("SeatGroup.insert", seatGroup);
     }
 
     @Override
     public List<SeatGroup> selectByPlace(int place_id) {
-        return sqlSession.selectList("SeatGroup.selectByPlace", place_id);
+        return sqlSessionTemplate.selectList("SeatGroup.selectByPlace", place_id);
     }
 
     @Override
     public SeatGroup select(int seat_group_id) {
-        return sqlSession.selectOne("SeatGroup.select", seat_group_id);
+        return sqlSessionTemplate.selectOne("SeatGroup.select", seat_group_id);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class MybatisSeatGroupDAO implements SeatGroupDAO {
         param.put("pos_x", pos_x);
         param.put("pos_y", pos_y);
 
-        return sqlSession.update("SeatGroup.updatePosition", param);
+        return sqlSessionTemplate.update("SeatGroup.updatePosition", param);
     }
 
     @Override
@@ -52,12 +52,12 @@ public class MybatisSeatGroupDAO implements SeatGroupDAO {
         param.put("col_gap", col_gap);
         param.put("direction", direction);
 
-        return sqlSession.update("SeatGroup.updateLayout", param);
+        return sqlSessionTemplate.update("SeatGroup.updateLayout", param);
     }
     
     @Override
     public int delete(int seat_group_id) {
-        return sqlSession.delete("SeatGroup.delete", seat_group_id);
+        return sqlSessionTemplate.delete("SeatGroup.delete", seat_group_id);
     }
 
     @Override
@@ -67,7 +67,13 @@ public class MybatisSeatGroupDAO implements SeatGroupDAO {
         params.put("pos_x", pos_x);
         params.put("pos_y", pos_y);
         
-        sqlSession.update(NAMESPACE + ".updateGroupPosition", params);
+        sqlSessionTemplate.update(NAMESPACE + ".updateGroupPosition", params);
+    }
+
+    @Override
+    public void insertGroupByPlace(SeatGroup seatGroup) {
+        // session.insert("네임스페이스.아이디", 파라미터객체)
+    	sqlSessionTemplate.insert(NAMESPACE + ".insertGroupByPlace", seatGroup);
     }
     
     
