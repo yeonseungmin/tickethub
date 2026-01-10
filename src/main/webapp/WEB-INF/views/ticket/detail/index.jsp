@@ -598,12 +598,13 @@
 									            </div>
 									            
 									            <div class="review-text-clamp text-dark mb-1" style="white-space: pre-wrap;">정말 오랜만에 보는 뮤지컬이었는데 기대 이상이었습니다. 
-									배우들의 연기력은 말할 것도 없고, 무대 장치 하나하나가 예술이더군요.
-									특히 1막 마지막 곡이 끝날 때의 전율은 아직도 잊혀지지가 않습니다.
-									음향도 블루스퀘어 다른 공연 때보다 훨씬 잡음 없이 깔끔하게 들렸습니다. 
-									VIP석이 아깝지 않은 공연이었어요.
-									다음 주에 부모님 모시고 한 번 더 보러 갈 예정입니다. 
-									주차는 조금 복잡하니 대중교통 이용하시는 걸 추천드립니다.</div>
+배우들의 연기력은 말할 것도 없고, 무대 장치 하나하나가 예술이더군요.
+특히 1막 마지막 곡이 끝날 때의 전율은 아직도 잊혀지지가 않습니다.
+음향도 블루스퀘어 다른 공연 때보다 훨씬 잡음 없이 깔끔하게 들렸습니다. 
+VIP석이 아깝지 않은 공연이었어요.
+다음 주에 부모님 모시고 한 번 더 보러 갈 예정입니다. 
+주차는 조금 복잡하니 대중교통 이용하시는 걸 추천드립니다.
+									</div>
 									            
 									            <button class="btn-more" onclick="toggleReviewText(this)">더보기 <i class="fas fa-chevron-down"></i></button>
 									            
@@ -634,6 +635,9 @@
 									                                <span class="font-weight-bold text-sm">chicago00</span>
 									                                <span class="text-muted text-xs ml-2">2025.01.29</span>
 									                            </div>
+												                <div>
+												                    <button class="btn btn-xs btn-link text-muted p-0">삭제</button>
+												                </div>
 									                        </div>
 									                        <p class="text-sm mb-1">저도 주차 때문에 고생했는데 공감합니다 ㅠㅠ 대중교통이 답이에요.</p>
 									                    </div>
@@ -652,7 +656,7 @@
 									                    <span class="text-muted text-sm ml-2">조회 85</span>
 									                </div>
 									                <div>
-									                    <button class="btn btn-xs btn-link text-muted p-0 mr-2">수정</button>
+									                    <!-- <button class="btn btn-xs btn-link text-muted p-0 mr-2">수정</button> -->
 									                    <button class="btn btn-xs btn-link text-muted p-0">삭제</button>
 									                </div>
 									            </div>
