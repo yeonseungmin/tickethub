@@ -103,3 +103,79 @@ button:disabled i {
 .sidebar-compact-text { font-size: 14px; line-height: 1.6; color: #333; }
 .text-soldout { color: #aaa !important; text-decoration: line-through; }
 .divider-slash { color: #ddd; margin: 0 5px; }
+
+
+
+/* 관람후기 스타일 */
+.review-item:last-child {
+    border-bottom: none !important;
+}
+
+.review-content {
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.reply-list {
+    background-color: #f8f9fa; /* 답글 영역 회색 배경 */
+    border-radius: 8px;
+}
+
+.reply-item {
+    border-bottom: 1px solid #e9ecef;
+    padding: 10px 0;
+}
+
+.reply-item:last-child {
+    border-bottom: none;
+}
+
+.btn-xs {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+}
+
+/* 별점 입력 인터랙션용 */
+.star-rating-input i:hover {
+    transform: scale(1.2);
+    transition: transform 0.2s;
+}
+
+
+/* 리뷰 텍스트 접기/펼치기 스타일 */
+.review-text-clamp {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3; /* 기본 3줄만 표시 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 4.8em; /* line-height(1.6) * 3줄 */
+    line-height: 1.6;
+}
+
+/* 펼쳐졌을 때 스타일 */
+.review-text-clamp.expanded {
+    display: block;
+    -webkit-line-clamp: unset;
+    max-height: none;
+    overflow: visible;
+}
+
+/* 버튼 스타일 */
+.btn-more {
+    font-size: 13px;
+    color: #888;
+    background: none;
+    border: none;
+    padding: 0;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.btn-more:hover {
+    color: #333;
+    text-decoration: underline;
+}
