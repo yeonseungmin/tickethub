@@ -35,6 +35,7 @@
 	// work_end_date가 달력의 마지막 달
 	let maxDate;
 	let work = <%=jsonWork%>;
+	let reviewList;
 </script>
 <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=<%=naverMapClientId%>"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -357,6 +358,21 @@
 	
 	// 관람후기 함수 끝
     
+	function loadTab(info) {
+		
+		if(info == "review"){
+			$.ajax({
+				url:"/detail/review?work_id=" + work.work_id,
+				method:"GET",
+				success:function(result){
+					console.log("관람후기 클릭됨!");
+					reviewList = result;
+					console.log(reviewList);
+				}
+			});
+		}
+	}
+	
     $(()=>{
     	currentDate = new Date();
     	minDate = new Date();
@@ -396,8 +412,6 @@
     		displayRoundList(selectedDate);
     	});
         
-        
-
 
         // [관람후기] 별점 작성 UI
         $(document).on('click', '.star-rating-input i', function() {
@@ -417,6 +431,8 @@
             $("#selected-rating").text(rating * 2);
         });
     })
+	
+	
     
     // 예매 팝업창 열기
     function openReservation() {
@@ -494,7 +510,7 @@
                         <div class="card-header p-0 border-bottom-0">
                             <ul class="nav nav-tabs custom-tabs" id="custom-tabs-four-tab" role="tablist">
                                 <li class="nav-item">
-                                    <a class="nav-link active" id="tab-info" data-toggle="pill" href="#content-info" role="tab" onclick="loadTab('info')">공연정보</a>
+                                    <a class="nav-link active" id="tab-info" data-toggle="pill" href="#content-info" role="tab" onclick="loadTab('work')">공연정보</a>
                                 </li>
 						<!--<li class="nav-item">
                                     <a class="nav-link" id="tab-casting" data-toggle="pill" href="#content-casting" role="tab" onclick="loadTab('casting')">캐스팅정보</a>

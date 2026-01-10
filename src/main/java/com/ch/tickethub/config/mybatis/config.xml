@@ -26,6 +26,8 @@
 		<typeAlias type = "com.ch.tickethub.dto.Reservation" alias = "Reservation"/>
 		<typeAlias type = "com.ch.tickethub.dto.SeatGrade" alias = "SeatGrade"/>
 		<typeAlias type = "com.ch.tickethub.dto.DiscountDetail" alias = "DiscountDetail"/>
+		<typeAlias type = "com.ch.tickethub.dto.Review" alias = "Review"/>
+		<typeAlias type = "com.ch.tickethub.dto.ReReview" alias = "ReReview"/>
 
 	</typeAliases>
 
@@ -46,6 +48,8 @@
 		<mapper resource = "com/ch/tickethub/config/mybatis/RoundSeatMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/ReservationMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/DiscountDetailMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/ReviewMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/ReReviewMapper.xml"/>
 		
 	</mappers>
 

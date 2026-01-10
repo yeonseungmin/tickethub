@@ -1,0 +1,10 @@
+package com.ch.tickethub.model.review;
+
+import java.util.List;
+
+import com.ch.tickethub.dto.Review;
+
+public interface ReviewService {
+	public void regist(Review review);
+	public List<Review> getListByWorkId(int work_id);
+}
