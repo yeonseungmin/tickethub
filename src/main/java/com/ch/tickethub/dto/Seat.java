@@ -2,7 +2,7 @@ package com.ch.tickethub.dto;
 
 import lombok.Data;
 
-@Data // Lombok을 통해 getter/setter/toString/hashCode/equals를 자동 생성
+@Data // Lombok
 public class Seat {
 
     private int seat_id;        // PK: 좌석의 고유 식별 번호
