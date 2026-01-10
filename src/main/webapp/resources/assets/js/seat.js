@@ -6,26 +6,47 @@ $(document).ready(function() {
     // 1. 장소 -> 공연 -> 회차 필터 연동 (공통)
     $(document).off('change', '#placeSelect').on('change', '#placeSelect', function() {
         var placeId = $(this).val();
+        // 요청 직후 하위 메뉴 초기화
         $('#workSelect, #roundSelect').empty().append('<option value="">선택</option>');
         if (!placeId) return;
+
         $.get(contextPath + '/admin/roundseat/workList', { place_id: placeId }, function(data) {
+            var $workSelect = $('#workSelect');
+            // [해결 방안 1] 응답이 왔을 때 목록을 한 번 더 비워서 중복 응답 누적 방지
+            $workSelect.empty().append('<option value="">공연 선택</option>');
+            
+            // [해결 방안 2] 서버 데이터 자체에 중복이 있을 경우를 대비한 Set 활용
+            var uniqueWorks = new Set(); 
             data.forEach(function(w) {
-                $('#workSelect').append('<option value="'+w.work_id+'">'+w.work_title+'</option>');
+                if(!uniqueWorks.has(w.work_id)) {
+                    uniqueWorks.add(w.work_id);
+                    $workSelect.append('<option value="'+w.work_id+'">'+w.work_title+'</option>');
+                }
             });
         });
     });
 
     $(document).off('change', '#workSelect').on('change', '#workSelect', function() {
         var workId = $(this).val();
+        var placeId = $('#placeSelect').val();
         $('#roundSelect').empty().append('<option value="">회차 선택</option>');
         if (!workId) return;
-        $.get(contextPath + '/admin/roundseat/roundList', { work_id: workId, place_id: $('#placeSelect').val() }, function(data) {
+
+        $.get(contextPath + '/admin/roundseat/roundList', { work_id: workId, place_id: placeId }, function(data) {
+            var $roundSelect = $('#roundSelect');
+            // 응답 시점에 초기화
+            $roundSelect.empty().append('<option value="">회차 선택</option>');
+            
+            var uniqueRounds = new Set();
             data.forEach(function(r) {
-                $('#roundSelect').append('<option value="'+r.round_id+'">'+r.round_date+' ('+r.round_start_time+')</option>');
+                if(!uniqueRounds.has(r.round_id)) {
+                    uniqueRounds.add(r.round_id);
+                    var roundText = r.round_date + ' (' + r.round_start_time + ')';
+                    $roundSelect.append('<option value="'+r.round_id+'">'+roundText+'</option>');
+                }
             });
         });
     });
-
     // 2. Lasso 다중 선택 (공통)
     if (!$('#selection-box').length) $('body').append('<div id="selection-box" class="selection-box"></div>');
     var $box = $('#selection-box');

@@ -186,7 +186,7 @@
         );
         
         Promise.all(requests).then(() => { 
-            alert("변경 완료"); 
+            
             loadSeatLayout(); 
         });
     }
