@@ -20,6 +20,7 @@ public interface RoundSeatDAO {
     // 추가: 좌석 상태 업데이트 (성공 시 1, 실패 시 0 반환)
     public int updateStatus(RoundSeat roundSeat);
     
+    
     public void insertBulkByGroup(int seat_group_id);
     
  // 추가: 좌석 ID를 기준으로 모든 회차의 좌석 상태를 변경

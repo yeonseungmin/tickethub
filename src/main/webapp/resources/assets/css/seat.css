@@ -136,8 +136,8 @@ html, body {
 /* 등급 색상 (보라, 초록, 빨강, 하늘) */
 .btn-vip { background-color: #8e44ad; }
 .btn-r   { background-color: #27ae60; }
-.btn-s   { background-color: #e74c3c; }
-.btn-a   { background-color: #3498db; }
+.btn-s   { background-color: #3498db; }
+.btn-a   { background-color: #e74c3c; }
 
 /* 상태 색상 */
 .btn-available { background: #28a745; }

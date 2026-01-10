@@ -28,10 +28,23 @@
 
 	<select id="selectSeatDetailByRound" parameterType="int" resultType="SeatDetail">
 	    SELECT 
-	        s.seat_id, s.seat_x, s.seat_y, s.seat_name, s.floor,
-	        sg.seat_group_id, sg.group_name, sg.pos_x, sg.pos_y, sg.row_gap, sg.col_gap, sg.direction,
-	        sgr.on_img_url, sgr.sold_img_url,
-	        rs.round_id, rs.status, rs.reservation_id
+	        s.seat_id, 
+	        s.seat_grade_id,    s.seat_x, 
+	        s.seat_y, 
+	        s.seat_name, 
+	        s.floor,
+	        sg.seat_group_id, 
+	        sg.group_name, 
+	        sg.pos_x, 
+	        sg.pos_y, 
+	        sg.row_gap, 
+	        sg.col_gap, 
+	        sg.direction,
+	        sgr.grade_name,     sgr.on_img_url, 
+	        sgr.sold_img_url,
+	        rs.round_id, 
+	        rs.status, 
+	        rs.reservation_id
 	    FROM round_seat rs
 	    JOIN seat s ON rs.seat_id = s.seat_id
 	    JOIN seat_group sg ON s.seat_group_id = sg.seat_group_id
@@ -81,11 +94,6 @@
 	        WHERE seat_id = #{seat_id}
 	    </update>
 	
-	    <update id="updateGradeBySeatId">
-	        UPDATE round_seat 
-	        SET seat_grade_id = #{seat_grade_id} 
-	        WHERE seat_id = #{seat_id}
-	    </update>	
 	    
 	    <delete id="deleteBySeatId" parameterType="int">
 		    DELETE FROM round_seat WHERE seat_id = #{seat_id}

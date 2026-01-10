@@ -2,6 +2,7 @@ package com.ch.tickethub.model.seat;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
 import org.mybatis.spring.SqlSessionTemplate;
 
 import com.ch.tickethub.dto.Seat;
@@ -24,7 +25,7 @@ public interface SeatDAO {
     public List<Seat> selectByGroup(int seat_group_id);
     
     // 좌석 등급 변경
-    void updateSeatGrade(int seat_id, int seat_grade_id);
+    void updateSeatGrade(@Param("seat_id") int seat_id, @Param("seat_grade_id") int seat_grade_id);
 
     // 특정 구역에 속한 모든 좌석의 좌표 업데이트 메서드 추가
     void updateSeatsPositionInGroup(int seat_group_id, int pos_x, int pos_y);
