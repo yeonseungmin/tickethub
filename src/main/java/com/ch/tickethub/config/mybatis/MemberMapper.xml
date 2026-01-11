@@ -185,10 +185,11 @@
 		resultType="Member">
 		SELECT
 		member_id as memberId,
+		CONCAT(LEFT(login_id, 3), '*******') as loginId,
 		name,
 		status
 		FROM member
-		where member_id = #{memberId}
+		where member_id = #{memberId} and status = 'active'
 	</select>
 	
 </mapper>
