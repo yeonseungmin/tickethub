@@ -393,7 +393,7 @@
 		
 	}
 	
-	function displayReviewList(currentPage){
+	function displayReviewList(currentPage) {
 		
 		paging = new Paging();
 		paging.init(reviewList, currentPage);
@@ -402,7 +402,7 @@
 		console.log(curPos);
 		let reviewTag = "";
 		
-		for(let i = 0; i < paging.pageSize; i++){
+/* 		for(let i = 0; i < paging.pageSize; i++){
 			if(num < 1) break;
 			num--;
 			let review = reviewList[curPos++];
@@ -431,7 +431,6 @@
 			reviewTag += `조회 ` + review.hit + `</span>
 		            </div>`;
 				// 만일 세션 멤버와 같다면? self 신고는 선 넘었지.
-
 				if(memberId == review.member.memberId) {
 					reviewTag += `
 					<div>
@@ -506,7 +505,93 @@
 		    </li>
 		    `;
 		}
-		
+		 */
+		for (let i = 0; i < paging.pageSize; i++) {
+		    if (num < 1) break;
+		    num--;
+		    let review = reviewList[curPos++];
+
+		    // 리뷰 아이템 시작 및 기본 정보
+		    reviewTag += `
+		    <li class="review-item border-bottom py-3" value="\${review.review_id}">
+		        <div class="d-flex justify-content-between align-items-end mb-2">
+		            <div>
+		                <span class="text-warning mr-1">`;
+
+		    // 별점 루프
+		    for (let j = 0; j < review.rating; j++) {
+		        reviewTag += `<i class="fas fa-star"></i>`;
+		    }
+
+		    reviewTag += `</span>
+		                <strong class="text-dark mr-2">\${review.member.loginId}</strong>
+		                <span class="text-muted text-sm">\${review.review_regdate}</span>
+		                <span class="text-muted text-sm ml-2 review-hit">조회 \${review.hit}</span>
+		            </div>`;
+
+		    // 작성자 본인 여부에 따른 버튼 분기
+		    if (memberId == review.member.memberId) {
+		        reviewTag += `
+		            <div>
+		                <button class="btn btn-xs btn-link text-muted p-0" onclick="deleteComment(this, 'review')">삭제</button>
+		            </div>
+		        </div>`;
+		    } else {
+		        reviewTag += `
+		            <div>
+		                <button class="btn btn-xs btn-link text-danger p-0 ml-2" onclick="report(this)" value="\${review.member.memberId}">
+		                    <i class="fas fa-exclamation-circle"></i> 신고
+		                </button>
+		            </div>
+		        </div>`;
+		    }
+
+		    // 리뷰 본문
+		    reviewTag += `
+		        <div class="font-weight-bold text-dark mb-1" style="font-size: 1.1rem;">
+		            \${review.review_title}
+		        </div>
+		        <div class="review-text-clamp text-dark mb-1" style="white-space: pre-wrap;">\${review.review_content}</div>
+		        <button class="btn-more" onclick="toggleReviewText(this)">더보기 <i class="fas fa-chevron-down"></i></button>
+		        
+		        <div class="review-actions mt-1">
+		            <button class="btn btn-xs btn-light border mr-1" onclick="toggleLikeReview(this)">
+		                <i class="far fa-thumbs-up"></i> <span>\${review.review_like_count}</span>
+		            </button>
+		            <button class="btn btn-xs btn-light border" onclick="toggleReplyForm(\${review.review_id})">
+		                답글 달기
+		            </button>
+		        </div>
+
+		        <div id="reply-form-\${review.review_id}" class="reply-form-container mt-3" style="display: none;">
+		            <div class="card bg-light border-0">
+		                <div class="card-body p-2 d-flex">
+		                    <textarea class="form-control form-control-sm mr-2" rows="2" placeholder="답글을 입력하세요... (최대 150자)"></textarea>
+		                    <button class="btn btn-sm btn-secondary" style="width: 60px;" onclick="registReReview(this)">등록</button>
+		                </div>
+		            </div>
+		        </div>
+
+		        <div class="reply-list mt-3 pl-4 bg-light rounded p-3">
+		            <div class="reply-item d-flex">
+		                <div class="mr-2 text-muted"><i class="fas fa-level-up-alt fa-rotate-90"></i></div>
+		                <div class="w-100">
+		                    <div class="d-flex justify-content-between mb-1">
+		                        <div>
+		                            <span class="font-weight-bold text-sm">chicago00</span>
+		                            <span class="text-muted text-xs ml-2">2025.01.29</span>
+		                        </div>
+		                        <div>
+		                            <button class="btn btn-xs btn-link text-muted p-0">삭제</button>
+		                        </div>
+		                    </div>
+		                    <p class="text-sm mb-1">저도 주차 때문에 고생했는데 공감합니다 ㅠㅠ 대중교통이 답이에요.</p>
+		                </div>
+		            </div>
+		        </div>
+		    </li>
+		    `;
+		}
 		let reviewArea = $(".review-list");
 		reviewArea.empty();
 		reviewArea.append(reviewTag);
