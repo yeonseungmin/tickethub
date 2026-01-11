@@ -53,7 +53,7 @@
 		    </li>
 		  </ul>
 		  <ul class="nav nav-treeview">
-		    <li class="nav-item" id="menu-hit-work">
+		    <li class="nav-item" id="menu-hot-work">
 		      <a href="#" class="nav-link">
 		        <i class="far fa-circle nav-icon"></i>
 		        <p>인기작 관리</p>
@@ -61,7 +61,7 @@
 		    </li>
 		  </ul>
 		  <ul class="nav nav-treeview">
-		    <li class="nav-item" id="menu-comingsoon-work">
+		    <li class="nav-item" id="menu-opening-work">
 		      <a href="#" class="nav-link">
 		        <i class="far fa-circle nav-icon"></i>
 		        <p>오픈예정 관리</p>
@@ -69,7 +69,7 @@
 		    </li>
 		  </ul>
 		  <ul class="nav nav-treeview">
-		    <li class="nav-item" id="menu-categoryhit-work">
+		    <li class="nav-item" id="menu-genre-ranking">
 		      <a href="#" class="nav-link">
 		        <i class="far fa-circle nav-icon"></i>
 		        <p>장르별 화제작 관리</p>

@@ -16,8 +16,8 @@
 		<typeAlias type = "com.ch.tickethub.dto.Grade" alias = "Grade"/>
 		<typeAlias type = "com.ch.tickethub.dto.GradeBenefit" alias = "GradeBenefit"/>
 		<typeAlias type = "com.ch.tickethub.dto.GradeRule" alias = "GradeRule"/>
+		<typeAlias type = "com.ch.tickethub.dto.MainBanner" alias = "MainBanner"/>
 		<typeAlias type = "com.ch.tickethub.dto.Member" alias = "Member"/>
-		
 		<typeAlias type = "com.ch.tickethub.dto.RoundCasting" alias = "RoundCasting"/>
 		<typeAlias type = "com.ch.tickethub.dto.Seat" alias = "Seat"/>
 		<typeAlias type = "com.ch.tickethub.dto.SeatGroup" alias = "SeatGroup"/>
@@ -28,6 +28,9 @@
 		<typeAlias type = "com.ch.tickethub.dto.DiscountDetail" alias = "DiscountDetail"/>
 		<typeAlias type = "com.ch.tickethub.dto.Review" alias = "Review"/>
 		<typeAlias type = "com.ch.tickethub.dto.ReReview" alias = "ReReview"/>
+		<typeAlias type = "com.ch.tickethub.dto.HotWork" alias = "HotWork"/>
+		<typeAlias type = "com.ch.tickethub.dto.OpeningWork" alias = "OpeningWork"/>
+		<typeAlias type = "com.ch.tickethub.dto.GenreRanking" alias = "GenreRanking"/>
 
 	</typeAliases>
 
@@ -41,6 +44,7 @@
 		<mapper resource = "com/ch/tickethub/config/mybatis/GradeMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/GradeBenefitMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/GradeRuleMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/MainBannerMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/MemberMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/RoundCastingMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/SeatMapper.xml"/>
@@ -50,6 +54,9 @@
 		<mapper resource = "com/ch/tickethub/config/mybatis/DiscountDetailMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/ReviewMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/ReReviewMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/HotWorkMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/OpeningWorkMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/GenreRankingMapper.xml"/>
 		
 	</mappers>
 

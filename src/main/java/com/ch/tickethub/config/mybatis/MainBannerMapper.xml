@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MainBanner">
+
+	<!-- 등록(select key) -->
+	<insert id="insert" parameterType="MainBanner">
+		insert into mainbanner(work_id, main_image_url)
+		values (#{work_id}, #{main_image_url})
+		
+		<selectKey keyColumn="mainbanner_id" resultType="int" order="AFTER" keyProperty="mainbanner_id">
+			select last_insert_id() as mainbanner_id
+		</selectKey>
+	</insert>
+	
+	<resultMap type="MainBanner" id="MainBannerMap">
+		<id property="mainbanner_id" column="mainbanner_id"/>
+		<result property="main_image_url"  column="main_image_url"/>
+		<result property="work_id" column="work_id" />
+		
+		<!-- 사실 이게 더 불편한데.. 일단 배운대로 쿼리 재사용 한 번 해본다 의미 -->
+		<association column="work_id" property="work" javaType="Work" select="Work.select"></association>
+	</resultMap>
+	
+	<!-- 공통 sql -->
+	<sql id="sql_select">
+		select mainbanner_id, work_id, main_image_url from mainbanner
+	</sql>
+	
+	<!-- 전체 조회 -->
+	<select id="selectAll" resultMap="MainBannerMap">
+		<include refid="sql_select"></include>
+		order by mainbanner_id desc
+	</select>
+	
+	<!-- 삭제 -->
+	<delete id="delete">
+		delete from mainbanner where mainbanner_id = #{mainbanner_id}
+	</delete>
+	
+	<!-- 1건 조회(파일 삭제 시 경로 확인용) -->
+	<select id="select" parameterType="int" resultMap="MainBannerMap">
+		<include refid="sql_select"></include>
+		where mainbanner_id = #{mainbanner_id}
+	</select>
+	
+</mapper>
