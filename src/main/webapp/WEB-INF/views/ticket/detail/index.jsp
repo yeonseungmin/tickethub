@@ -438,7 +438,7 @@
     function openReservation() {
         // 현재 보고 있는 공연의 ID (서버에서 넘겨준 work 객체 활용)
         let workId = <%=work.getWork_id()%>;
-        let url = "reservation?work_id=" + workId;
+        let url = "reservation/seat?work_id=" + workId;
         let specs = "width=900,height=700,top=100,left=200,scrollbars=yes";
         open(url, "reservationPopup", specs);
     }
