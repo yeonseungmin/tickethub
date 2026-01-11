@@ -10,7 +10,11 @@ import com.ch.tickethub.dto.Round;
 import com.ch.tickethub.dto.SeatDetail;
 import com.ch.tickethub.dto.Work;
 import com.ch.tickethub.model.roundseat.RoundSeatService;
+import com.ch.tickethub.model.seat.SeatService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Controller
 @RequestMapping("/roundseat")
 public class RoundSeatController {
@@ -18,6 +22,8 @@ public class RoundSeatController {
     @Autowired
     private RoundSeatService roundSeatService;
 
+    @Autowired
+    private SeatService seatService;
     /**
      * 회차별 좌석 조회
      */
@@ -80,6 +86,23 @@ public class RoundSeatController {
             return "error";
         }
     }
+    
+    @PostMapping("/updateGrade")
+    @ResponseBody
+    public String updateGrade(@RequestParam("seat_id") int seatId, @RequestParam("seat_grade_id") int seatGradeId) {
+        try {
+            // SeatServiceImpl에 정의한 메서드 호출
+        	log.debug("전달받은 seat_id"+seatId+"seat_grade_id는"+seatGradeId);
+            seatService.updateSeatGrade(seatId, seatGradeId); 
+            return "success";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "error";
+        }
+    }
+    
+    
+    
  // RoundSeatController.java 내부에 추가
     @GetMapping("/workList")
     @ResponseBody
@@ -95,8 +118,7 @@ public class RoundSeatController {
      */
     @PostMapping("/loadOrCreate")
     @ResponseBody
-    public List<SeatDetail> loadOrCreate(@RequestParam("round_id") int roundId, 
-                                         @RequestParam("seat_group_id") int seatGroupId) {
+    public List<SeatDetail> loadOrCreate(@RequestParam("round_id") int roundId, @RequestParam("seat_group_id") int seatGroupId) {
         try {
             // 1. 해당 회차/구역에 좌석 데이터가 있는지 먼저 확인
             int count = roundSeatService.countByRoundAndGroup(roundId, seatGroupId);

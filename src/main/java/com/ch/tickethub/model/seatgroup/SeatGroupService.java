@@ -21,4 +21,6 @@ public interface SeatGroupService {
     void createBulkSeats(int seatGroupId, int rowCount, int colCount);
     //그룹이동 마우스 이벤트
     void updateGroupAndSeatPosition(int seatGroupId, int posX, int posY);
+    //좌석 그룹생성
+    void insertGroupByPlace(SeatGroup seatGroup);
 }

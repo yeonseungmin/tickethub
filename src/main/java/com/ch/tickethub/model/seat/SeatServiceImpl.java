@@ -68,8 +68,7 @@ public class SeatServiceImpl implements SeatService {
         seatDAO.updateSeatGrade(seat_id, seat_grade_id);
         
         // 2. [추가] 해당 좌석을 사용하는 모든 회차(round_seat)의 등급도 함께 변경
-        // roundSeatDAO에 updateGradeBySeatId 같은 메서드가 필요합니다.
-        roundSeatDAO.updateGradeBySeatId(seat_id, seat_grade_id); 
+        //roundSeatDAO.updateGradeBySeatId(seat_id, seat_grade_id); 
     }
 
 

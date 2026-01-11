@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Review">
+
+	<resultMap id="reviewMapForWork" type="Review">
+		<id column="review_id"					property="review_id"/>
+		<result column="work_id"					property="work.work_id"/>
+		<result column="hit"						property="hit"/>
+		<result column="review_like_count"	property="review_like_count"/>
+		<result column="review_title"			property="review_title"/>
+		<result column="review_content"		property="review_content"/>
+		<result column="review_state"			property="review_state"/>	
+		<result column="rating"					property="rating"/>	
+		<result column="review_regdate"		property="review_regdate"/>
+		
+	 	<association column="memberId" property="member"  javaType="Member"
+	 	select = "Member.selectForReview"/>
+	 	
+	 	<collection column="review_id"
+	 		select="ReReview.selectByReviewId"
+	 		property="reReviewList"
+	 		javaType="java.util.List"
+	 		ofType="ReReview"
+	 	/>
+	 	
+	</resultMap>
+	
+	<select id="selectByWorkId" parameterType="int" resultMap="reviewMapForWork">
+		select review_id, work_id, hit, review_like_count, review_title, review_content, review_state, rating
+		, member_id as memberId
+		, DATE_FORMAT(review_regdate, '%Y.%m.%d') as review_regdate
+		from review
+		where work_id=#{work_id}
+		order by review_regdate desc
+	</select>
+	
+	
+	
+</mapper>

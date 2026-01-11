@@ -148,5 +148,34 @@ public class SeatGroupController {
             return "error: " + e.getMessage();
         }
     }
+    
+    @PostMapping("/area/add")
+    @ResponseBody
+    public String addGroup(@RequestParam int place_id, @RequestParam String group_name) {
+        try {
+            SeatGroup seatGroup = new SeatGroup();
+            
+            // 1. Place 객체를 생성해서 ID만 세팅 (PlaceService를 호출할 필요 없음)
+            Place place = new Place();
+            place.setPlace_id(place_id); 
+            
+            // 2. SeatGroup DTO에 주입
+            seatGroup.setPlace(place); 
+            seatGroup.setGroup_name(group_name);
+            
+            // 초기 배치 설정 (정수형 변수이므로 int로 세팅)
+            seatGroup.setPos_x(100);
+            seatGroup.setPos_y(100);
+            seatGroup.setRow_gap(35);
+            seatGroup.setCol_gap(35);
+            
+            // 3. DB 저장
+            seatGroupService.insertGroupByPlace(seatGroup); 
+            
+            return "success";
+        } catch (Exception e) {
+            return "error: " + e.getMessage();
+        }
+    }
  
 }

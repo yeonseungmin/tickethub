@@ -8,6 +8,11 @@
 	List<RoundCasting> uniqueCastingList = (List)request.getAttribute("uniqueCastingList");
 	String jsonWork = (String)request.getAttribute("jsonWork");
 	String naverMapClientId = (String)request.getAttribute("naverMapClientId");
+	
+	// 장르 이름 가져오기
+    String genreName = work.getGenre().getGenre_name();
+    // 캐스팅을 보여줄 장르 여부 확인
+    boolean showCasting = "뮤지컬".equals(genreName) || "연극".equals(genreName);
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -30,6 +35,7 @@
 	// work_end_date가 달력의 마지막 달
 	let maxDate;
 	let work = <%=jsonWork%>;
+	let reviewList;
 </script>
 <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=<%=naverMapClientId%>"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -37,7 +43,7 @@
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 
 <script>
-    // 1. 좋아요 버튼 토글
+    // 좋아요 버튼 토글
     function toggleLike(btn) {
         $(btn).toggleClass("active");
         let $icon = $(btn).find('i');
@@ -225,17 +231,19 @@
 			<span class="font-weight-bold">A</span> 50석
 		`);
 		
-    	// JS에서 문자열 비교는 localeCompare Java는 compareTo
-    	const roundCastingList = round.roundCastingList.sort((a, b)=> a.role.localeCompare(b.role));
-    	//console.log("roundCastingList", roundCastingList);
-    	
-    	let castingText = "";
-    	roundCastingList.forEach((casting, index) => {
-    		castingText += (index == 0) ? "" : ", ";
-    		castingText += casting.person.person_name;
-    	});
-    	
-		$("#daily-casting-area").text(castingText || "캐스팅 정보가 없습니다.");
+		if(work.genre.genre_name == "뮤지컬" || work.genre.genre_name == "연극") {
+	    	// JS에서 문자열 비교는 localeCompare Java는 compareTo
+	    	const roundCastingList = round.roundCastingList.sort((a, b)=> a.role.localeCompare(b.role));
+	    	//console.log("roundCastingList", roundCastingList);
+	    	
+	    	let castingText = "";
+	    	roundCastingList.forEach((casting, index) => {
+	    		castingText += (index == 0) ? "" : ", ";
+	    		castingText += casting.person.person_name;
+	    	});
+	    	
+			$("#daily-casting-area").text(castingText || "캐스팅 정보가 없습니다.");			
+		}
 		
 		// 예매하기 할 때 value의 값을 좌석 선택 페이지로 전달해야 한다.
 		$(".btn-reservation").val(roundId);
@@ -279,6 +287,8 @@
         updateInfo(selectedRoundList[0].round_id);
     }
     
+    // 달력 끝
+    
     // 장소 팝업
     function openPlacePopup(btn){
     	let roundId = $(btn).data("id");
@@ -306,11 +316,72 @@
             });
         });
     }
+    // 관람후기 함수 시작
     
+	// [관람후기] 답글 작성 폼 토글 기능
+    function toggleReplyForm(reviewId) {
+        let formId = "#reply-form-" + reviewId;
+        $(formId).slideToggle("fast");
+    }
+
+    // [관람후기] 후기 좋아요 토글 UI (프론트 처리만)
+    function toggleLikeReview(btn) {
+        let $icon = $(btn).find('i');
+        let $span = $(btn).find('span');
+        let count = parseInt($span.text());
+
+        if ($icon.hasClass('far')) { // 좋아요 안 누른 상태
+            $icon.removeClass('far').addClass('fas text-primary'); // 채워진 엄지
+            $span.text(count + 1);
+            $span.addClass('text-primary font-weight-bold');
+        } else { // 이미 누른 상태
+            $icon.removeClass('fas text-primary').addClass('far'); // 빈 엄지
+            $span.text(count - 1);
+            $span.removeClass('text-primary font-weight-bold');
+        }
+    }
+    
+	// [관람후기] 더보기/접기 버튼 동작
+    function toggleReviewText(btn) {
+        let $textContainer = $(btn).prev('.review-text-clamp');
+        
+        if ($textContainer.hasClass('expanded')) {
+            // 접기 동작
+            $textContainer.removeClass('expanded');
+            $(btn).html('더보기 <i class="fas fa-chevron-down"></i>');
+        } else {
+            // 펼치기 동작
+            $textContainer.addClass('expanded');
+            $(btn).html('접기 <i class="fas fa-chevron-up"></i>');
+        }
+    }
+	
+	// 관람후기 함수 끝
+    
+	function loadTab(info) {
+		
+		if(info == "review"){
+			$.ajax({
+				url:"/detail/review?work_id=" + work.work_id,
+				method:"GET",
+				success:function(result){
+					console.log("관람후기 클릭됨!");
+					reviewList = result;
+					console.log(reviewList);
+				}
+			});
+		}
+	}
+	
     $(()=>{
     	currentDate = new Date();
     	minDate = new Date();
     	maxDate = new Date(work.work_end_date);
+    	
+    	if(minDate > maxDate){
+    		alert("종료된 공연입니다.\n메인 페이지로 이동합니다.");
+    		location.href="/";
+    	}
     	
     	setTitle();
     	displayCalendar(currentDate.getFullYear(), currentDate.getMonth());
@@ -340,7 +411,28 @@
     		let selectedDate = $(this).data("date");
     		displayRoundList(selectedDate);
     	});
+        
+
+        // [관람후기] 별점 작성 UI
+        $(document).on('click', '.star-rating-input i', function() {
+            let rating = $(this).data('value');
+            
+            // 별 아이콘 초기화 (빈 별)
+            $(this).parent().children('i').removeClass('fas').addClass('far');
+            
+            // 클릭한 별까지 채우기 (꽉 찬 별)
+            $(this).parent().children('i').each(function(index) {
+                if (index < rating) {
+                    $(this).removeClass('far').addClass('fas');
+                }
+            });
+            
+            // 점수 텍스트 업데이트 (별 하나당 2점으로 계산 예시)
+            $("#selected-rating").text(rating * 2);
+        });
     })
+	
+	
     
     // 예매 팝업창 열기
     function openReservation() {
@@ -418,11 +510,11 @@
                         <div class="card-header p-0 border-bottom-0">
                             <ul class="nav nav-tabs custom-tabs" id="custom-tabs-four-tab" role="tablist">
                                 <li class="nav-item">
-                                    <a class="nav-link active" id="tab-info" data-toggle="pill" href="#content-info" role="tab" onclick="loadTab('info')">공연정보</a>
+                                    <a class="nav-link active" id="tab-info" data-toggle="pill" href="#content-info" role="tab" onclick="loadTab('work')">공연정보</a>
                                 </li>
-                                <li class="nav-item">
+						<!--<li class="nav-item">
                                     <a class="nav-link" id="tab-casting" data-toggle="pill" href="#content-casting" role="tab" onclick="loadTab('casting')">캐스팅정보</a>
-                                </li>
+                                </li> -->
                                 <li class="nav-item">
                                     <a class="nav-link" id="tab-sales" data-toggle="pill" href="#content-sales" role="tab" onclick="loadTab('sales')">판매정보</a>
                                 </li>
@@ -433,8 +525,10 @@
                         </div>
                         <div class="card-body p-0">
                             <div class="tab-content">
+                            
+                            	<!-- 공연정보 -->
                                 <div class="tab-pane fade show active" id="content-info">
-                                    
+								<%if(showCasting) { %>
                                     <div class="p-4 bg-light mb-4">
                                         <h5 class="font-weight-bold mb-3">캐스팅</h5>
                                         <div class="casting-container" id="castingList">
@@ -448,15 +542,180 @@
                                             </button>
                                         </div>
                                     </div>
+								<%} %>
 
                                     <div class="text-center py-4">
                                         <h5 class="font-weight-bold mb-3 text-left pl-3">공연 상세 내용</h5>
                                         <img src="/photo/work/p<%=work.getWork_id() %>/<%=work.getWork_content_url() %>" class="img-fluid border">
                                     </div>
                                 </div>
-                                <div class="tab-pane fade" id="content-casting"><div id="ajax-casting-area" class="py-5 text-center"><i class="fas fa-spinner fa-spin fa-2x"></i></div></div>
+                                <!-- 공연정보 끝-->
+                                
+                                <!-- <div class="tab-pane fade" id="content-casting"><div id="ajax-casting-area" class="py-5 text-center"><i class="fas fa-spinner fa-spin fa-2x"></i></div></div> -->
                                 <div class="tab-pane fade" id="content-sales"><div id="ajax-sales-area" class="py-5 text-center"><i class="fas fa-spinner fa-spin fa-2x"></i></div></div>
-                                <div class="tab-pane fade" id="content-review"><div id="ajax-review-area" class="py-5 text-center"><i class="fas fa-spinner fa-spin fa-2x"></i></div></div>
+                                
+                                <!-- review-->
+                                <div class="tab-pane fade" id="content-review">
+									<div class="review-container bg-white p-4">
+									    
+									    <div class="card mb-4 border-0 bg-light">
+									        <div class="card-body p-3">
+									            <div class="d-flex align-items-center mb-3">
+									                <strong class="mr-3">별점 선택</strong>
+									                <div class="star-rating-input text-warning" style="cursor: pointer;">
+									                    <i class="fas fa-star" data-value="1"></i>
+									                    <i class="fas fa-star" data-value="2"></i>
+									                    <i class="fas fa-star" data-value="3"></i>
+									                    <i class="fas fa-star" data-value="4"></i>
+									                    <i class="far fa-star" data-value="5"></i>
+									                </div>
+									                <span class="ml-2 font-weight-bold" id="selected-rating">8</span>점
+									            </div>
+									            
+									            <input type="text" class="form-control mb-2" placeholder="제목을 입력해주세요">
+									            
+									            <textarea class="form-control mb-2" rows="8" placeholder="관람 후기를 남겨주세요 (최대 500자)"></textarea>
+									            <div class="text-right">
+									                <button class="btn btn-primary px-4">등록</button>
+									            </div>
+									        </div>
+									    </div>
+									
+									    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+									        <h5 class="font-weight-bold m-0">총 <span class="text-primary">1,240</span>개의 후기</h5>
+									        <div class="btn-group btn-group-sm">
+									            <button class="btn btn-outline-secondary active">최신순</button>
+									            <button class="btn btn-outline-secondary">평점순</button>
+									            <button class="btn btn-outline-secondary">공감순</button>
+									        </div>
+									    </div>
+									
+									    <ul class="list-unstyled review-list">
+									        
+									        <li class="review-item border-bottom py-3">
+									            <div class="d-flex justify-content-between align-items-end mb-2">
+									                <div>
+									                    <span class="text-warning mr-1">
+									                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+									                    </span>
+									                    <strong class="text-dark mr-2">musical_fan_99</strong>
+									                    <span class="text-muted text-sm">2025.01.28</span>
+									                    <span class="text-muted text-sm ml-2">조회 1,204</span>
+									                </div>
+									                <div>
+									                    <button class="btn btn-xs btn-link text-danger p-0 ml-2">
+									                        <i class="fas fa-exclamation-circle"></i> 신고
+									                    </button>
+									                </div>
+									            </div>
+									            
+									            <div class="font-weight-bold text-dark mb-1" style="font-size: 1.1rem;">
+									                기대 이상의 감동, 완벽한 무대였습니다!
+									            </div>
+									            
+									            <div class="review-text-clamp text-dark mb-1" style="white-space: pre-wrap;">정말 오랜만에 보는 뮤지컬이었는데 기대 이상이었습니다. 
+배우들의 연기력은 말할 것도 없고, 무대 장치 하나하나가 예술이더군요.
+특히 1막 마지막 곡이 끝날 때의 전율은 아직도 잊혀지지가 않습니다.
+음향도 블루스퀘어 다른 공연 때보다 훨씬 잡음 없이 깔끔하게 들렸습니다. 
+VIP석이 아깝지 않은 공연이었어요.
+다음 주에 부모님 모시고 한 번 더 보러 갈 예정입니다. 
+주차는 조금 복잡하니 대중교통 이용하시는 걸 추천드립니다.
+									</div>
+									            
+									            <button class="btn-more" onclick="toggleReviewText(this)">더보기 <i class="fas fa-chevron-down"></i></button>
+									            
+									            <div class="review-actions mt-1">
+									                <button class="btn btn-xs btn-light border mr-1" onclick="toggleLikeReview(this)">
+									                    <i class="far fa-thumbs-up"></i> <span>24</span>
+									                </button>
+									                <button class="btn btn-xs btn-light border" onclick="toggleReplyForm(1)">
+									                    답글 달기
+									                </button>
+									            </div>
+									
+									            <div id="reply-form-1" class="reply-form-container mt-3" style="display: none;">
+									                <div class="card bg-light border-0">
+									                    <div class="card-body p-2 d-flex">
+									                        <textarea class="form-control form-control-sm mr-2" rows="2" placeholder="답글을 입력하세요... (최대 150자)"></textarea>
+									                        <button class="btn btn-sm btn-secondary" style="width: 60px;">등록</button>
+									                    </div>
+									                </div>
+									            </div>
+									
+									            <div class="reply-list mt-3 pl-4 bg-light rounded p-3">
+									                <div class="reply-item d-flex">
+									                    <div class="mr-2 text-muted"><i class="fas fa-level-up-alt fa-rotate-90"></i></div>
+									                    <div class="w-100">
+									                        <div class="d-flex justify-content-between mb-1">
+									                            <div>
+									                                <span class="font-weight-bold text-sm">chicago00</span>
+									                                <span class="text-muted text-xs ml-2">2025.01.29</span>
+									                            </div>
+												                <div>
+												                    <button class="btn btn-xs btn-link text-muted p-0">삭제</button>
+												                </div>
+									                        </div>
+									                        <p class="text-sm mb-1">저도 주차 때문에 고생했는데 공감합니다 ㅠㅠ 대중교통이 답이에요.</p>
+									                    </div>
+									                </div>
+									            </div>
+									        </li>
+									
+									        <li class="review-item border-bottom py-3">
+									            <div class="d-flex justify-content-between align-items-end mb-2">
+									                <div>
+									                    <span class="text-warning mr-1">
+									                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+									                    </span>
+									                    <strong class="text-dark mr-2">ticket_master</strong>
+									                    <span class="text-muted text-sm">2025.01.27</span>
+									                    <span class="text-muted text-sm ml-2">조회 85</span>
+									                </div>
+									                <div>
+									                    <!-- <button class="btn btn-xs btn-link text-muted p-0 mr-2">수정</button> -->
+									                    <button class="btn btn-xs btn-link text-muted p-0">삭제</button>
+									                </div>
+									            </div>
+									            
+									            <div class="font-weight-bold text-dark mb-1" style="font-size: 1.1rem;">
+									                음향이 조금 아쉬웠습니다.
+									            </div>
+									            
+									            <div class="review-text-clamp text-dark mb-1">스토리는 좋았는데 2층 사이드 좌석이라 그런지 음향이 조금 뭉개지는 느낌을 받았습니다.</div>
+									            
+									            <button class="btn-more" onclick="toggleReviewText(this)">더보기 <i class="fas fa-chevron-down"></i></button>
+									            
+									            <div class="review-actions mt-1">
+									                <button class="btn btn-xs btn-light border mr-1" onclick="toggleLikeReview(this)">
+									                    <i class="far fa-thumbs-up"></i> <span>5</span>
+									                </button>
+									                <button class="btn btn-xs btn-light border" onclick="toggleReplyForm(2)">
+									                    답글 달기
+									                </button>
+									            </div>
+									             <div id="reply-form-2" class="reply-form-container mt-3" style="display: none;">
+									                <div class="card bg-light border-0">
+									                    <div class="card-body p-2 d-flex">
+									                        <textarea class="form-control form-control-sm mr-2" rows="2" placeholder="답글을 입력하세요... (최대 150자)"></textarea>
+									                        <button class="btn btn-sm btn-secondary" style="width: 60px;">등록</button>
+									                    </div>
+									                </div>
+									            </div>
+									        </li>
+									
+									    </ul>
+									    
+									    <ul class="pagination justify-content-center mt-4">
+									        <li class="page-item disabled"><a class="page-link" href="#">이전</a></li>
+									        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+									        <li class="page-item"><a class="page-link" href="#">2</a></li>
+									        <li class="page-item"><a class="page-link" href="#">3</a></li>
+									        <li class="page-item"><a class="page-link" href="#">다음</a></li>
+									    </ul>
+									</div>
+                                </div>
+                                
+								<!-- review End -->
                             </div>
                         </div>
                     </div>
@@ -517,14 +776,14 @@
                                     <span class="font-weight-bold">A</span> 150석
                                 </div>
                             </div>
-
+						<%if(showCasting) {%>
                             <div class="card-body p-3">
                                 <h6 class="font-weight-bold mb-2">캐스팅</h6>
                                 <div id="daily-casting-area" class="sidebar-compact-text">
                                     홍길동, 김철수, 이영희, 박민수
                                 </div>
                             </div>
-
+						<%} %>
                             <div class="card-footer p-3">
                                 <button class="btn btn-primary btn-block btn-lg font-weight-bold shadow" onclick="openReservation()">예매하기</button>
                             </div>
@@ -532,6 +791,7 @@
                         </div>
                     </div>
                 </div>
+                <!-- calendar End-->
                 
 				<!-- The PlaceModal -->
 			    <div class="modal" id="placeModal">
@@ -555,7 +815,7 @@
 			            </div>
 			        </div>
 			    </div>
-			    
+			    <!-- The PlaceModal End -->
             </div>
         </div>
     </div>

@@ -10,7 +10,7 @@
         <result column="row_gap" 							property="row_gap"/>
         <result column="col_gap" 								property="col_gap"/>
         <result column="direction" 							property="direction"/>
-        <association column="place_id" property="place" select="Place.selectById"/>
+        <association column="place_id" 						property="place" 				select="Place.selectById"/>
     </resultMap>
 	
     <sql id="sql_select">
@@ -41,5 +41,10 @@
 	        pos_y = #{pos_y} 
 	    WHERE seat_group_id = #{seat_group_id}
 	</update>
+	
+    <insert id="insertGroupByPlace" parameterType="SeatGroup">
+	    INSERT INTO seat_group (place_id, group_name, pos_x, pos_y, row_gap, col_gap)  
+	    VALUES (#{place.place_id}, #{group_name}, #{pos_x}, #{pos_y}, #{row_gap}, #{col_gap})
+	</insert>
 
     </mapper>

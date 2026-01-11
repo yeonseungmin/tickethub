@@ -180,4 +180,15 @@
 		WHERE member_id = #{memberId}
 	</update>
 
+	<!-- 회원: 리뷰 조회 -->
+	<select id="selectForReview" parameterType="int"
+		resultType="Member">
+		SELECT
+		member_id as memberId,
+		name,
+		status
+		FROM member
+		where member_id = #{memberId}
+	</select>
+	
 </mapper>

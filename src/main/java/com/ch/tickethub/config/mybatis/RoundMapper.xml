@@ -23,24 +23,24 @@
 	</resultMap>
 
 
-<resultMap id="roundMap" 					type="Round">
-    <id property="round_id" 					column="round_id" />
-    <result property="round_date" 			column="round_date" />
-    <result property="round_start_time"	column="round_start_time" />
-    <result property="is_cancelled" 			column="is_cancelled" />
-
-    <association property="work" 			javaType="Work">
-        <id property="work_id" 					column="work_id" />
-        <result property="work_title" 			column="work_title" />
-        <result property="work_poster_url" column="work_poster_url" />
-        </association>
-
-    <association property="place" 			javaType="Place">
-        <id property="place_id" 				column="place_id" />
-        <result property="place_name" 		column="place_name" />
-        <result property="address" 			column="address" />
-        </association>
-</resultMap>
+	<resultMap id="roundMap" 					type="Round">
+	    <id property="round_id" 					column="round_id" />
+	    <result property="round_date" 			column="round_date" />
+	    <result property="round_start_time"	column="round_start_time" />
+	    <result property="is_cancelled" 			column="is_cancelled" />
+	
+	    <association property="work" 			javaType="Work">
+	        <id property="work_id" 					column="work_id" />
+	        <result property="work_title" 			column="work_title" />
+	        <result property="work_poster_url" column="work_poster_url" />
+	        </association>
+	
+	    <association property="place" 			javaType="Place">
+	        <id property="place_id" 				column="place_id" />
+	        <result property="place_name" 		column="place_name" />
+	        <result property="address" 			column="address" />
+	        </association>
+	</resultMap>
 
 
 

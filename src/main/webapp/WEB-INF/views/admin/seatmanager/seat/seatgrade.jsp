@@ -1,7 +1,4 @@
-<%@page import="com.ch.tickethub.dto.Work"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="com.ch.tickethub.dto.SeatGroup"%>
-<%@ page import="com.ch.tickethub.dto.Seat"%>
 <%@ page import="com.ch.tickethub.dto.Place"%>
 <%@ page import="java.util.List"%>
 <%
@@ -12,227 +9,272 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Seat Management Admin (Updated)</title>
-    <link rel="stylesheet" href="<%=contextPath%>/static/assets/css/header.css">
+    <title>Grade Management Admin</title>
     <link rel="stylesheet" href="<%=contextPath%>/static/assets/css/seat.css?v=<%=System.currentTimeMillis()%>">
+    
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        var contextPath = '<%=contextPath%>';
+    </script>
+    
+    <script src="<%=contextPath%>/static/assets/js/seat.js?v=<%=System.currentTimeMillis()%>" charset="UTF-8"></script>
 </head>
 <body class="admin-seat-page">
 
-<div class="seat-option-bar">
-    <div class="nav-group">
-        <span class="nav-label">PLACE</span>
-        <select id="placeSelect" class="nav-select">
-            <option value="">장소 선택</option>
-            <% if(placeList != null) { 
-                for(Place place : placeList) { %>
-                <option value="<%=place.getPlace_id()%>"><%=place.getPlace_name()%></option>
-            <% } } %>
-        </select>
-    </div>
-    
-    <div class="nav-group">
-        <span class="nav-label">WORK</span>
-        <select id="workSelect" class="nav-select">
-            <option value="">공연 선택</option>
-        </select>
-    </div>
-
-    <div class="nav-group">
-        <span class="nav-label">ROUND</span>
-        <select id="roundSelect" class="nav-select">
-            <option value="">회차 선택</option>
-        </select>
-    </div>
-
-    <button class="nav-load-btn" id="btnLoadSeats">
-        <span class="icon-search">🔍</span> 좌석 불러오기
-    </button>
-</div>
-
-<div class="admin-seat-wrapper">
-    <div class="seat-map-container">
-        <div class="stage-label">STAGE</div>
-        <div id="seatArea"></div>
-    </div>
-
-    <div class="management-side-panel">
-        <h3 class="panel-title">Seat Control</h3>
-        
-        <div id="selection-info">
-            <p>선택 좌석: <span id="selName">-</span></p>
-            <p>상태: <span id="selState">-</span></p>
-        </div>
-
-		 <div class="state-btn-grid">
-		    <button class="status-btn" onclick="changeGrade(1)">VIP</button>
-		    <button class="status-btn" onclick="changeGrade(2)">R석</button>
-		    <button class="status-btn" onclick="changeGrade(3)">S석</button>
-		    <button class="status-btn" onclick="changeGrade(4)">A석</button>
-		</div>
-
-        <div class="auto-gen-box">
-            <p class="section-title">좌석 자동 생성</p>
-            <select id="groupSelect" class="nav-select full-width-select">
-                <option value="">구역 선택</option>
+    <div class="seat-option-bar">
+        <div class="nav-group">
+            <span class="nav-label">PLACE</span>
+            <select id="placeSelect" class="nav-select">
+                <option value="">장소 선택</option>
+                <% if(placeList != null) { 
+                    for(Place place : placeList) { %>
+                    <option value="<%=place.getPlace_id()%>"><%=place.getPlace_name()%></option>
+                <% } } %>
             </select>
-            <div class="input-group-row">
-                <input type="number" id="rowCount" placeholder="Rows" class="admin-input-small">
-                <input type="number" id="colCount" placeholder="Cols" class="admin-input-small">
+        </div>
+
+        <div class="nav-group">
+            <span class="nav-label">WORK</span>
+            <select id="workSelect" class="nav-select">
+                <option value="">공연 선택</option>
+            </select>
+        </div>
+
+        <div class="nav-group">
+            <span class="nav-label">ROUND</span>
+            <select id="roundSelect" class="nav-select">
+                <option value="">회차 선택</option>
+            </select>
+        </div>
+
+        <button class="nav-load-btn" onclick="loadSeatLayout()">
+            <span class="icon-search">🔍</span> 조회
+        </button>
+    </div>
+
+    <div class="admin-seat-wrapper">
+        <div class="seat-map-container">
+            <div class="stage-label">STAGE</div>
+            <div id="seatArea"></div>
+        </div>
+
+        <div class="management-side-panel">
+            <h3 class="panel-title">Grade Controller</h3>
+            <div id="selection-info">
+                <p>선택 좌석: <span id="selName">-</span></p>
+                <p>등급: <span id="selState">-</span></p>
             </div>
-            <button class="create-exec-btn" onclick="createSeats()">생성 실행</button>
+
+            <div class="grade-btn-grid">
+                <button class="grade-btn btn-vip" onclick="changeGrade(1)">VIP</button>
+                <button class="grade-btn btn-r" onclick="changeGrade(2)">R석</button>
+                <button class="grade-btn btn-s" onclick="changeGrade(3)">S석</button>
+                <button class="grade-btn btn-a" onclick="changeGrade(4)">A석</button>
+            </div>
+
+            <button class="save-layout-btn" onclick="saveBatchLayout()" style="margin-top:20px;">
+                등급 저장
+            </button>
         </div>
     </div>
-</div>
 
-<script>
-    var selectedSeatId = null;
-    var contextPath = '<%=contextPath%>';
+	<script>
+	/**
+	 * 1. 좌석 레이아웃 로드 (AJAX)
+	 * 조회 버튼 클릭 시에만 실행됩니다.
+	 */
+	// 전역 변수 관리
+	 window.selectedSeatIds = [];
+	 window.pendingChanges = {}; // { seat_id: grade_id } 형태로 변경 내역을 임시 저장
 
-    $(document).ready(function() {
-        // 1. 장소 선택 시 -> 공연 목록 및 구역(Group) 목록 불러오기
-        $('#placeSelect').on('change', function() {
-            var placeId = $(this).val();
-            
-            // 하위 선택창들 초기화
-            $('#workSelect').empty().append('<option value="">공연 선택</option>');
-            $('#roundSelect').empty().append('<option value="">회차 선택</option>');
-            $('#groupSelect').empty().append('<option value="">구역 선택</option>'); 
-            
-            if (!placeId) return;
+	 /**
+	  * 1. 좌석 레이아웃 로드 (AJAX)
+	  */
+	 function loadSeatLayout() {
+	     var roundId = $('#roundSelect').val();
+	     if (!roundId) {
+	         alert("회차를 선택해주세요.");
+	         return;
+	     }
 
-            // 공연 목록 로드
-            $.get(contextPath + '/admin/roundseat/workList', { place_id: placeId }, function(data) {
-                data.forEach(function(work) {
-                    $('#workSelect').append('<option value="' + work.work_id + '">' + work.work_title + '</option>');
-                });
-            });
+	     // 초기화
+	     window.selectedSeatIds = [];
+	     window.pendingChanges = {}; // 새로 불러올 때 대기 내역 초기화
+	     updateSelectionInfo("-"); 
 
-            // 구역 목록 로드 (좌석 자동 생성 시 필요)
-            $.get(contextPath + '/admin/seatgroup/list', { place_id: placeId }, function(groupList) {
-                groupList.forEach(function(group) {
-                    $('#groupSelect').append('<option value="' + group.seat_group_id + '">' + group.seat_group_name + '</option>');
-                });
-            });
-        });
+	     var url = contextPath + '/admin/roundseat/list?round_id=' + roundId + '&_t=' + new Date().getTime();
 
-        // 2. 공연 선택 시 -> 회차 목록 불러오기
-        $('#workSelect').on('change', function() {
-            var workId = $(this).val();
-            $('#roundSelect').empty().append('<option value="">회차 선택</option>');
-            if (!workId) return;
+	     $.get(url, function(list) {
+	         if (!list || list.length === 0) {
+	             alert("해당 회차에 생성된 좌석 데이터가 없습니다.");
+	             $('#seatArea').empty();
+	             return;
+	         }
+	         renderStatusMap(list);
+	     }).fail(function() {
+	         alert("데이터를 불러오는 중 오류가 발생했습니다.");
+	     });
+	 }
 
-            $.get(contextPath + '/admin/roundseat/roundList', { work_id: workId }, function(data) {
-                data.forEach(function(round) {
-                    var roundText = round.round_date + ' (' + round.round_start_time + ')';
-                    $('#roundSelect').append('<option value="' + round.round_id + '">' + roundText + '</option>');
-                });
-            });
-        });
+	 /**
+	  * 2. 등급 관리 전용 렌더링 함수
+	  */
+	 function renderStatusMap(seatList) {
+	     var $container = $('#seatArea').empty();
+	     
+	     // [A] 구역 경계선 그리기 (기존 로직 유지)
+	     var groups = {};
+	     seatList.forEach(function(seat) {
+	         if (!groups[seat.seat_group_id]) {
+	             groups[seat.seat_group_id] = {
+	                 name: seat.group_name || '구역',
+	                 minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity
+	             };
+	         }
+	         var curX = seat.pos_x + (seat.seat_x.charCodeAt(0) - 65) * seat.col_gap;
+	         var curY = seat.pos_y + (seat.seat_y - 1) * seat.row_gap;
+	         var g = groups[seat.seat_group_id];
+	         if (curX < g.minX) g.minX = curX; if (curY < g.minY) g.minY = curY;
+	         if (curX > g.maxX) g.maxX = curX; if (curY > g.maxY) g.maxY = curY;
+	     });
 
-        // 3. 좌석 불러오기
-        $('#btnLoadSeats').on('click', function() {
-            var roundId = $('#roundSelect').val();
-            if (!roundId) { 
-                alert('회차를 선택해주세요.'); 
-                return; 
-            }
-            
-            $.get(contextPath + '/admin/roundseat/list', { round_id: roundId }, function(seatList) {
-                renderGradeMap(seatList);
-            });
-        });
-    });
+	     Object.keys(groups).forEach(function(id) {
+	         var g = groups[id];
+	         $('<div class="group-boundary-box"></div>')
+	             .css({
+	                 left: (g.minX - 20) + 'px', 
+	                 top: (g.minY - 20) + 'px',
+	                 width: (g.maxX - g.minX + 72) + 'px', 
+	                 height: (g.maxY - g.minY + 72) + 'px'
+	             })
+	             .append($('<div class="group-name-label"></div>').text(g.name))
+	             .appendTo($container);
+	     });
 
-    // 등급 관리용 렌더링 함수
-    function renderGradeMap(seatList) {
-        var $container = $('#seatArea');
-        $container.empty();
-        
-        seatList.forEach(function(seat) {
-            var grade = (seat.grade_name || 'A').toLowerCase();
-            var folder = "/static/assets/seatImg/";
-            
-            // 기존 이미지 규칙 유지 (abailable_ 오타 포함)
-            var fileName = (grade === 'vip' || grade === 'r' || grade === 's') 
-                           ? "abailable_" + grade + ".jpg" : "available_a.jpg";
-            
-            var finalImgUrl = contextPath + folder + fileName;
+	     // [B] 좌석 그리기
+	     seatList.forEach(function(seat) {
+	         var finalX = seat.pos_x + (seat.seat_x.charCodeAt(0) - 65) * seat.col_gap;
+	         var finalY = seat.pos_y + (seat.seat_y - 1) * seat.row_gap;
+	         
+	         var rawGrade = seat.grade_name || "A"; 
+	         var gName = rawGrade.toLowerCase();
+	         
+	         var gradeType = (['vip', 'r', 's'].indexOf(gName) > -1) ? gName : 'a';
+	         var imgUrl = contextPath + "/static/assets/seatImg/available_" + gradeType + ".jpg";
 
-            var $seatDiv = $('<div class="admin-seat-grade" data-seat-id="' + seat.seat_id + '"></div>');
-            $seatDiv.css({
-                'position': 'absolute',
-                'left': (seat.pos_x + (seat.seat_y - 1) * seat.col_gap) + 'px',
-                'top': (seat.pos_y + (seat.seat_x.charCodeAt(0) - 65) * seat.row_gap) + 'px',
-                'background-image': "url('" + finalImgUrl + "')",
-                'background-size': 'cover',
-                'width': '25px', 
-                'height': '25px', 
-                'cursor': 'pointer',
-                'box-sizing': 'border-box'
-            });
+	         $('<div class="admin-seat"></div>')
+	             .attr({ 
+	                 'data-seat-id': seat.seat_id,
+	                 'data-grade': rawGrade.toUpperCase()
+	             })
+	             .css({ 
+	                 left: finalX + 'px', 
+	                 top: finalY + 'px', 
+	                 backgroundImage: "url('" + imgUrl + "')" 
+	             })
+	             .on('click', function(e) {
+	                 e.stopPropagation();
+	                 if (e.ctrlKey || e.metaKey) {
+	                     var idx = window.selectedSeatIds.indexOf(seat.seat_id);
+	                     if (idx > -1) {
+	                         window.selectedSeatIds.splice(idx, 1);
+	                         $(this).removeClass('selected-multi');
+	                     } else {
+	                         window.selectedSeatIds.push(seat.seat_id);
+	                         $(this).addClass('selected-multi');
+	                     }
+	                 } else {
+	                     $('.admin-seat').removeClass('selected-multi');
+	                     window.selectedSeatIds = [seat.seat_id];
+	                     $(this).addClass('selected-multi');
+	                 }
+	                 updateSelectionInfo(rawGrade.toUpperCase());
+	             })
+	             .appendTo($container);
+	     });
+	 }
 
-            // 클릭 시 정보 표시 및 선택 효과
-            $seatDiv.on('click', function() {
-                selectedSeatId = seat.seat_id;
-                $('#selName').text(seat.seat_name);
-                $('#selState').text(grade.toUpperCase());
-                
-                // 선택 표시 (노란 테두리)
-                $('.admin-seat-grade').css('border', 'none');
-                $(this).css('border', '2px solid yellow');
-            });
+	 /**
+	  * 3. 정보창 업데이트 함수 (기존 유지)
+	  */
+	 function updateSelectionInfo(gradeName) {
+	     var count = (window.selectedSeatIds) ? window.selectedSeatIds.length : 0;
+	     if (count > 0) {
+	         $('#selName').html('<b style="color:#2563eb;">' + count + '</b> 개');
+	     } else {
+	         $('#selName').text("-");
+	     }
+	     
+	     if (count === 0) {
+	         $('#selState').text("-");
+	     } else if (count > 1) {
+	         $('#selState').text("다중 선택됨");
+	     } else {
+	         $('#selState').text(gradeName || "-");
+	     }
+	 }
 
-            $container.append($seatDiv);
-        });
-    }
+	 /**
+	  * 4. 등급 임시 변경 (화면에서만 변경)
+	  */
+	 function changeGrade(gradeId) {
+	     if (!window.selectedSeatIds || window.selectedSeatIds.length === 0) {
+	         return alert("변경할 좌석을 먼저 선택하세요.");
+	     }
 
-    // 등급 변경 함수
-    function changeGrade(gradeId) {
-        if(!selectedSeatId) { 
-            alert('좌석을 먼저 선택하세요.'); 
-            return; 
-        }
-        
-        $.post(contextPath + '/admin/seatmanager/seat/grade/update', {
-            seat_id: selectedSeatId,
-            seat_grade_id: gradeId
-        }, function(res) {
-            if(res === 'success') {
-                alert('등급이 변경되었습니다.');
-                $('#btnLoadSeats').click(); // 목록 새로고침
-            } else {
-                alert('변경 실패: ' + res);
-            }
-        });
-    }
+	     // 등급 ID별 이미지 타입 매핑
+	     var gradeMap = { 1: 'vip', 2: 'r', 3: 's', 4: 'a' };
+	     var gradeType = gradeMap[gradeId];
+	     var imgUrl = contextPath + "/static/assets/seatImg/available_" + gradeType + ".jpg";
 
-    // 좌석 자동 생성 실행 (참고 코드의 기능 추가)
-    function createSeats() {
-        var groupId = $('#groupSelect').val();
-        var rows = $('#rowCount').val();
-        var cols = $('#colCount').val();
+	     window.selectedSeatIds.forEach(function(id) {
+	         // 1. 임시 변경 내역 객체에 저장
+	         window.pendingChanges[id] = gradeId;
 
-        if(!groupId || !rows || !cols) {
-            alert('구역과 행/열 개수를 모두 입력해주세요.');
-            return;
-        }
+	         // 2. 화면의 좌석 이미지 즉시 교체
+	         var $seat = $('.admin-seat[data-seat-id="' + id + '"]');
+	         $seat.css('background-image', "url('" + imgUrl + "')");
+	         
+	         // 3. 저장 전임을 알리는 표시 (테두리를 파란색으로 변경 등)
+	         $seat.css('outline', '2px solid #2563eb'); 
+	     });
 
-        if(confirm(rows + '행 ' + cols + '열 좌석을 생성하시겠습니까?')) {
-            $.post(contextPath + '/admin/seatmanager/seat/state/createBulk', {
-                seat_group_id: groupId,
-                row_count: rows,
-                col_count: cols
-            }, function(res) {
-                if(res === 'success') {
-                    alert('좌석이 생성되었습니다.');
-                } else {
-                    alert('생성 실패: ' + res);
-                }
-            });
-        }
-    }
-</script>
+	     // 선택 해제 (원할 경우 추가)
+	     // $('.admin-seat').removeClass('selected-multi');
+	     // window.selectedSeatIds = [];
+	 }
+
+	 /**
+	  * 5. [등급 저장] 버튼 클릭 시 호출 - 서버 최종 반영
+	  */
+	 function saveBatchLayout() {
+	     var seatIds = Object.keys(window.pendingChanges);
+	     
+	     if (seatIds.length === 0) {
+	         return alert("변경된 내용이 없습니다.");
+	     }
+
+	     if (!confirm(seatIds.length + "개 좌석의 등급 변경을 저장하시겠습니까?")) return;
+
+	     // 모든 변경 내역을 서버로 전송
+	     var requests = seatIds.map(function(id) {
+	         return $.post(contextPath + '/admin/roundseat/updateGrade', { 
+	             seat_id: id, 
+	             seat_grade_id: window.pendingChanges[id] 
+	         });
+	     });
+
+	     // 모든 AJAX 요청이 완료될 때까지 대기
+	     Promise.all(requests).then(function() {
+	         alert("성공적으로 저장되었습니다.");
+	         window.pendingChanges = {}; // 내역 비우기
+	         loadSeatLayout(); // 최신 데이터로 다시 그리기
+	     }).catch(function(err) {
+	         alert("저장 중 오류가 발생했습니다.");
+	     });
+	 }
+	</script>
 
 </body>
 </html>

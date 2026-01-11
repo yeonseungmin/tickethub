@@ -110,6 +110,7 @@ public class RoundSeatServiceImpl implements RoundSeatService {
         return roundSeatDAO.updateStatus(rs);
     }
     
+    
     @Override
     public List<Work> getWorkListByPlace(int placeId) {
         // placeId에 해당하는 공연 목록을 가져오는 DAO 메서드 호출
