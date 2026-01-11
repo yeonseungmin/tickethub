@@ -38,7 +38,8 @@ public class TickethubWebConfig extends WebMvcConfigurerAdapter{
                 .addPathPatterns("/**") 
                 .excludePathPatterns("/queue/**") // 대기 페이지 예외
                 .excludePathPatterns("/assets/**") // 이미지, CSS 같은 정적 파일 예외
-                .excludePathPatterns("/auth/**");  // 로그인 관련 페이지,,, 일단 예외 > 추가 수정 필요.
+                .excludePathPatterns("/auth/**")  // 로그인 관련 페이지,,, 일단 예외 > 추가 수정 필요.
+        		.excludePathPatterns("/ticket/reservation/popup");	//  티켓 예매 popup 로그인 전이므로 일단 예외 > 추가 수정 필요.
     }
 	
 	/*context.xml 등에 명시된 외부 자원을 JNDI 방식으로 읽어들일 수 있는 스프링의 객체*/ 

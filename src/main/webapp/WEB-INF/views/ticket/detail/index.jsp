@@ -1,3 +1,4 @@
+<%@page import="com.ch.tickethub.dto.Round"%>
 <%@page import="com.ch.tickethub.dto.RoundCasting"%>
 <%@page import="java.util.List"%>
 <%@page import="com.ch.tickethub.dto.Work"%>
@@ -5,6 +6,7 @@
     pageEncoding="UTF-8"%>
 <%
 	Work work = (Work)request.getAttribute("work");
+	Round round = (Round)request.getAttribute("round");
 	List<RoundCasting> uniqueCastingList = (List)request.getAttribute("uniqueCastingList");
 	String jsonWork = (String)request.getAttribute("jsonWork");
 	String naverMapClientId = (String)request.getAttribute("naverMapClientId");
@@ -214,6 +216,8 @@
     	
         $(".btn-round-select").removeClass("active");
         $(element).addClass("active");
+        
+        console.log("클래스 추가 완료:", $(element).attr("class")); // active가 들어있는지 확인
         
         updateInfo(roundId);
     }
@@ -679,13 +683,23 @@
 	
     
     // 예매 팝업창 열기
-    function openReservation() {
-        // 현재 보고 있는 공연의 ID (서버에서 넘겨준 work 객체 활용)
-        let workId = <%=work.getWork_id()%>;
-        let url = "reservation?work_id=" + workId;
-        let specs = "width=900,height=700,top=100,left=200,scrollbars=yes";
-        open(url, "reservationPopup", specs);
-    }
+	function openReservation(event) {
+	    if (event) event.preventDefault();
+	
+	    let workId = <%=work.getWork_id()%>;
+	    let roundId = $(".btn-reservation").val();
+	
+	    if (!roundId) {
+	        alert("회차를 선택해주세요.");
+	        return;
+	    }
+	
+	    // 주소 끝에 /popup 이 정확히 붙었는지 확인
+	    let url = "${pageContext.request.contextPath}/ticket/reservation/popup?work_id=" + workId + "&round_id=" + roundId;
+	    let specs = "width=1100,height=850,top=50,left=150,scrollbars=yes";
+	    
+	    window.open(url, "reservationPopup", specs);
+	}
     
 </script>
 <div class="wrapper">
@@ -1031,7 +1045,10 @@ VIP석이 아깝지 않은 공연이었어요.
                             </div>
 						<%} %>
                             <div class="card-footer p-3">
-                                <button class="btn btn-primary btn-block btn-lg font-weight-bold shadow" onclick="openReservation()">예매하기</button>
+                                <button type="button" 
+								        class="btn btn-primary btn-block btn-lg font-weight-bold shadow btn-reservation" 
+								        onclick="openReservation(event); return false;">예매하기
+								 </button>
                             </div>
 
                         </div>
