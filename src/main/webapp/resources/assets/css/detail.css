@@ -26,9 +26,45 @@
 
 /* 3. 회차 선택 버튼 디자인 */
 .btn-round-select {
-    padding: 4px 8px;
-    font-size: 13px;
-    margin-bottom: 4px;
+    padding: 4px 8px;   /* 유지 */
+    font-size: 13px;    /* 유지 */
+    margin-bottom: 4px; /* 유지 */
+    
+    border: 1px solid #ddd;
+    background-color: #fff;
+    color: #333;
+    border-radius: 4px;
+    transition: all 0.2s; /* 부드러운 전환 효과 */
+    cursor: pointer;
+}
+
+/* 2. 활성화(Active) 상태: 크기는 그대로 두고 "색상"만 바꿉니다. */
+.round-select-list .btn-round-select.active {
+    /* 배경과 글자색만 변경하여 선택되었음을 표시 */
+    background-color: #007bff !important; 
+    color: #ffffff !important;
+    border-color: #0056b3 !important;
+    
+    /* 폰트 굵기를 주면 크기 변화 없이 강조됩니다 */
+    font-weight: bold !important;
+    
+    /* 입체감을 위한 살짝의 그림자 */
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
+/* 마우스를 올렸을 때 (Hover) */
+.btn-round-select:hover {
+    border-color: #007bff;
+    color: #007bff;
+}
+
+/* 클릭하여 선택된 상태 (Active) */
+.btn-round-select.active {
+    background-color: #007bff !important; /* 배경을 파란색으로 */
+    color: #ffffff !important;           /* 글씨를 흰색으로 */
+    border-color: #0056b3 !important;    /* 테두리를 좀 더 진하게 */
+    font-weight: bold;                   /* 글씨를 두껍게 해서 강조 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 살짝 입체감 부여 */
 }
 
 /* 탭 메뉴 커스텀 */
