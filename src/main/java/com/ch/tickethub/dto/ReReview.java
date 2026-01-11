@@ -9,4 +9,5 @@ public class ReReview {
 	private String re_review_regdate;
 	
 	private Review review;
+	private Member member;
 }

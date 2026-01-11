@@ -4,6 +4,7 @@
 	<select id="selectByReviewId" parameterType="int" resultType="ReReview">
 		select re_review_id, re_review_content
 		, DATE_FORMAT(re_review_regdate, '%Y.%m.%d') as re_review_regdate
+		, member_id
 		from re_review
 		where review_id = #{review_id}
 		order by re_review_regdate desc
