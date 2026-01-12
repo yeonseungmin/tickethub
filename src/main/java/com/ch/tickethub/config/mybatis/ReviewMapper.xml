@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="Review">
-
+	<insert id="insert" parameterType="Review">
+		insert into review(work_id, member_id, review_title, review_content, rating)
+		values(#{work.work_id}, #{member.memberId}, #{review_title}, #{review_content}, #{rating})
+	</insert>
+	
+	
 	<resultMap id="reviewMapForWork" type="Review">
 		<id column="review_id"					property="review_id"/>
 		<result column="work_id"					property="work.work_id"/>
@@ -44,24 +49,26 @@
 	</resultMap>
 	
 	<!-- if-else는 choose when map의 key를 적으면 알아서 value를 적용해준다.-->
+	<!-- r을 붙이지 않으면 review_regdate가 일단위까지만 정렬한다. -->
 	<select id="selectByWorkId" parameterType="map" resultMap="reviewMapForWork">
-		select review_id, work_id, hit, review_like_count, review_title, review_content, review_state, rating
-		, member_id as memberId
-		, DATE_FORMAT(review_regdate, '%Y.%m.%d') as review_regdate
-		from review
-		where work_id=#{work_id}
-		<choose>
-			<when test="orderType == 'rating'">
-				order by rating desc, review_regdate desc
-			</when>
-			<when test="orderType == 'likes'">
-				order by review_like_count desc, review_regdate desc
-			</when>
-			<otherwise>
-				order by review_regdate desc		
-			</otherwise>
-		</choose>
-		
+	    SELECT 
+	        r.review_id, r.work_id, r.hit, r.review_like_count, 
+	        r.review_title, r.review_content, r.review_state, r.rating,
+	        r.member_id as memberId,
+	        DATE_FORMAT(r.review_regdate, '%Y.%m.%d') as review_regdate
+	    FROM review r
+	    WHERE r.work_id = #{work_id}
+	    <choose>
+	        <when test="orderType == 'rating'">
+	            ORDER BY r.rating DESC, r.review_regdate DESC
+	        </when>
+	        <when test="orderType == 'likes'">
+	            ORDER BY r.review_like_count DESC, r.review_regdate DESC
+	        </when>
+	        <otherwise>
+	            ORDER BY r.review_regdate DESC		
+	        </otherwise>
+	    </choose>
 	</select>
 	
 	<select id="selectById" parameterType="int" resultMap="reviewMapForBestReview">
