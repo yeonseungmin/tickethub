@@ -55,4 +55,10 @@ public class MybatisMemberDAO implements MemberDAO{
 		return sqlSessionTemplate.insert("Member.insert", member);
 	}
 
+	@Override
+	public int existsLoginId(String loginId) {
+		Integer cnt = sqlSessionTemplate.selectOne("Member.existsLoginId", loginId);
+		return (cnt == null)? 0 : cnt; // 결과가 null로 넘어올 수도 있으니깐 0이나 cnt로 바꿔주기! 
+	}
+
 }

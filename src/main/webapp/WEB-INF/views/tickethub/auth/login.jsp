@@ -5,7 +5,8 @@
 
 <head>
 <meta charset="UTF-8">
-<%@ include file="../inc/head_link.jsp"%>
+<%@ include file="../../ticket/inc/header.jsp"%>
+<%@ include file="../../ticket/inc/head_link.jsp"%>
 
 <style>
 .auth-card{
@@ -158,70 +159,69 @@
 	color:#191919;
 }
 
-.auth-page{
-	margin-top:120px;
+.auth-section{
+  min-height: calc(100vh - 160px); /* header/footer 제외 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 16px;
+  background: #f7f8fa; /* 필요 없으면 제거 */
+}
+
+.auth-container{
+  width: 100%;
+  max-width: 420px;  
 }
 </style>
 </head>
 
 <body>
-	<%@ include file="../inc/preloader.jsp"%>
 
-	<section class="discount">
-		<div class="container">
-			<div class="row justify-content-center">
-				<div class="col-lg-6 col-md-8 mb-5 auth-page">
+<section class="auth-section">
+  <div class="auth-container">
 
-					<div class="auth-card">
+    <div class="auth-card">
 
-						<div class="auth-title-row">
-							<h3 class="auth-title">로그인</h3>
-							<a class="auth-link-btn" href="/auth/join">회원가입</a>
-						</div>
+      <div class="auth-title-row">
+        <h3 class="auth-title">로그인</h3>
+        <a class="auth-link-btn" href="/auth/join">회원가입</a>
+      </div>
 
-						<form method="post" action="/auth/login" id="loginForm">
-							<div class="auth-field">
-								<input type="text" name="loginId"
-									class="auth-input"
-									placeholder="아이디"
-									required>
-							</div>
+      <form method="post" action="/auth/login" id="loginForm">
+        <div class="auth-field">
+          <input type="text" name="loginId"
+                 class="auth-input"
+                 placeholder="아이디"
+                 required>
+        </div>
 
-							<div class="auth-field">
-								<input type="password" name="password"
-									class="auth-input"
-									placeholder="비밀번호"
-									required>
-							</div>
+        <div class="auth-field">
+          <input type="password" name="password"
+                 class="auth-input"
+                 placeholder="비밀번호"
+                 required>
+        </div>
 
-							<button type="submit" class="btn-login">로그인</button>
-						</form>
+        <button type="submit" class="btn-login">로그인</button>
+      </form>
 
-						<div class="auth-divider">
-							<span>또는</span>
-						</div>
+      <div class="auth-divider">
+        <span>또는</span>
+      </div>
 
-						<div class="auth-sns">
-							<button type="button" class="sns-btn btn-google" data-provider="google">
-								Google로 로그인
-							</button>
-							<button type="button" class="sns-btn btn-naver" data-provider="naver">
-								Naver로 로그인
-							</button>
-							<button type="button" class="sns-btn btn-kakao" data-provider="kakao">
-								Kakao로 로그인
-							</button>
-						</div>
+      <div class="auth-sns">
+        <button type="button" class="sns-btn btn-google">Google로 로그인</button>
+        <button type="button" class="sns-btn btn-naver">Naver로 로그인</button>
+        <button type="button" class="sns-btn btn-kakao">Kakao로 로그인</button>
+      </div>
 
-					</div>
+    </div>
 
-				</div>
-			</div>
-		</div>
-	</section>
+  </div>
+</section>
 
-	<%@ include file="../inc/footer.jsp"%>
-	<%@ include file="../inc/footer_link.jsp"%>
+	<%@ include file="../../ticket/inc/footer.jsp"%>
+	<%@ include file="../../ticket/inc/footer_link.jsp"%>
 
 	<script>
 function requestProviderUrl(provider){

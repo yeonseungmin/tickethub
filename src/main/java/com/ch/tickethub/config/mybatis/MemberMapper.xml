@@ -191,5 +191,10 @@
 		FROM member
 		where member_id = #{memberId} and status = 'active'
 	</select>
-	
+
+	<select id="existsLoginId" parameterType="String" resultType="int">
+		select count(*)
+		from member
+		where login_id=#{value}
+	</select>	
 </mapper>

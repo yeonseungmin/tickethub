@@ -3,21 +3,26 @@
 <mapper namespace="Grade">
 
 	<sql id="sql_select_grade">
-		select grade_id as gradeId, grade_code as gradeCode, grade_name as gradeName, description from grade
+		select grade_id as gradeId, grade_code as gradeCode,
+		grade_name as gradeName, description from grade
 	</sql>
 
 	<select id="selectGradeAll" resultType="Grade">
-		<include refid="sql_select_grade"/> order by grade_id asc
+		<include refid="sql_select_grade" />
+		order by grade_id asc
 	</select>
-	
-	<select id="selectByGradeId" resultType="Grade" parameterType="int">
-		<include refid="sql_select_grade"/> where grade_id = #{value}
+
+	<select id="selectByGradeId" resultType="Grade"
+		parameterType="int">
+		<include refid="sql_select_grade" />
+		where grade_id = #{value}
 	</select>
-	
-	<select id="selectGradeIdByCode" parameterType="string"
+
+	<select id="selectGradeIdByCode" parameterType="int"
 		resultType="int">
 		SELECT grade_id
 		FROM grade
 		WHERE grade_code = #{value}
+		LIMIT 1
 	</select>
 </mapper>

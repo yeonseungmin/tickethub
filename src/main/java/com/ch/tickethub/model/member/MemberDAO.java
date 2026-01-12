@@ -17,4 +17,6 @@ public interface MemberDAO {
 
 	    public int adminUpdateMemberStatus(Map<String, Object> param);
 	    public int adminUpdateMemberGrade(Map<String, Object> param);
+	    
+	    public int existsLoginId(String loginId);
 }

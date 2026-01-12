@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -31,6 +32,7 @@ import com.ch.tickethub.dto.NaverUser;
 import com.ch.tickethub.dto.NaverUserResponse;
 import com.ch.tickethub.dto.OAuthClient;
 import com.ch.tickethub.dto.OAuthTokenResponse;
+import com.ch.tickethub.exception.DuplicateLoginIdException;
 import com.ch.tickethub.model.member.MemberService;
 import com.ch.tickethub.model.queue.QueueService;
 
@@ -99,7 +101,7 @@ public class AuthController {
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/auth/login";
+        return "redirect:/";
     }
 
     // SNS 로그인 버튼 클릭 시 Provider 인증 URL 내려주기
@@ -441,11 +443,22 @@ public class AuthController {
 
         try {
             memberService.register(member);
+        }catch (DuplicateLoginIdException e) {
+            model.addAttribute("error", e.getMessage()); // "이미 존재하는 ID..."
+            return "tickethub/auth/join";
+        } catch (DuplicateKeyException e) {
+            // 동시에 같은 ID 가입 누르면 서비스 체크를 통과해도 DB에서 터질 수 있음
+            model.addAttribute("error", "이미 존재하는 ID가 있습니다.");
+            return "tickethub/auth/join";
         } catch (RuntimeException e) {
+            // 검증 실패(이메일 필수 등)는 e.getMessage() 노출 OK
+            // 단, DB/시스템성 메시지는 여기로 섞일 수 있으니 문구를 통제하는 편이 안전
             model.addAttribute("error", e.getMessage());
             return "tickethub/auth/join";
+        } catch (Exception e) {
+            model.addAttribute("error", "회원가입 처리 중 오류가 발생했습니다.");
+            return "tickethub/auth/join";
         }
-
         return "redirect:/auth/login";
     }
 }
