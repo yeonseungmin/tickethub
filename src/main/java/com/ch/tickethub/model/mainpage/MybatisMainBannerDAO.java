@@ -9,11 +9,11 @@ import org.springframework.stereotype.Repository;
 import com.ch.tickethub.dto.MainBanner;
 
 @Repository
-public class MybatisMainBannerDAO implements MainBannerDAO{
+public class MybatisMainBannerDAO implements MainBannerDAO {
 
 	@Autowired
 	private SqlSessionTemplate sqlSessionTemplate;
-	
+
 	@Override
 	public List<MainBanner> selectAll() {
 		return sqlSessionTemplate.selectList("MainBanner.selectAll");
@@ -32,5 +32,10 @@ public class MybatisMainBannerDAO implements MainBannerDAO{
 	@Override
 	public MainBanner select(int mainbanner_id) {
 		return sqlSessionTemplate.selectOne("MainBanner.select", mainbanner_id);
+	}
+
+	@Override
+	public void updateOrder(MainBanner mainBanner) {
+		sqlSessionTemplate.update("MainBanner.updateOrder", mainBanner);
 	}
 }

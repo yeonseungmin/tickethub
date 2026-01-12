@@ -28,4 +28,9 @@ public class MybatisOpeningWorkDAO implements OpeningWorkDAO {
     public void delete(int openingwork_id) {
         sqlSessionTemplate.delete("OpeningWork.delete", openingwork_id);
     }
+
+    @Override
+    public void updateOrder(OpeningWork openingWork) {
+        sqlSessionTemplate.update("OpeningWork.updateOrder", openingWork);
+    }
 }

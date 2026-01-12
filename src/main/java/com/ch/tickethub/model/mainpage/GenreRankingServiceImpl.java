@@ -30,4 +30,12 @@ public class GenreRankingServiceImpl implements GenreRankingService {
     public void remove(int genreranking_id) {
         genreRankingDAO.delete(genreranking_id);
     }
+
+    @Transactional
+    @Override
+    public void updateOrders(List<GenreRanking> genreRankingList) {
+        for (GenreRanking genreRanking : genreRankingList) {
+            genreRankingDAO.updateOrder(genreRanking);
+        }
+    }
 }

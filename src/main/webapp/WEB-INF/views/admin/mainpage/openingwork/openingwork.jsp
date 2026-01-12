@@ -5,6 +5,20 @@
     <head>
         <meta charset="UTF-8">
         <title>오픈예정 관리</title>
+        <style>
+            .drag-handle {
+                cursor: move;
+            }
+
+            .drag-handle:hover {
+                color: #007bff;
+            }
+
+            #openingwork-list-body tr.ui-sortable-helper {
+                background: #f8f9fa;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            }
+        </style>
     </head>
 
     <body>
@@ -20,14 +34,18 @@
 
                 <!-- 오픈예정 목록 -->
                 <div class="card card-info">
-                    <div class="card-header">
+                    <div class="card-header d-flex justify-content-between align-items-center">
                         <h3 class="card-title">현재 등록된 오픈예정 목록</h3>
+                        <button type="button" class="btn btn-sm btn-warning ml-auto" id="btn-save-order">
+                            <i class="fas fa-save"></i> 순서 저장
+                        </button>
                     </div>
                     <div class="card-body table-responsive p-0">
                         <table class="table table-hover text-nowrap">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th style="width: 40px;"></th>
+                                    <th style="width: 60px;">순서</th>
                                     <th>포스터</th>
                                     <th>공연 제목</th>
                                     <th>관리</th>
@@ -84,21 +102,70 @@
                         success: (openingWorkList) => {
                             let tableRowsHtml = "";
                             if (openingWorkList.length === 0) {
-                                tableRowsHtml = "<tr><td colspan='4' class='text-center'>등록된 오픈예정이 없습니다.</td></tr>";
+                                tableRowsHtml = "<tr><td colspan='5' class='text-center'>등록된 오픈예정이 없습니다.</td></tr>";
                             } else {
-                                openingWorkList.forEach((openingWork) => {
+                                openingWorkList.forEach((openingWork, index) => {
                                     tableRowsHtml += `
-	                            <tr>
-	                                <td>\${openingWork.openingwork_id}</td>
-	                                <td><img src="/photo/work/p\${openingWork.work_id}/\${openingWork.work.work_poster_url}" style="max-width:80px; max-height:100px; object-fit:cover; border-radius:4px;"></td>
-	                                <td>\${openingWork.work.work_title}</td>
-	                                <td>
-	                                    <button class="btn btn-sm btn-danger" onclick="deleteOpeningWork(\${openingWork.openingwork_id})">삭제</button>
-	                                </td>
-	                            </tr>`;
+                                    <tr data-id="\${openingWork.openingwork_id}">
+                                        <td class="drag-handle"><i class="fas fa-grip-vertical"></i></td>
+                                        <td class="display-order">\${index + 1}</td>
+                                        <td><img src="/photo/work/p\${openingWork.work_id}/\${openingWork.work.work_poster_url}" style="max-width:80px; max-height:100px; object-fit:cover; border-radius:4px;"></td>
+                                        <td>\${openingWork.work.work_title}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-danger" onclick="deleteOpeningWork(\${openingWork.openingwork_id})">삭제</button>
+                                        </td>
+                                    </tr>`;
                                 });
                             }
                             $("#openingwork-list-body").html(tableRowsHtml);
+
+                            // sortable 초기화
+                            $("#openingwork-list-body").sortable({
+                                handle: ".drag-handle",
+                                axis: "y",
+                                update: function (event, ui) {
+                                    updateDisplayOrder();
+                                }
+                            });
+                        }
+                    });
+                };
+
+                // 순서 번호 업데이트 (화면 표시)
+                const updateDisplayOrder = () => {
+                    $("#openingwork-list-body tr").each((index, tr) => {
+                        $(tr).find(".display-order").text(index + 1);
+                    });
+                };
+
+                // 순서 저장 함수
+                const saveOrder = () => {
+                    const orderList = [];
+                    $("#openingwork-list-body tr").each((index, tr) => {
+                        const id = $(tr).data("id");
+                        if (id) {
+                            orderList.push({
+                                openingwork_id: id,
+                                display_order: index + 1
+                            });
+                        }
+                    });
+
+                    if (orderList.length === 0) {
+                        alert("저장할 항목이 없습니다.");
+                        return;
+                    }
+
+                    $.ajax({
+                        url: "/admin/mainpage/openingwork/updateOrder",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify(orderList),
+                        success: (response) => {
+                            alert(response.message);
+                        },
+                        error: () => {
+                            alert("순서 저장 중 오류가 발생했습니다.");
                         }
                     });
                 };
@@ -152,6 +219,9 @@
                     loadOpeningWorkList();
                     $("#btn-save").click(() => {
                         saveOpeningWork();
+                    });
+                    $("#btn-save-order").click(() => {
+                        saveOrder();
                     });
                 });
             })();

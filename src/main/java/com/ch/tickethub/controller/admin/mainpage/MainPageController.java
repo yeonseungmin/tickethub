@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ch.tickethub.dto.MainBanner;
 import com.ch.tickethub.dto.HotWork;
 import com.ch.tickethub.dto.OpeningWork;
+import com.ch.tickethub.dto.Review;
 import com.ch.tickethub.dto.BestReview;
 import com.ch.tickethub.dto.GenreRanking;
 import com.ch.tickethub.exception.MainBannerException;
@@ -26,6 +28,8 @@ import com.ch.tickethub.exception.UploadException;
 import com.ch.tickethub.model.mainpage.MainBannerService;
 import com.ch.tickethub.model.mainpage.HotWorkService;
 import com.ch.tickethub.model.mainpage.OpeningWorkService;
+import com.ch.tickethub.model.review.ReviewService;
+import com.ch.tickethub.model.bestreview.BestReviewService;
 import com.ch.tickethub.model.mainpage.GenreRankingService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +50,12 @@ public class MainPageController {
 
 	@Autowired
 	private GenreRankingService genreRankingService;
+
+	@Autowired
+	private BestReviewService bestReviewService;
+
+	@Autowired
+	private ReviewService reviewService;
 
 	@GetMapping("/mainbanner/banner")
 	public String getMainbanner() {
@@ -85,6 +95,17 @@ public class MainPageController {
 		return body;
 	}
 
+	// 배너 순서 업데이트
+	@PostMapping("/mainbanner/updateOrder")
+	@ResponseBody
+	public Map<String, String> updateMainBannerOrder(@RequestBody List<MainBanner> mainBannerList) {
+		mainBannerService.updateOrders(mainBannerList);
+
+		Map<String, String> body = new HashMap<>();
+		body.put("message", "순서가 저장되었습니다.");
+		return body;
+	}
+
 	// 예외 핸들러
 	@ExceptionHandler({ MainBannerException.class, UploadException.class })
 	@ResponseBody
@@ -119,7 +140,7 @@ public class MainPageController {
 		hotWorkService.register(hotWork);
 
 		Map<String, String> body = new HashMap<>();
-		body.put("message", "인기작이 등록되었습니다.");
+		body.put("message", "인기작으로 등록되었습니다.");
 
 		return body;
 	}
@@ -134,6 +155,17 @@ public class MainPageController {
 		Map<String, String> body = new HashMap<>();
 		body.put("message", "인기작이 삭제되었습니다.");
 
+		return body;
+	}
+
+	// 인기작 순서 업데이트
+	@PostMapping("/hotwork/updateOrder")
+	@ResponseBody
+	public Map<String, String> updateHotWorkOrder(@RequestBody List<HotWork> hotWorkList) {
+		hotWorkService.updateOrders(hotWorkList);
+
+		Map<String, String> body = new HashMap<>();
+		body.put("message", "순서가 저장되었습니다.");
 		return body;
 	}
 
@@ -159,7 +191,7 @@ public class MainPageController {
 		openingWorkService.register(openingWork);
 
 		Map<String, String> body = new HashMap<>();
-		body.put("message", "오픈예정이 등록되었습니다.");
+		body.put("message", "오픈예정으로 등록되었습니다.");
 
 		return body;
 	}
@@ -174,6 +206,17 @@ public class MainPageController {
 		Map<String, String> body = new HashMap<>();
 		body.put("message", "오픈예정이 삭제되었습니다.");
 
+		return body;
+	}
+
+	// 오픈예정 순서 업데이트
+	@PostMapping("/openingwork/updateOrder")
+	@ResponseBody
+	public Map<String, String> updateOpeningWorkOrder(@RequestBody List<OpeningWork> openingWorkList) {
+		openingWorkService.updateOrders(openingWorkList);
+
+		Map<String, String> body = new HashMap<>();
+		body.put("message", "순서가 저장되었습니다.");
 		return body;
 	}
 
@@ -199,7 +242,7 @@ public class MainPageController {
 		genreRankingService.register(genreRanking);
 
 		Map<String, String> body = new HashMap<>();
-		body.put("message", "장르별 화제작이 등록되었습니다.");
+		body.put("message", "장르별 화제작으로 등록되었습니다.");
 
 		return body;
 	}
@@ -216,22 +259,60 @@ public class MainPageController {
 
 		return body;
 	}
-	
+
+	// 장르별 화제작 순서 업데이트
+	@PostMapping("/genreranking/updateOrder")
+	@ResponseBody
+	public Map<String, String> updateGenreRankingOrder(@RequestBody List<GenreRanking> genreRankingList) {
+		genreRankingService.updateOrders(genreRankingList);
+
+		Map<String, String> body = new HashMap<>();
+		body.put("message", "순서가 저장되었습니다.");
+		return body;
+	}
+
 	// ============ 베스트 리뷰 관리 ============
-	
+
 	@GetMapping("/bestreview/bestreview")
 	public String getBestReview() {
 		return "admin/mainpage/bestreview/bestreview";
 	}
-	
+
 	// 목록 조회
 	@GetMapping("/bestreview/list")
 	@ResponseBody
 	public List<BestReview> getBestReviewList() {
-		return null;
+		return bestReviewService.getList();
 	}
-	
-	
-	
-	
+
+	// 공연별 리뷰 목록 조회
+	@GetMapping("/bestreview/reviews")
+	@ResponseBody
+	public List<Review> getReviewsByWork(@RequestParam("work_id") int work_id) {
+		return reviewService.getListByWorkId(work_id, "latest");
+	}
+
+	// 베스트 리뷰 등록
+	@PostMapping("/bestreview/regist")
+	@ResponseBody
+	public Map<String, String> registBestReview(@RequestParam("review_id") int review_id) {
+		BestReview bestReview = new BestReview();
+		bestReview.setReview_id(review_id);
+		bestReviewService.register(bestReview);
+
+		Map<String, String> body = new HashMap<>();
+		body.put("message", "베스트 리뷰로 등록되었습니다.");
+		return body;
+	}
+
+	// 베스트 리뷰 삭제
+	@PostMapping("/bestreview/delete")
+	@ResponseBody
+	public Map<String, String> deleteBestReview(int bestreview_id) {
+		bestReviewService.remove(bestreview_id);
+
+		Map<String, String> body = new HashMap<>();
+		body.put("message", "베스트 리뷰가 삭제되었습니다.");
+		return body;
+	}
 }
