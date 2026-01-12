@@ -212,6 +212,7 @@
     	}
     }
     
+    // 회차 시작 시간을 눌렀을 때
     function selectRound(element, roundId) {
     	
         $(".btn-round-select").removeClass("active");
@@ -222,7 +223,6 @@
         updateInfo(roundId);
     }
 	
-    // 회차 시작 시간을 눌렀을 때
     function updateInfo(roundId) {
     	
     	// find true인 첫 번째 element 반환
@@ -364,19 +364,29 @@
     
 	// [관람후기] 더보기/접기 버튼 동작
     function toggleReviewText(btn) {
-        let $textContainer = $(btn).prev('.review-text-clamp');
+    	let reviewItem = $(btn).closest("li");
+        let textContainer = reviewItem.find(".review-text-clamp");
+        let replyList = reviewItem.find(".reply-list");
+        // 답글 폼도 같이 닫아줘야 한다.
+        let replyForm = reviewItem.find(".reply-form-container");
         
-        if ($textContainer.hasClass('expanded')) {
+        
+        
+        if (textContainer.hasClass("expanded")) {
             // 접기 동작
-            $textContainer.removeClass('expanded');
+            textContainer.removeClass("expanded");
+            replyList.hide();
+            replyForm.hide();
             $(btn).html('더보기 <i class="fas fa-chevron-down"></i>');
+            
         } else {
             // 펼치기 동작
             let review_id = $(btn).closest("li").val();
             console.log("조회수를 늘릴 review_id는 ", review_id);
             
-            $textContainer.addClass('expanded');
-            $(btn).html('접기 <i class="fas fa-chevron-up"></i>');
+            textContainer.addClass("expanded");
+            replyList.show();
+            $(btn).html("접기 <i class='fas fa-chevron-up'></i>");
         }
     }
 	
@@ -392,6 +402,7 @@
 			let id = $(btn).closest("li").val();
 			console.log("삭제할 review_id는 ", id);
 		} else if(type == "re_review"){
+			let id = $(btn).val();
 			console.log("삭제할 re_review_id는 ", id);
 		}
 		
@@ -557,7 +568,6 @@
 		        </div>
 		        <div class="review-text-clamp text-dark mb-1" style="white-space: pre-wrap;">\${review.review_content}</div>
 		        <button class="btn-more" onclick="toggleReviewText(this)">더보기 <i class="fas fa-chevron-down"></i></button>
-		        
 		        <div class="review-actions mt-1">
 		            <button class="btn btn-xs btn-light border mr-1" onclick="toggleLikeReview(this)">
 		                <i class="far fa-thumbs-up"></i> <span>\${review.review_like_count}</span>
@@ -575,26 +585,38 @@
 		                </div>
 		            </div>
 		        </div>
-
-		        <div class="reply-list mt-3 pl-4 bg-light rounded p-3">
+		        <div class="reply-list mt-3 pl-4 bg-light rounded p-3" style="display: none;">
+		        `;
+		        for(let re_review of review.reReviewList) {
+		        	reviewTag += `
 		            <div class="reply-item d-flex">
 		                <div class="mr-2 text-muted"><i class="fas fa-level-up-alt fa-rotate-90"></i></div>
 		                <div class="w-100">
 		                    <div class="d-flex justify-content-between mb-1">
 		                        <div>
-		                            <span class="font-weight-bold text-sm">chicago00</span>
-		                            <span class="text-muted text-xs ml-2">2025.01.29</span>
+		                            <span class="font-weight-bold text-sm">\${re_review.member.loginId}</span>
+		                            <span class="text-muted text-xs ml-2">\${re_review.re_review_regdate}</span>
 		                        </div>
+		                        `;
+					// 답글 다는 사람만 지울 수 있다.
+					if(memberId == re_review.member.memberId) {
+						reviewTag += `
 		                        <div>
-		                            <button class="btn btn-xs btn-link text-muted p-0">삭제</button>
+		                            <button class="btn btn-xs btn-link text-muted p-0" value= "\${re_review.re_review_id}" onclick="deleteComment(this, 're_review')">삭제</button>
 		                        </div>
+		                        `;
+					}
+					reviewTag += `
 		                    </div>
-		                    <p class="text-sm mb-1">저도 주차 때문에 고생했는데 공감합니다 ㅠㅠ 대중교통이 답이에요.</p>
+		                    <p class="text-sm mb-1">\${re_review.re_review_content}</p>
 		                </div>
 		            </div>
+		            `;
+		        }
+			reviewTag += `
 		        </div>
 		    </li>
-		    `;
+			`;
 		}
 		let reviewArea = $(".review-list");
 		reviewArea.empty();
@@ -688,7 +710,7 @@
 	
 	    let workId = <%=work.getWork_id()%>;
 	    let roundId = $(".btn-reservation").val();
-	
+		
 	    if (!roundId) {
 	        alert("회차를 선택해주세요.");
 	        return;
