@@ -19,4 +19,5 @@ public interface MemberDAO {
 	    public int adminUpdateMemberGrade(Map<String, Object> param);
 	    
 	    public int existsLoginId(String loginId);
+	    public int existsEmail(String email);
 }

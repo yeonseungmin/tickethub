@@ -1,11 +1,11 @@
 package com.ch.tickethub.model.member;
 
-import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +13,7 @@ import com.ch.tickethub.dto.Member;
 import com.ch.tickethub.exception.DuplicateLoginIdException;
 import com.ch.tickethub.model.grade.GradeDAO;
 import com.ch.tickethub.util.MailSender;
+import com.ch.tickethub.util.PasswordUtil;
 
 @Service
 public class MemberServiceImpl implements MemberService {
@@ -34,7 +35,7 @@ public class MemberServiceImpl implements MemberService {
         if (member == null) return null;
         if ("BLOCKED".equals(member.getStatus())) return null;
         if (member.getPasswordHash() == null) return null; // 소셜회원이 일반로그인 시도 방지
-        if (!password.equals(member.getPasswordHash())) return null;
+        if(!PasswordUtil.matches(password, member.getPasswordHash())) return null;
 
         memberDAO.updateLastLoginAt(member.getMemberId());
         return member;
@@ -90,11 +91,24 @@ public class MemberServiceImpl implements MemberService {
         newMember.setOauthProvider(oauthProvider);
         newMember.setOauthId(oauthId);
         newMember.setEmail(email);
+   
+        try {
+        	   int result = memberDAO.insert(newMember);
+        	   if (result != 1) {
+                   throw new RuntimeException("소셜 회원가입 실패");
+               }
+        	} catch (DuplicateKeyException e) {
+        	    String m = (e.getMostSpecificCause() != null) ? e.getMostSpecificCause().getMessage() : "";
 
-        int result = memberDAO.insert(newMember);
-        if (result != 1) {
-            throw new RuntimeException("소셜 회원가입 실패");
-        }
+        	    if (m.contains("uk_member_email")) {
+        	        throw new RuntimeException("이미 가입된 이메일입니다. 기존 방식으로 로그인 해주세요.");
+        	    } else if (m.contains("uk_member_oauth")) {
+        	        throw new RuntimeException("이미 연결된 소셜 계정입니다. 다시 시도해주세요.");
+        	    } else if (m.contains("uk_member_login")) {
+        	        throw new RuntimeException("이미 존재하는 ID가 있습니다. 소셜 계정 충돌");
+        	    }
+        	    throw new RuntimeException("회원가입 처리 중 중복 데이터가 발생했습니다.");
+        	}
 
         // 가입축하 메일(이메일 있을 때만)
         if (newMember.getEmail() != null && !newMember.getEmail().trim().isEmpty()) {
@@ -124,6 +138,10 @@ public class MemberServiceImpl implements MemberService {
             throw new RuntimeException("이메일은 필수입니다");
         }
 
+        if (memberDAO.existsEmail(member.getEmail()) > 0) {
+            throw new RuntimeException("이미 가입된 이메일입니다.");
+        }
+        
         if(memberDAO.existsLoginId(member.getLoginId()) > 0) {
         	throw new DuplicateLoginIdException("이미 존재하는 ID가 있습니다.");
         }
@@ -142,17 +160,26 @@ public class MemberServiceImpl implements MemberService {
         }
         member.setGradeId(welcomeGradeId);
         
+        String hashed = PasswordUtil.hash(member.getPasswordHash());
+        member.setPasswordHash(hashed);
+        
         try {
             int result = memberDAO.insert(member);
             if (result != 1) {
                 throw new RuntimeException("회원가입 실패");
             }
         } catch (org.springframework.dao.DuplicateKeyException e) {
-            throw new DuplicateLoginIdException("이미 존재하는 ID가 있습니다.");
+            String msg = "이미 가입된 정보가 있습니다.";
+            String m = (e.getMostSpecificCause() != null) ? e.getMostSpecificCause().getMessage() : "";
+
+            if (m.contains("uk_member_email")) msg = "이미 가입된 이메일입니다.";
+            else if (m.contains("uk_member_login")) msg = "이미 존재하는 ID가 있습니다.";
+
+            throw new RuntimeException(msg);
         }
+
         // 가입축하 메일
         mailSender.send(member.getEmail(), "Tickethub 가입을 환영합니다", "<h3>가입 완료</h3>");
-      
     }
 
     @Override
@@ -189,4 +216,16 @@ public class MemberServiceImpl implements MemberService {
         int result = memberDAO.adminUpdateMemberGrade(param);
         if (result != 1) throw new RuntimeException("회원 등급 변경 실패");
     }
+
+	@Override
+	public LoginResult loginCheck(String loginId, String password) {
+		Member member = memberDAO.selectByLoginId(loginId);
+		
+		if(member == null) return LoginResult.NOT_FOUND;
+		if("BLOCKED".equals(member.getStatus())) return LoginResult.BLOCKED;
+		if(member.getPasswordHash() == null) return LoginResult.SOCIAL_ACCOUNT;
+		
+		if(!PasswordUtil.matches(password, member.getPasswordHash())) return LoginResult.WRONG_PASSWORD;
+		return LoginResult.SUCCESS;
+	}
 }

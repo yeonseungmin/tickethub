@@ -151,7 +151,7 @@
 
         <form method="post" action="/auth/join" id="joinForm" autocomplete="off">
           <div class="auth-field">
-            <input type="text" name="loginId" class="auth-input" placeholder="아이디" required>
+            <input type="text" name="loginId" class="auth-input" placeholder="아이디 (6~20자, 영문+숫자)" placeholder="아이디" required>
           </div>
 
           <div class="auth-field">

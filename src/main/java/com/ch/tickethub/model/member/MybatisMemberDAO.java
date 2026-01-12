@@ -61,4 +61,10 @@ public class MybatisMemberDAO implements MemberDAO{
 		return (cnt == null)? 0 : cnt; // 결과가 null로 넘어올 수도 있으니깐 0이나 cnt로 바꿔주기! 
 	}
 
+	@Override
+	public int existsEmail(String email) {
+		Integer cnt = sqlSessionTemplate.selectOne("Member.existsEmail", email);
+		return (cnt == null)? 0 : cnt;
+	}
+
 }
