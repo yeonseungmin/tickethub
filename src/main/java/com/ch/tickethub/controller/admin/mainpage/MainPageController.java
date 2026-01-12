@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ch.tickethub.dto.MainBanner;
 import com.ch.tickethub.dto.HotWork;
 import com.ch.tickethub.dto.OpeningWork;
+import com.ch.tickethub.dto.BestReview;
 import com.ch.tickethub.dto.GenreRanking;
 import com.ch.tickethub.exception.MainBannerException;
 import com.ch.tickethub.exception.UploadException;
@@ -215,4 +216,23 @@ public class MainPageController {
 
 		return body;
 	}
+	
+	// ============ 베스트 리뷰 관리 ============
+	
+	@GetMapping("/bestreview/bestreview")
+	@ResponseBody
+	public String getBestReview() {
+		return "admin/mainpage/bestreview/bestreview";
+	}
+	
+	// 목록 조회
+	@GetMapping("/bestreview/list")
+	@ResponseBody
+	public List<BestReview> getBestReviewList() {
+		return null;
+	}
+	
+	
+	
+	
 }
