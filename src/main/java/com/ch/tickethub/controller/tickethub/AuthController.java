@@ -101,7 +101,7 @@ public class AuthController {
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/auth/login";
+        return "redirect:/";
     }
 
     // SNS 로그인 버튼 클릭 시 Provider 인증 URL 내려주기

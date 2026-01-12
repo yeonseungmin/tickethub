@@ -81,7 +81,7 @@ public class MemberServiceImpl implements MemberService {
         newMember.setStatus("NORMAL");
         newMember.setRole("USER");
 
-        Integer welcomeGradeId = gradeDAO.selectGradeIdByCode("WELCOME");
+        Integer welcomeGradeId = gradeDAO.selectGradeIdByCode(100);
         if (welcomeGradeId == null) {
             throw new RuntimeException("WELCOME 등급이 DB에 없습니다. grade 테이블을 확인하세요.");
         }
@@ -136,7 +136,7 @@ public class MemberServiceImpl implements MemberService {
             member.setRole("USER");
         }
 
-        Integer welcomeGradeId = gradeDAO.selectGradeIdByCode("WELCOME");
+        Integer welcomeGradeId = gradeDAO.selectGradeIdByCode(100);
         if (welcomeGradeId == null) {
             throw new RuntimeException("WELCOME 등급이 DB에 없습니다. grade 테이블을 확인하세요.");
         }

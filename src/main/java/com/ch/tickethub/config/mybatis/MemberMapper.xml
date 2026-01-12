@@ -195,6 +195,6 @@
 	<select id="existsLoginId" parameterType="String" resultType="int">
 		select count(*)
 		from member
-		where login_id=#{loginId}
+		where login_id=#{value}
 	</select>	
 </mapper>
