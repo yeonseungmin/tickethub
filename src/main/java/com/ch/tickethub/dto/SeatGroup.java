@@ -13,7 +13,8 @@ public class SeatGroup {
     // 배치 기준
     private int pos_x;
     private int pos_y;
-
+    private double angle;
+    
     private int row_gap;
     private int col_gap;
 

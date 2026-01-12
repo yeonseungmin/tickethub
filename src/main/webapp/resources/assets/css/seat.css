@@ -238,6 +238,13 @@ html, body {
     cursor: move;
     box-sizing: border-box;
     transition: background-color 0.2s, border-color 0.2s;
+    transition: transform 0.2s;
+    transform-origin: center center; /* 중심을 기준으로 회전 */
+}
+
+/* 회전 중일 때 시각적 피드백 */
+.group-boundary-box.rotating {
+    border-color: #ffc107;
 }
 
 /* 드래그 중인 박스 스타일 */

@@ -1,3 +1,4 @@
+<%@page import="com.ch.tickethub.dto.Place"%>
 <%@page import="com.ch.tickethub.dto.Round"%>
 <%@page import="com.ch.tickethub.dto.RoundCasting"%>
 <%@page import="java.util.List"%>
@@ -661,7 +662,6 @@
     // 예매 팝업창 열기
 	function openReservation(event) {
 	    if (event) event.preventDefault();
-	
 	    let workId = <%=work.getWork_id()%>;
 	    let roundId = $(".btn-reservation").val();
 		
@@ -672,7 +672,7 @@
 	
 	    // 주소 끝에 /popup 이 정확히 붙었는지 확인
 	    let url = "${pageContext.request.contextPath}/ticket/reservation/popup?work_id=" + workId + "&round_id=" + roundId;
-	    let specs = "width=1100,height=850,top=50,left=150,scrollbars=yes";
+	    let specs = "width=1100,height=850,top=50,left=150";
 	    
 	    window.open(url, "reservationPopup", specs);
 	}

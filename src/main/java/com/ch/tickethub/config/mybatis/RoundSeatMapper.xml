@@ -37,6 +37,7 @@
 	        sg.group_name, 
 	        sg.pos_x, 
 	        sg.pos_y, 
+	        sg.angle,
 	        sg.row_gap, 
 	        sg.col_gap, 
 	        sg.direction,
