@@ -11,6 +11,9 @@ import org.springframework.stereotype.Repository;
 
 import com.ch.tickethub.dto.SeatGroup;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Repository
 public class MybatisSeatGroupDAO implements SeatGroupDAO {
 
@@ -35,11 +38,12 @@ public class MybatisSeatGroupDAO implements SeatGroupDAO {
     }
 
     @Override
-    public int updatePosition(int seat_group_id, int pos_x, int pos_y) {
+    public int updatePosition(int seat_group_id, int pos_x, int pos_y,double angle) {
         Map<String, Object> param = new HashMap<>();
         param.put("seat_group_id", seat_group_id);
         param.put("pos_x", pos_x);
         param.put("pos_y", pos_y);
+        param.put("angle", angle);
 
         return sqlSessionTemplate.update("SeatGroup.updatePosition", param);
     }
@@ -61,13 +65,15 @@ public class MybatisSeatGroupDAO implements SeatGroupDAO {
     }
 
     @Override
-    public void updateGroupPosition(@Param("seat_group_id") int seat_group_id, @Param("pos_x") int pos_x, @Param("pos_y") int pos_y) {
+    public void updateGroupPos(@Param("seat_group_id") int seat_group_id, @Param("pos_x") int pos_x, @Param("pos_y") int pos_y,@Param("angle") double angle) {
         Map<String, Object> params = new HashMap<>();
         params.put("seat_group_id", seat_group_id);
         params.put("pos_x", pos_x);
         params.put("pos_y", pos_y);
+        params.put("angle", angle);
         
-        sqlSessionTemplate.update(NAMESPACE + ".updateGroupPosition", params);
+       int result = sqlSessionTemplate.update(NAMESPACE + ".updateGroupPos", params);
+        log.debug(">>> DB 업데이트 결과(영향받은 행): " + result);
     }
 
     @Override

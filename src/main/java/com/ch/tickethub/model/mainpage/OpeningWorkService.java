@@ -11,4 +11,6 @@ public interface OpeningWorkService {
     public void register(OpeningWork openingWork);
 
     public void remove(int openingwork_id);
+
+    public void updateOrders(List<OpeningWork> openingWorkList);
 }

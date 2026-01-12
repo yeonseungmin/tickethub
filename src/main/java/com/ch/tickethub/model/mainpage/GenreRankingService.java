@@ -11,4 +11,6 @@ public interface GenreRankingService {
     public void register(GenreRanking genreRanking);
 
     public void remove(int genreranking_id);
+
+    public void updateOrders(List<GenreRanking> genreRankingList);
 }

@@ -5,11 +5,12 @@ html, body {
     margin: 0; padding: 0;
     background-color: #1a1a1a !important;
     color: #fff; font-family: 'Malgun Gothic', sans-serif;
-    height: 100vh; overflow: hidden;
+    height: 100vh; overflow: hidden; /* 전체 페이지는 고정 */
 }
 
 .reservation-container { display: flex; height: 100%; width: 100%; }
 
+/* 좌석 영역: 내용이 많으면 스크롤 발생 */
 .seat-selection-section {
     flex: 1; background: #222; padding: 20px;
     display: flex; flex-direction: column; align-items: center;
@@ -17,14 +18,40 @@ html, body {
 }
 
 .stage-label {
-    width: 60%; text-align: center; color: #555; font-size: 24px;
-    letter-spacing: 15px; margin-bottom: 40px; font-weight: 900;
+    width: 60%; text-align: center; color: #888; font-size: 24px;
+    letter-spacing: 15px; margin-bottom: 60px; font-weight: 900;
     border-bottom: 2px solid #333; padding-bottom: 10px;
 }
 
-#seatArea { position: relative; width: 100%; min-height: 600px; margin-bottom: 30px; }
+/* 좌석 배치판 */
+#seatArea {
+    position: relative;
+    width: 100%;
+    min-height: 1500px; /* 2층까지 충분히 나오도록 설정 */
+    min-width: 800px;
+    padding-bottom: 100px;
+}
 
-/* ★ 의자 크기 고정: 24px ★ */
+/* ★ 층 라벨: 어두운 배경에서 보이도록 색상 변경 ★ */
+.floor-label {
+    position: absolute;
+    left: 0; width: 100%;
+    text-align: center;
+    color: #666; /* 조금 더 밝게 변경 */
+    font-size: 20px; font-weight: bold;
+    letter-spacing: 10px;
+    padding: 20px 0;
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    pointer-events: none;
+    z-index: 1;
+}
+.floor-2-label { 
+    color: #8a7b4a; /* 2층은 황금색 계열로 강조 */
+    border-color: #554411; 
+}
+
+/* 좌석 스타일 */
 .admin-seat {
     width: 24px !important; height: 24px !important; 
     position: absolute; background-size: contain;
@@ -33,30 +60,11 @@ html, body {
     z-index: 10;
 }
 .admin-seat:hover { transform: scale(1.2); z-index: 20; }
-.admin-seat.reserved { cursor: default; filter: grayscale(100%) brightness(0.7); }
+.admin-seat.selected { filter: drop-shadow(0 0 5px #fff); } /* 선택 시 발광 효과 */
+.admin-seat.reserved, .admin-seat.preempted { cursor: default; }
 
-/* 구역 점선 박스 스타일 */
-.group-boundary-box {
-    position: absolute; border: 1px dashed #444; z-index: 1; pointer-events: none;
-}
-.group-name-label {
-    position: absolute; top: -20px; left: 0; color: #777; font-size: 11px;
-}
-
-/* 범례 스타일 */
-.seat-legend {
-    display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;
-    padding: 15px; background: #111; border-radius: 8px; width: 100%;
-}
-.legend-group { display: flex; gap: 10px; border-right: 1px solid #333; padding-right: 10px; }
-.legend-item { display: flex; align-items: center; font-size: 11px; color: #aaa; }
-.legend-item img { width: 16px; height: 16px; margin-right: 5px; }
-
-/* 오른쪽 사이드바 */
-.info-sidebar { width: 300px; background: #252525; padding: 20px; display: flex; flex-direction: column; }
-.selected-info-box h4 { color: #007bff; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 0; }
-#selected-seats-list { flex-grow: 1; background: #111; border-radius: 6px; padding: 10px; margin-bottom: 20px; overflow-y: auto; }
-.selected-item { padding: 8px; border-bottom: 1px solid #222; font-size: 12px; }
-.total-price { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+/* 오른쪽 사이드바 및 기타... */
+.info-sidebar { width: 320px; background: #252525; padding: 20px; display: flex; flex-direction: column; }
+#selected-seats-list { flex-grow: 1; background: #111; border-radius: 6px; padding: 10px; margin: 15px 0; overflow-y: auto; }
 #total-amount { color: #ffc107; font-size: 24px; }
 .btn-next-step { width: 100%; padding: 15px; background: #007bff; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }

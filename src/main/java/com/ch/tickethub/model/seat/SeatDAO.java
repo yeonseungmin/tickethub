@@ -27,7 +27,4 @@ public interface SeatDAO {
     // 좌석 등급 변경
     void updateSeatGrade(@Param("seat_id") int seat_id, @Param("seat_grade_id") int seat_grade_id);
 
-    // 특정 구역에 속한 모든 좌석의 좌표 업데이트 메서드 추가
-    void updateSeatsPositionInGroup(int seat_group_id, int pos_x, int pos_y);
-
 }

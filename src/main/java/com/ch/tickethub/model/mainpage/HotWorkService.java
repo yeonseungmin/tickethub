@@ -11,4 +11,6 @@ public interface HotWorkService {
     public void register(HotWork hotWork);
 
     public void remove(int hotwork_id);
+
+    public void updateOrders(List<HotWork> hotWorkList);
 }

@@ -693,7 +693,7 @@
             });
           });
 
-          // 장르별 화제작 관리 클릭 이벤트
+		  // 장르별 화제작 관리 클릭 이벤트
           $("#menu-genre-ranking").click(function (e) {
             e.preventDefault();
             $.ajax({
@@ -701,6 +701,19 @@
               method: "GET",
               success: function (result) {
                 console.log("장르별 화제작관리 클릭됨!!");
+                $(".content-wrapper").html(result);
+              }
+            });
+          });
+          
+		  // 베스트 리뷰 관리 클릭 이벤트
+          $("#menu-bestreview-work").click(function (e) {
+            e.preventDefault();
+            $.ajax({
+              url: "/admin/mainpage/bestreview/bestreview",
+              method: "GET",
+              success: function (result) {
+                console.log("베스트 리뷰관리 클릭됨!!");
                 $(".content-wrapper").html(result);
               }
             });

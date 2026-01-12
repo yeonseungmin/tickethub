@@ -30,4 +30,12 @@ public class HotWorkServiceImpl implements HotWorkService {
     public void remove(int hotwork_id) {
         hotWorkDAO.delete(hotwork_id);
     }
+
+    @Transactional
+    @Override
+    public void updateOrders(List<HotWork> hotWorkList) {
+        for (HotWork hotWork : hotWorkList) {
+            hotWorkDAO.updateOrder(hotWork);
+        }
+    }
 }

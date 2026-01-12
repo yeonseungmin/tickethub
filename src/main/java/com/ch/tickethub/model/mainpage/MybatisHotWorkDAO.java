@@ -28,4 +28,9 @@ public class MybatisHotWorkDAO implements HotWorkDAO {
     public void delete(int hotwork_id) {
         sqlSessionTemplate.delete("HotWork.delete", hotwork_id);
     }
+
+    @Override
+    public void updateOrder(HotWork hotWork) {
+        sqlSessionTemplate.update("HotWork.updateOrder", hotWork);
+    }
 }

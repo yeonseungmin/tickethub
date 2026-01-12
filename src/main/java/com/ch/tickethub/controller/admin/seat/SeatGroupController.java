@@ -68,11 +68,10 @@ public class SeatGroupController {
      */
     @PostMapping("/updatePosition")
     @ResponseBody
-    public String updatePosition(@RequestParam int seat_group_id, 
-                                 @RequestParam int pos_x, 
-                                 @RequestParam int pos_y) {
+    public String updatePosition(@RequestParam int seat_group_id, @RequestParam int pos_x, 
+    				@RequestParam int pos_y, @RequestParam double angle) {
         try {
-            seatGroupService.updatePosition(seat_group_id, pos_x, pos_y);
+            seatGroupService.updatePosition(seat_group_id, pos_x, pos_y,angle);
             return "success";
         } catch (Exception e) {
             return "error: " + e.getMessage();
@@ -138,11 +137,11 @@ public class SeatGroupController {
     
     @PostMapping("/updateGroupPos")
     @ResponseBody
-    public String updateGroupPos(@RequestParam int seat_group_id, @RequestParam int pos_x, @RequestParam int pos_y) {
+    public String updateGroupPos(@RequestParam int seat_group_id, @RequestParam int pos_x, @RequestParam int pos_y, @RequestParam double angle) {
         try {
-        	log.debug("수신 ID: " + seat_group_id + ", X: " + pos_x + ", Y: " + pos_y);
+        	log.debug("수신 ID: " + seat_group_id + ", X: " + pos_x + ", Y: " + pos_y +", angle:"+angle);
             // 서비스 호출
-            seatGroupService.updateGroupAndSeatPosition(seat_group_id, pos_x, pos_y);
+            seatGroupService.updateGroupAndSeatPosition(seat_group_id, pos_x, pos_y, angle);
             return "success";
         } catch (Exception e) {
             return "error: " + e.getMessage();
