@@ -12,7 +12,7 @@
     <title>Grade Management Admin</title>
     <link rel="stylesheet" href="<%=contextPath%>/static/assets/css/seat.css?v=<%=System.currentTimeMillis()%>">
     
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!--     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
     
     <script>
         var contextPath = '<%=contextPath%>';

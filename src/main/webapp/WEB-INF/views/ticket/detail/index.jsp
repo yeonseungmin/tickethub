@@ -1,3 +1,4 @@
+<%@page import="com.ch.tickethub.dto.Round"%>
 <%@page import="com.ch.tickethub.dto.RoundCasting"%>
 <%@page import="java.util.List"%>
 <%@page import="com.ch.tickethub.dto.Work"%>
@@ -5,6 +6,7 @@
     pageEncoding="UTF-8"%>
 <%
 	Work work = (Work)request.getAttribute("work");
+	Round round = (Round)request.getAttribute("round");
 	List<RoundCasting> uniqueCastingList = (List)request.getAttribute("uniqueCastingList");
 	String jsonWork = (String)request.getAttribute("jsonWork");
 	String naverMapClientId = (String)request.getAttribute("naverMapClientId");
@@ -28,6 +30,7 @@
 <% System.out.println(uniqueCastingList); %>
 <% System.out.println(jsonWork); %>
 <script src="/static/assets/js/Util.js"></script>
+<script src="/static/assets/js/Paging.js"></script>
 <script>
 	let currentDate;
 	// 오늘 날짜 최소가 되는 달
@@ -36,6 +39,10 @@
 	let maxDate;
 	let work = <%=jsonWork%>;
 	let reviewList;
+	let paging;
+	
+	// 예비용. 접속자의 멤버 아이디가 1이라면? 나중에 session으로 교체
+	let memberId = 1;
 </script>
 <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=<%=naverMapClientId%>"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -210,6 +217,8 @@
         $(".btn-round-select").removeClass("active");
         $(element).addClass("active");
         
+        console.log("클래스 추가 완료:", $(element).attr("class")); // active가 들어있는지 확인
+        
         updateInfo(roundId);
     }
 	
@@ -218,11 +227,12 @@
     	
     	// find true인 첫 번째 element 반환
     	const round = work.roundList.find((round)=>{return round.round_id == roundId});
-    	
+
      	$(".place span").text(round.place.place_name);
      	
-     	// data-id 에 값 round_id 값 넣어주기
-    	$(".place button").attr("data-id", round.round_id);
+     	// data-id 에 값 round_id 값 넣어주기 .attr로 바꾸지 마라. 갱신 제대로 안 해준다.
+    	$(".place button").data("id", round.round_id);
+     	//console.log("round_id는 ", $(".place button").data("id"));
 
 		$("#seat-info-area .sidebar-compact-text").html(`
 			<span class="font-weight-bold">VIP</span> <span class="text-soldout">매진</span> <span class="divider-slash">/</span> 
@@ -293,13 +303,14 @@
     function openPlacePopup(btn){
     	let roundId = $(btn).data("id");
     	const round = work.roundList.find((round)=>{return round.round_id == roundId});
+    	//console.log(round);
     	
     	if(round == null) return;
     	
     	const place = round.place;
     	
         // .one 첫 한 번만 실행 Bootstrap이 제공하는 모달이름 shown.bs.modal
-        $("#placeModal").one("shown.bs.modal", function () {
+        $("#placeModal").off("shown.bs.modal").one("shown.bs.modal", function () {
 			$(".place_name").text(place.place_name);
 			$(".address").text("주소 : " + place.address);
         	
@@ -317,6 +328,14 @@
         });
     }
     // 관람후기 함수 시작
+    function registReview(btn) {
+    	console.log("review 등록하기 !");
+    }
+    
+    function registReReview(btn) {
+    	let review_id = $(btn).closest("li").val();
+    	console.log("답글을 달 review_id는 ", review_id);
+    }
     
 	// [관람후기] 답글 작성 폼 토글 기능
     function toggleReplyForm(reviewId) {
@@ -329,7 +348,9 @@
         let $icon = $(btn).find('i');
         let $span = $(btn).find('span');
         let count = parseInt($span.text());
-
+        let review_id = $(btn).closest("li").val();
+        console.log("좋아요를 늘릴 review_id는 ", review_id);
+        
         if ($icon.hasClass('far')) { // 좋아요 안 누른 상태
             $icon.removeClass('far').addClass('fas text-primary'); // 채워진 엄지
             $span.text(count + 1);
@@ -351,10 +372,236 @@
             $(btn).html('더보기 <i class="fas fa-chevron-down"></i>');
         } else {
             // 펼치기 동작
+            let review_id = $(btn).closest("li").val();
+            console.log("조회수를 늘릴 review_id는 ", review_id);
+            
             $textContainer.addClass('expanded');
             $(btn).html('접기 <i class="fas fa-chevron-up"></i>');
         }
     }
+	
+	// [관람후기] 신고 동작
+	function report(btn) {
+		let review_id = $(btn).closest("li").val();
+		console.log("신고 당한 review_id는 ", review_id);
+	}
+	
+	function deleteComment(btn, type) {
+		
+		if (type == "review") {
+			let id = $(btn).closest("li").val();
+			console.log("삭제할 review_id는 ", id);
+		} else if(type == "re_review"){
+			console.log("삭제할 re_review_id는 ", id);
+		}
+		
+	}
+	
+	function displayReviewList(currentPage) {
+		
+		paging = new Paging();
+		paging.init(reviewList, currentPage);
+		let num = paging.num;
+		let curPos = paging.curPos;
+		console.log(curPos);
+		let reviewTag = "";
+		
+/* 		for(let i = 0; i < paging.pageSize; i++){
+			if(num < 1) break;
+			num--;
+			let review = reviewList[curPos++];
+			// review-item이 review_id를 가지는 것이 낫다. 쓰는 곳이 많음.
+			reviewTag += `									        
+			<li class="review-item border-bottom py-3" value="`;
+			reviewTag += review.review_id + `">
+				<div class="d-flex justify-content-between align-items-end mb-2">
+		            <div>
+		                <span class="text-warning mr-1">`;
+			for(let j = 0; j < review.rating; j++){
+				reviewTag += `<i class="fas fa-star"></i>`;
+			}
+			
+			reviewTag += `</span>`;
+			
+			reviewTag += `
+		                <strong class="text-dark mr-2">`;
+			reviewTag += review.member.loginId + `</strong>`;
+			reviewTag += `
+		                <span class="text-muted text-sm">`;
+			reviewTag += review.review_regdate + `</span>`;
+			// 조회수 review-hit
+			reviewTag += `
+		                <span class="text-muted text-sm ml-2 review-hit">`;
+			reviewTag += `조회 ` + review.hit + `</span>
+		            </div>`;
+				// 만일 세션 멤버와 같다면? self 신고는 선 넘었지.
+				if(memberId == review.member.memberId) {
+					reviewTag += `
+					<div>
+	                    <button class="btn btn-xs btn-link text-muted p-0" onclick="deleteComment(this, 'review')">삭제</button>
+	                </div>
+				</div>
+	                `;
+				} else {
+					reviewTag += `
+				            <div>
+				                <button class="btn btn-xs btn-link text-danger p-0 ml-2" onclick="report(this)" value="
+				                `;
+					reviewTag += review.member.memberId + `">
+				                    <i class="fas fa-exclamation-circle"></i> 신고
+				                </button>
+				            </div>
+				        </div>
+				        `;					
+				}
+			reviewTag += `
+		        <div class="font-weight-bold text-dark mb-1" style="font-size: 1.1rem;">`;
+			reviewTag += review.review_title + `
+		        </div>`;
+			reviewTag += `
+		        <div class="review-text-clamp text-dark mb-1" style="white-space: pre-wrap;">`;
+			reviewTag += review.review_content + `
+				</div>`;
+			reviewTag += `
+		        <button class="btn-more" onclick="toggleReviewText(this)">더보기 <i class="fas fa-chevron-down"></i></button>`;
+			reviewTag += `
+		        <div class="review-actions mt-1">
+		            <button class="btn btn-xs btn-light border mr-1" onclick="toggleLikeReview(this)">
+		                <i class="far fa-thumbs-up"></i> <span>`;
+			reviewTag += review.review_like_count + `</span>
+		            </button>`;
+			reviewTag += `
+		            <button class="btn btn-xs btn-light border" onclick="toggleReplyForm(`;
+			reviewTag += review.review_id + `)">
+		                답글 달기
+		            </button>
+		        </div>`;
+			reviewTag += `
+		        <div id="reply-form-`;
+			reviewTag += review.review_id + `" class="reply-form-container mt-3" style="display: none;">
+		            <div class="card bg-light border-0">
+		                <div class="card-body p-2 d-flex">
+		                    <textarea class="form-control form-control-sm mr-2" rows="2" placeholder="답글을 입력하세요... (최대 150자)"></textarea>
+		                    <button class="btn btn-sm btn-secondary" style="width: 60px;" onclick="registReReview(this)">등록</button>
+		                </div>
+		            </div>
+		        </div>
+		        `;
+			// 여기서부터 일단 나중에
+			reviewTag += `
+		        <div class="reply-list mt-3 pl-4 bg-light rounded p-3">
+		            <div class="reply-item d-flex">
+		                <div class="mr-2 text-muted"><i class="fas fa-level-up-alt fa-rotate-90"></i></div>
+		                <div class="w-100">
+		                    <div class="d-flex justify-content-between mb-1">
+		                        <div>
+		                            <span class="font-weight-bold text-sm">chicago00</span>
+		                            <span class="text-muted text-xs ml-2">2025.01.29</span>
+		                        </div>
+				                <div>
+				                    <button class="btn btn-xs btn-link text-muted p-0">삭제</button>
+				                </div>
+		                    </div>
+		                    <p class="text-sm mb-1">저도 주차 때문에 고생했는데 공감합니다 ㅠㅠ 대중교통이 답이에요.</p>
+		                </div>
+		            </div>
+		        </div>
+		    </li>
+		    `;
+		}
+		 */
+		for (let i = 0; i < paging.pageSize; i++) {
+		    if (num < 1) break;
+		    num--;
+		    let review = reviewList[curPos++];
+
+		    // 리뷰 아이템 시작 및 기본 정보
+		    reviewTag += `
+		    <li class="review-item border-bottom py-3" value="\${review.review_id}">
+		        <div class="d-flex justify-content-between align-items-end mb-2">
+		            <div>
+		                <span class="text-warning mr-1">`;
+
+		    // 별점 루프
+		    for (let j = 0; j < review.rating; j++) {
+		        reviewTag += `<i class="fas fa-star"></i>`;
+		    }
+
+		    reviewTag += `</span>
+		                <strong class="text-dark mr-2">\${review.member.loginId}</strong>
+		                <span class="text-muted text-sm">\${review.review_regdate}</span>
+		                <span class="text-muted text-sm ml-2 review-hit">조회 \${review.hit}</span>
+		            </div>`;
+
+		    // 만일 세션 멤버와 같다면? self 신고는 선 넘었지.
+		    if (memberId == review.member.memberId) {
+		        reviewTag += `
+		            <div>
+		                <button class="btn btn-xs btn-link text-muted p-0" onclick="deleteComment(this, 'review')">삭제</button>
+		            </div>
+		        </div>`;
+		    } else {
+		        reviewTag += `
+		            <div>
+		                <button class="btn btn-xs btn-link text-danger p-0 ml-2" onclick="report(this)" value="\${review.member.memberId}">
+		                    <i class="fas fa-exclamation-circle"></i> 신고
+		                </button>
+		            </div>
+		        </div>`;
+		    }
+
+		    // 리뷰 본문
+		    reviewTag += `
+		        <div class="font-weight-bold text-dark mb-1" style="font-size: 1.1rem;">
+		            \${review.review_title}
+		        </div>
+		        <div class="review-text-clamp text-dark mb-1" style="white-space: pre-wrap;">\${review.review_content}</div>
+		        <button class="btn-more" onclick="toggleReviewText(this)">더보기 <i class="fas fa-chevron-down"></i></button>
+		        
+		        <div class="review-actions mt-1">
+		            <button class="btn btn-xs btn-light border mr-1" onclick="toggleLikeReview(this)">
+		                <i class="far fa-thumbs-up"></i> <span>\${review.review_like_count}</span>
+		            </button>
+		            <button class="btn btn-xs btn-light border" onclick="toggleReplyForm(\${review.review_id})">
+		                답글 달기
+		            </button>
+		        </div>
+
+		        <div id="reply-form-\${review.review_id}" class="reply-form-container mt-3" style="display: none;">
+		            <div class="card bg-light border-0">
+		                <div class="card-body p-2 d-flex">
+		                    <textarea class="form-control form-control-sm mr-2" rows="2" placeholder="답글을 입력하세요... (최대 150자)"></textarea>
+		                    <button class="btn btn-sm btn-secondary" style="width: 60px;" onclick="registReReview(this)">등록</button>
+		                </div>
+		            </div>
+		        </div>
+
+		        <div class="reply-list mt-3 pl-4 bg-light rounded p-3">
+		            <div class="reply-item d-flex">
+		                <div class="mr-2 text-muted"><i class="fas fa-level-up-alt fa-rotate-90"></i></div>
+		                <div class="w-100">
+		                    <div class="d-flex justify-content-between mb-1">
+		                        <div>
+		                            <span class="font-weight-bold text-sm">chicago00</span>
+		                            <span class="text-muted text-xs ml-2">2025.01.29</span>
+		                        </div>
+		                        <div>
+		                            <button class="btn btn-xs btn-link text-muted p-0">삭제</button>
+		                        </div>
+		                    </div>
+		                    <p class="text-sm mb-1">저도 주차 때문에 고생했는데 공감합니다 ㅠㅠ 대중교통이 답이에요.</p>
+		                </div>
+		            </div>
+		        </div>
+		    </li>
+		    `;
+		}
+		let reviewArea = $(".review-list");
+		reviewArea.empty();
+		reviewArea.append(reviewTag);
+    
+	}
+	
 	
 	// 관람후기 함수 끝
     
@@ -368,6 +615,7 @@
 					console.log("관람후기 클릭됨!");
 					reviewList = result;
 					console.log(reviewList);
+					displayReviewList(1);
 				}
 			});
 		}
@@ -435,13 +683,23 @@
 	
     
     // 예매 팝업창 열기
-    function openReservation() {
-        // 현재 보고 있는 공연의 ID (서버에서 넘겨준 work 객체 활용)
-        let workId = <%=work.getWork_id()%>;
-        let url = "reservation?work_id=" + workId;
-        let specs = "width=900,height=700,top=100,left=200,scrollbars=yes";
-        open(url, "reservationPopup", specs);
-    }
+	function openReservation(event) {
+	    if (event) event.preventDefault();
+	
+	    let workId = <%=work.getWork_id()%>;
+	    let roundId = $(".btn-reservation").val();
+	
+	    if (!roundId) {
+	        alert("회차를 선택해주세요.");
+	        return;
+	    }
+	
+	    // 주소 끝에 /popup 이 정확히 붙었는지 확인
+	    let url = "${pageContext.request.contextPath}/ticket/reservation/popup?work_id=" + workId + "&round_id=" + roundId;
+	    let specs = "width=1100,height=850,top=50,left=150,scrollbars=yes";
+	    
+	    window.open(url, "reservationPopup", specs);
+	}
     
 </script>
 <div class="wrapper">
@@ -558,6 +816,7 @@
                                 <div class="tab-pane fade" id="content-review">
 									<div class="review-container bg-white p-4">
 									    
+									    <!-- review regist -->
 									    <div class="card mb-4 border-0 bg-light">
 									        <div class="card-body p-3">
 									            <div class="d-flex align-items-center mb-3">
@@ -576,11 +835,12 @@
 									            
 									            <textarea class="form-control mb-2" rows="8" placeholder="관람 후기를 남겨주세요 (최대 500자)"></textarea>
 									            <div class="text-right">
-									                <button class="btn btn-primary px-4">등록</button>
+									                <button class="btn btn-primary px-4" onclick="registReview(this)">등록</button>
 									            </div>
 									        </div>
 									    </div>
-									
+										
+										<!-- review sequence -->
 									    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
 									        <h5 class="font-weight-bold m-0">총 <span class="text-primary">1,240</span>개의 후기</h5>
 									        <div class="btn-group btn-group-sm">
@@ -591,7 +851,7 @@
 									    </div>
 									
 									    <ul class="list-unstyled review-list">
-									        
+				
 									        <li class="review-item border-bottom py-3">
 									            <div class="d-flex justify-content-between align-items-end mb-2">
 									                <div>
@@ -620,7 +880,7 @@
 VIP석이 아깝지 않은 공연이었어요.
 다음 주에 부모님 모시고 한 번 더 보러 갈 예정입니다. 
 주차는 조금 복잡하니 대중교통 이용하시는 걸 추천드립니다.
-									</div>
+												</div>
 									            
 									            <button class="btn-more" onclick="toggleReviewText(this)">더보기 <i class="fas fa-chevron-down"></i></button>
 									            
@@ -785,7 +1045,10 @@ VIP석이 아깝지 않은 공연이었어요.
                             </div>
 						<%} %>
                             <div class="card-footer p-3">
-                                <button class="btn btn-primary btn-block btn-lg font-weight-bold shadow" onclick="openReservation()">예매하기</button>
+                                <button type="button" 
+								        class="btn btn-primary btn-block btn-lg font-weight-bold shadow btn-reservation" 
+								        onclick="openReservation(event); return false;">예매하기
+								 </button>
                             </div>
 
                         </div>

@@ -1,28 +1,51 @@
 package com.ch.tickethub.controller.tickethub;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import com.ch.tickethub.dto.MainBanner;
+import com.ch.tickethub.dto.HotWork;
+import com.ch.tickethub.dto.OpeningWork;
+import com.ch.tickethub.dto.GenreRanking;
+import com.ch.tickethub.model.mainpage.MainBannerService;
+import com.ch.tickethub.model.mainpage.HotWorkService;
+import com.ch.tickethub.model.mainpage.OpeningWorkService;
+import com.ch.tickethub.model.mainpage.GenreRankingService;
 
 @Controller
 public class MainController {
 
-	@GetMapping("/")
-	public String getMain() {
-		return "ticket/home";
-	}
+	@Autowired
+	private MainBannerService mainBannerService;
 
-	@GetMapping("/waiting")
-	public String getWaitingPage() {
-		return "queue/waiting";
-	}
-	
-	@GetMapping("/reservation")
-	public String getReservation() {
-		return "ticket/reservation";
-	}
-	
-	@GetMapping("/payment")
-	public String getPayment() {
-		return "ticket/payment";
+	@Autowired
+	private HotWorkService hotWorkService;
+
+	@Autowired
+	private OpeningWorkService openingWorkService;
+
+	@Autowired
+	private GenreRankingService genreRankingService;
+
+	@GetMapping("/")
+	public String getMain(Model model) {
+
+		List<MainBanner> bannerList = mainBannerService.getList();
+		model.addAttribute("bannerList", bannerList);
+
+		List<HotWork> hotWorkList = hotWorkService.getList();
+		model.addAttribute("hotWorkList", hotWorkList);
+
+		List<OpeningWork> openingWorkList = openingWorkService.getList();
+		model.addAttribute("openingWorkList", openingWorkList);
+
+		List<GenreRanking> genreRankingList = genreRankingService.getList();
+		model.addAttribute("genreRankingList", genreRankingList);
+
+		return "ticket/index";
 	}
 }

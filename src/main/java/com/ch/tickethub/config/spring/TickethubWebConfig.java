@@ -29,27 +29,29 @@ public class TickethubWebConfig extends WebMvcConfigurerAdapter {
         return new QueueInterceptor();
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(queueInterceptor())
-                .addPathPatterns("/**")
-                .excludePathPatterns("/queue/**")
-                .excludePathPatterns("/assets/**")
-                .excludePathPatterns("/auth/**");
-    }
-
     /* ------------------------------
-       공통 Bean
-    ------------------------------ */
-    @Bean
-    public JndiTemplate jndiTemplate() {
-        return new JndiTemplate();
-    }
+    공통 Bean
+ ------------------------------ */
+ @Bean
+ public JndiTemplate jndiTemplate() {
+     return new JndiTemplate();
+ }
 
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
+ @Bean
+ public RestTemplate restTemplate() {
+     return new RestTemplate();
+ }
+    
+    @Override
+    public void addInterceptors(org.springframework.web.servlet.config.annotation.InterceptorRegistry registry) {
+        registry.addInterceptor(queueInterceptor())
+                .addPathPatterns("/**") 
+                .excludePathPatterns("/queue/**") // 대기 페이지 예외
+                .excludePathPatterns("/assets/**") // 이미지, CSS 같은 정적 파일 예외
+                .excludePathPatterns("/auth/**")  // 로그인 관련 페이지,,, 일단 예외 > 추가 수정 필요.
+        		.excludePathPatterns("/ticket/reservation/popup");	//  티켓 예매 popup 로그인 전이므로 일단 예외 > 추가 수정 필요.
     }
+   
 
     /* ------------------------------
        OAuth Client Secrets (JNDI)

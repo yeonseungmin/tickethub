@@ -14,7 +14,7 @@
     <meta charset="UTF-8">
     <title>Seat Management Admin (Updated)</title>
     <link rel="stylesheet" href="<%=contextPath%>/static/assets/css/seat.css?v=<%=System.currentTimeMillis()%>">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!--     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
     <script>
         var contextPath = '<%=contextPath%>';
     </script>
@@ -117,10 +117,10 @@
 
 <script>
     /* 1. 이 페이지 고유 전역 변수 (selectedSeatIds는 seat.js의 것을 사용) */
-    let isDragging = false;
-    let currentGroup = null;
-    let offset = { x: 0, y: 0 };
-    let groupsData = {}; 
+    var isDragging = false;
+    var currentGroup = null;
+    var offset = { x: 0, y: 0 };
+    var groupsData = {}; 
     
     $(document).ready(function() {
         // [수정] 장소 선택 시 구역 목록 갱신만 수행 (공연/회차 연동은 seat.js가 처리)
