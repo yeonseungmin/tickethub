@@ -15,6 +15,11 @@ class Paging{
 		
 		this.firstPage = this.currentPage - (this.currentPage - 1) % this.blockSize;
 		this.lastPage = this.firstPage + (this.blockSize - 1);
+		
+		if(this.lastPage > this.totalPage) {
+			this.lastPage = this.totalPage;
+		}
+		
 		this.curPos = (this.currentPage - 1) * this.pageSize;	// list의 시작 index
 		this.num = this.totalRecord - this.curPos;					// 페이지당 시작 번호
 	}

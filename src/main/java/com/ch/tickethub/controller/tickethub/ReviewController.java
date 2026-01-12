@@ -19,11 +19,12 @@ public class ReviewController {
 	@Autowired
 	ReviewService reviewService;
 	
-	
+	// orderType latest, rating, likes
 	@GetMapping("/detail/review")
 	@ResponseBody
-	public List<Review> getReview(int work_id) {
+	public List<Review> getReview(int work_id, String orderType) {
+		//log.debug("orderType은 {}", orderType);
 		
-		return reviewService.getListByWorkId(work_id);
+		return reviewService.getListByWorkId(work_id , orderType);
 	}
 }

@@ -21,7 +21,7 @@
 
 /* 2. 카드 내부 간격 축소 */
 .sticky-sidebar .card-body {
-    padding: 12px !important; /* 기존 p-3(16px)에서 축소 */
+    padding: 12px !important;
 }
 
 /* 3. 회차 선택 버튼 디자인 */
