@@ -12,8 +12,6 @@
     <title>Grade Management Admin</title>
     <link rel="stylesheet" href="<%=contextPath%>/static/assets/css/seat.css?v=<%=System.currentTimeMillis()%>">
     
-<!--     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
-    
     <script>
         var contextPath = '<%=contextPath%>';
     </script>
@@ -56,7 +54,10 @@
     <div class="admin-seat-wrapper">
         <div class="seat-map-container">
             <div class="stage-label">STAGE</div>
-            <div id="seatArea"></div>
+            <div id="seatArea">
+	             <div class="floor-label" style="top: 0px;">─── 1st FLOOR ───</div>
+	            <div class="floor-label floor-2-label" style="top: 600px;">─── 2nd FLOOR ───</div>
+            </div>
         </div>
 
         <div class="management-side-panel">
@@ -118,12 +119,19 @@
 	 }
 
 	 /**
-	  * 2. 등급 관리 전용 렌더링 함수
+	  * 2. 등급 관리 전용 렌더링 함수 (층 표시 복구 버전)
 	  */
 	 function renderStatusMap(seatList) {
+	     // [중요] empty()를 하면 JSP에 써둔 1F, 2F 라벨이 다 날아갑니다.
 	     var $container = $('#seatArea').empty();
 	     
-	     // [A] 구역 경계선 그리기 (기존 로직 유지)
+	     // [추가] 층 라벨 다시 그려주기
+	     $container.append('<div class="floor-label" style="top: 0px;">─── 1st FLOOR ───</div>');
+	     $container.append('<div class="floor-label floor-2-label" style="top: 600px;">─── 2nd FLOOR ───</div>');
+	     
+	     if (!seatList || seatList.length === 0) return;
+
+	     // [A] 구역 경계선 그리기
 	     var groups = {};
 	     seatList.forEach(function(seat) {
 	         if (!groups[seat.seat_group_id]) {
@@ -146,7 +154,8 @@
 	                 left: (g.minX - 20) + 'px', 
 	                 top: (g.minY - 20) + 'px',
 	                 width: (g.maxX - g.minX + 72) + 'px', 
-	                 height: (g.maxY - g.minY + 72) + 'px'
+	                 height: (g.maxY - g.minY + 72) + 'px',
+	                 position: 'absolute' // 명시적 추가
 	             })
 	             .append($('<div class="group-name-label"></div>').text(g.name))
 	             .appendTo($container);
@@ -160,6 +169,7 @@
 	         var rawGrade = seat.grade_name || "A"; 
 	         var gName = rawGrade.toLowerCase();
 	         
+	         // 등급별 이미지 처리
 	         var gradeType = (['vip', 'r', 's'].indexOf(gName) > -1) ? gName : 'a';
 	         var imgUrl = contextPath + "/static/assets/seatImg/available_" + gradeType + ".jpg";
 
@@ -171,10 +181,12 @@
 	             .css({ 
 	                 left: finalX + 'px', 
 	                 top: finalY + 'px', 
-	                 backgroundImage: "url('" + imgUrl + "')" 
+	                 backgroundImage: "url('" + imgUrl + "')",
+	                 position: 'absolute'
 	             })
 	             .on('click', function(e) {
 	                 e.stopPropagation();
+	                 // 다중 선택 로직 (Ctrl/Meta키)
 	                 if (e.ctrlKey || e.metaKey) {
 	                     var idx = window.selectedSeatIds.indexOf(seat.seat_id);
 	                     if (idx > -1) {

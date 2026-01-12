@@ -85,15 +85,6 @@ public class MybatisSeatDAO implements SeatDAO {
         }
     }
 
-    @Override
-    public void updateSeatsPositionInGroup(int seat_group_id, int pos_x, int pos_y) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("seat_group_id", seat_group_id);
-        params.put("pos_x", pos_x);
-        params.put("pos_y", pos_y);
-        
-        sqlSession.update(NAMESPACE + ".updateSeatsPositionInGroup", params);
-    }
 
 
 }

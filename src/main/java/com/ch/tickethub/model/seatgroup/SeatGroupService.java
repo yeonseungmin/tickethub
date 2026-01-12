@@ -11,7 +11,7 @@ public interface SeatGroupService {
 
     int insert(SeatGroup seatGroup);
 
-    int updatePosition(int seat_group_id, int pos_x, int pos_y);
+    int updatePosition(int seat_group_id, int pos_x, int pos_y, double angle);
 
     int updateLayout(int seat_group_id, int row_gap, int col_gap, String direction);
 
@@ -20,7 +20,7 @@ public interface SeatGroupService {
     //좌석 생성
     void createBulkSeats(int seatGroupId, int rowCount, int colCount);
     //그룹이동 마우스 이벤트
-    void updateGroupAndSeatPosition(int seatGroupId, int posX, int posY);
+    void updateGroupAndSeatPosition(int seatGroupId, int posX, int posY, double angle);
     //좌석 그룹생성
     void insertGroupByPlace(SeatGroup seatGroup);
 }
