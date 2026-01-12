@@ -451,9 +451,9 @@ public class AuthController {
 		}
 
 		// 5) 비밀번호 규칙
-		String pwRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,20}$";
+		String pwRegex =  "^(?=.*[a-z])(?=.*\\d)[a-z\\d]{8,20}$";
 		if (!password.matches(pwRegex)) {
-		    model.addAttribute("error", "비밀번호는 8~20자이며 대문자, 소문자, 숫자, 특수문자를 모두 포함해야 합니다.");
+		    model.addAttribute("error", "비밀번호는 8~20자이며 소문자, 숫자를 모두 포함해야 합니다.");
 		    return "tickethub/auth/join";
 		}
 

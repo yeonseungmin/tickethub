@@ -19,4 +19,5 @@ public interface MemberService {
 	public void adminUpdateMemberStatus(Integer memberId, String status);
 	public void adminUpdateMemberGrade(Integer memberId, Integer gradeId);
 
+	public Member selectMyPage(Integer memberId);
 }

@@ -20,4 +20,6 @@ public interface MemberDAO {
 	    
 	    public int existsLoginId(String loginId);
 	    public int existsEmail(String email);
+	    
+	    public Member selectById(Integer memberId);
 }

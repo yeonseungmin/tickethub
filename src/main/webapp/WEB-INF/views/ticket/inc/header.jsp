@@ -40,7 +40,7 @@
 
         <% } else { %>
           <a class="user-actions__link" href="<%=ctx%>/auth/logout">로그아웃</a>
-          <a class="btn btn--primary" href="<%=ctx%>/mypage/main">마이페이지</a>
+          <a class="btn btn--primary" href="<%=ctx%>/tickethub/mypage">마이페이지</a>
         <% } %>
       </div>
 
