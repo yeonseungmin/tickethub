@@ -67,4 +67,9 @@ public class MybatisMemberDAO implements MemberDAO{
 		return (cnt == null)? 0 : cnt;
 	}
 
+	@Override
+	public Member selectById(Integer memberId) {
+		return sqlSessionTemplate.selectOne("Member.selectById", memberId);
+	}
+
 }

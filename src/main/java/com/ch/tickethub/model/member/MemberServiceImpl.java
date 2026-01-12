@@ -26,6 +26,13 @@ public class MemberServiceImpl implements MemberService {
 
     @Autowired
     private MailSender mailSender;
+    
+    private String normalizeEmail(String email) {
+        if (email == null) return null;
+        email = email.trim();
+        if (email.isEmpty()) return null;
+        return email.toLowerCase();
+    }
 
     @Override
     @Transactional
@@ -59,7 +66,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public Member loginOauthOrRegister(String oauthProvider, String oauthId, String email, String name) {
-
+    	
         // 1) 기존 회원이면 바로 로그인 처리
         Member member = loginOauth(oauthProvider, oauthId);
         if (member != null) return member;
@@ -71,6 +78,8 @@ public class MemberServiceImpl implements MemberService {
         
         // 2) 없으면 가입
         Member newMember = new Member();
+        
+        newMember.setEmail(normalizeEmail(email));
 
         // loginId 정책: provider_oauthId
         newMember.setLoginId(oauthProvider + "_" + oauthId);
@@ -90,7 +99,6 @@ public class MemberServiceImpl implements MemberService {
         
         newMember.setOauthProvider(oauthProvider);
         newMember.setOauthId(oauthId);
-        newMember.setEmail(email);
    
         try {
         	   int result = memberDAO.insert(newMember);
@@ -123,6 +131,8 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public void register(Member member) {
 
+    	member.setEmail(normalizeEmail(member.getEmail()));
+    	
         // 일반회원(=소셜정보 없음)인 경우 비밀번호 필수
         if (member.getOauthProvider() == null || member.getOauthProvider().trim().isEmpty()) {
             if (member.getPasswordHash() == null || member.getPasswordHash().trim().isEmpty()) {
@@ -227,5 +237,10 @@ public class MemberServiceImpl implements MemberService {
 		
 		if(!PasswordUtil.matches(password, member.getPasswordHash())) return LoginResult.WRONG_PASSWORD;
 		return LoginResult.SUCCESS;
+	}
+
+	@Override
+	public Member selectMyPage(Integer memberId) {
+		return memberDAO.selectById(memberId);
 	}
 }
