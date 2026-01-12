@@ -1,3 +1,4 @@
+<%@page import="com.ch.tickethub.dto.Member"%>
 <%@page import="com.ch.tickethub.dto.Round"%>
 <%@page import="com.ch.tickethub.dto.RoundCasting"%>
 <%@page import="java.util.List"%>
@@ -15,6 +16,8 @@
     String genreName = work.getGenre().getGenre_name();
     // 캐스팅을 보여줄 장르 여부 확인
     boolean showCasting = "뮤지컬".equals(genreName) || "연극".equals(genreName);
+    
+    Member member = (Member)session.getAttribute("loginMember");
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -29,6 +32,7 @@
 <body class="layout-top-nav" style="background-color: #ffffff;">
 <% System.out.println(uniqueCastingList); %>
 <% System.out.println(jsonWork); %>
+<% System.out.println(member); %>
 <script src="/static/assets/js/Util.js"></script>
 <script src="/static/assets/js/Paging.js"></script>
 <script src="/static/assets/js/MoneyConverter.js"></script>
@@ -43,8 +47,8 @@
 	let paging;
 	
 	// 예비용. 접속자의 멤버 아이디가 1이라면? 나중에 session으로 교체
-	let memberId = 1;
-	
+	const memberId = <%= (member != null) ? member.getMemberId() : 0 %>;
+	console.log(memberId);
 	let moneyConverter = new MoneyConverter();
 </script>
 <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=<%=naverMapClientId%>"></script>
@@ -332,22 +336,26 @@
     }
     // 관람후기 함수 시작
     function registReview(btn) {
+    	
     	console.log("review 등록하기 !");
     }
     
     function registReReview(btn) {
+    	
     	let review_id = $(btn).closest("li").val();
     	console.log("답글을 달 review_id는 ", review_id);
     }
     
 	// [관람후기] 답글 작성 폼 토글 기능
     function toggleReplyForm(reviewId) {
+    	
         let formId = "#reply-form-" + reviewId;
         $(formId).slideToggle("fast");
     }
 
     // [관람후기] 후기 좋아요 토글 UI (프론트 처리만)
     function toggleLikeReview(btn) {
+    	
         let $icon = $(btn).find('i');
         let $span = $(btn).find('span');
         let count = parseInt($span.text());
@@ -373,8 +381,6 @@
         let replyList = reviewItem.find(".reply-list");
         // 답글 폼도 같이 닫아줘야 한다.
         let replyForm = reviewItem.find(".reply-form-container");
-        
-        
         
         if (textContainer.hasClass("expanded")) {
             // 접기 동작
@@ -451,7 +457,7 @@
 		                <button class="btn btn-xs btn-link text-muted p-0" onclick="deleteComment(this, 'review')">삭제</button>
 		            </div>
 		        </div>`;
-		    } else {
+		    } else if (memberId != 0){
 		        reviewTag += `
 		            <div>
 		                <button class="btn btn-xs btn-link text-danger p-0 ml-2" onclick="report(this)" value="\${review.member.memberId}">
@@ -459,6 +465,9 @@
 		                </button>
 		            </div>
 		        </div>`;
+		    } else {
+		    	reviewTag += `
+		    	</div>`;
 		    }
 
 		    // 리뷰 본문
@@ -471,12 +480,17 @@
 		        <div class="review-actions mt-1">
 		            <button class="btn btn-xs btn-light border mr-1" onclick="toggleLikeReview(this)">
 		                <i class="far fa-thumbs-up"></i> <span>\${review.review_like_count}</span>
-		            </button>
-		            <button class="btn btn-xs btn-light border" onclick="toggleReplyForm(\${review.review_id})">
-		                답글 달기
-		            </button>
-		        </div>
-
+		            </button>`;
+			if(memberId != 0) {
+				reviewTag += `
+			            <button class="btn btn-xs btn-light border" onclick="toggleReplyForm(\${review.review_id})">
+			                답글 달기
+			            </button>`;
+			}
+			
+			reviewTag += `
+		        </div>`;
+			reviewTag += `
 		        <div id="reply-form-\${review.review_id}" class="reply-form-container mt-3" style="display: none;">
 		            <div class="card bg-light border-0">
 		                <div class="card-body p-2 d-flex">
@@ -791,7 +805,7 @@
                                 <!-- review-->
                                 <div class="tab-pane fade" id="content-review">
 									<div class="review-container bg-white p-4">
-									    
+									 <%if(member != null) {%>
 									    <!-- review regist -->
 									    <div class="card mb-4 border-0 bg-light">
 									        <div class="card-body p-3">
@@ -815,6 +829,7 @@
 									            </div>
 									        </div>
 									    </div>
+									<%} %>
 										
 										<!-- review sequence -->
 									    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
@@ -826,127 +841,10 @@
 									        </div>
 									    </div>
 									
-									    <ul class="list-unstyled review-list">
-				
-									        <li class="review-item border-bottom py-3">
-									            <div class="d-flex justify-content-between align-items-end mb-2">
-									                <div>
-									                    <span class="text-warning mr-1">
-									                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-									                    </span>
-									                    <strong class="text-dark mr-2">musical_fan_99</strong>
-									                    <span class="text-muted text-sm">2025.01.28</span>
-									                    <span class="text-muted text-sm ml-2">조회 1,204</span>
-									                </div>
-									                <div>
-									                    <button class="btn btn-xs btn-link text-danger p-0 ml-2">
-									                        <i class="fas fa-exclamation-circle"></i> 신고
-									                    </button>
-									                </div>
-									            </div>
-									            
-									            <div class="font-weight-bold text-dark mb-1" style="font-size: 1.1rem;">
-									                기대 이상의 감동, 완벽한 무대였습니다!
-									            </div>
-									            
-									            <div class="review-text-clamp text-dark mb-1" style="white-space: pre-wrap;">정말 오랜만에 보는 뮤지컬이었는데 기대 이상이었습니다. 
-배우들의 연기력은 말할 것도 없고, 무대 장치 하나하나가 예술이더군요.
-특히 1막 마지막 곡이 끝날 때의 전율은 아직도 잊혀지지가 않습니다.
-음향도 블루스퀘어 다른 공연 때보다 훨씬 잡음 없이 깔끔하게 들렸습니다. 
-VIP석이 아깝지 않은 공연이었어요.
-다음 주에 부모님 모시고 한 번 더 보러 갈 예정입니다. 
-주차는 조금 복잡하니 대중교통 이용하시는 걸 추천드립니다.
-												</div>
-									            
-									            <button class="btn-more" onclick="toggleReviewText(this)">더보기 <i class="fas fa-chevron-down"></i></button>
-									            
-									            <div class="review-actions mt-1">
-									                <button class="btn btn-xs btn-light border mr-1" onclick="toggleLikeReview(this)">
-									                    <i class="far fa-thumbs-up"></i> <span>24</span>
-									                </button>
-									                <button class="btn btn-xs btn-light border" onclick="toggleReplyForm(1)">
-									                    답글 달기
-									                </button>
-									            </div>
-									
-									            <div id="reply-form-1" class="reply-form-container mt-3" style="display: none;">
-									                <div class="card bg-light border-0">
-									                    <div class="card-body p-2 d-flex">
-									                        <textarea class="form-control form-control-sm mr-2" rows="2" placeholder="답글을 입력하세요... (최대 150자)"></textarea>
-									                        <button class="btn btn-sm btn-secondary" style="width: 60px;">등록</button>
-									                    </div>
-									                </div>
-									            </div>
-									
-									            <div class="reply-list mt-3 pl-4 bg-light rounded p-3">
-									                <div class="reply-item d-flex">
-									                    <div class="mr-2 text-muted"><i class="fas fa-level-up-alt fa-rotate-90"></i></div>
-									                    <div class="w-100">
-									                        <div class="d-flex justify-content-between mb-1">
-									                            <div>
-									                                <span class="font-weight-bold text-sm">chicago00</span>
-									                                <span class="text-muted text-xs ml-2">2025.01.29</span>
-									                            </div>
-												                <div>
-												                    <button class="btn btn-xs btn-link text-muted p-0">삭제</button>
-												                </div>
-									                        </div>
-									                        <p class="text-sm mb-1">저도 주차 때문에 고생했는데 공감합니다 ㅠㅠ 대중교통이 답이에요.</p>
-									                    </div>
-									                </div>
-									            </div>
-									        </li>
-									
-									        <li class="review-item border-bottom py-3">
-									            <div class="d-flex justify-content-between align-items-end mb-2">
-									                <div>
-									                    <span class="text-warning mr-1">
-									                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
-									                    </span>
-									                    <strong class="text-dark mr-2">ticket_master</strong>
-									                    <span class="text-muted text-sm">2025.01.27</span>
-									                    <span class="text-muted text-sm ml-2">조회 85</span>
-									                </div>
-									                <div>
-									                    <!-- <button class="btn btn-xs btn-link text-muted p-0 mr-2">수정</button> -->
-									                    <button class="btn btn-xs btn-link text-muted p-0">삭제</button>
-									                </div>
-									            </div>
-									            
-									            <div class="font-weight-bold text-dark mb-1" style="font-size: 1.1rem;">
-									                음향이 조금 아쉬웠습니다.
-									            </div>
-									            
-									            <div class="review-text-clamp text-dark mb-1">스토리는 좋았는데 2층 사이드 좌석이라 그런지 음향이 조금 뭉개지는 느낌을 받았습니다.</div>
-									            
-									            <button class="btn-more" onclick="toggleReviewText(this)">더보기 <i class="fas fa-chevron-down"></i></button>
-									            
-									            <div class="review-actions mt-1">
-									                <button class="btn btn-xs btn-light border mr-1" onclick="toggleLikeReview(this)">
-									                    <i class="far fa-thumbs-up"></i> <span>5</span>
-									                </button>
-									                <button class="btn btn-xs btn-light border" onclick="toggleReplyForm(2)">
-									                    답글 달기
-									                </button>
-									            </div>
-									             <div id="reply-form-2" class="reply-form-container mt-3" style="display: none;">
-									                <div class="card bg-light border-0">
-									                    <div class="card-body p-2 d-flex">
-									                        <textarea class="form-control form-control-sm mr-2" rows="2" placeholder="답글을 입력하세요... (최대 150자)"></textarea>
-									                        <button class="btn btn-sm btn-secondary" style="width: 60px;">등록</button>
-									                    </div>
-									                </div>
-									            </div>
-									        </li>
-									
+									    <ul class="list-unstyled review-list">			
 									    </ul>
 									    
 									    <ul class="pagination justify-content-center mt-4">
-									        <li class="page-item disabled"><a class="page-link" href="#">이전</a></li>
-									        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-									        <li class="page-item"><a class="page-link" href="#">2</a></li>
-									        <li class="page-item"><a class="page-link" href="#">3</a></li>
-									        <li class="page-item"><a class="page-link" href="#">다음</a></li>
 									    </ul>
 									</div>
                                 </div>
