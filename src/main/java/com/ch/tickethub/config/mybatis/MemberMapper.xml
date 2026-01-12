@@ -57,7 +57,7 @@
 		oauth_id = #{oauthId} AND oauth_provider = #{oauthProvider}
 	</select>
 
-	
+
 
 	<insert id="insert" parameterType="Member">
 		INSERT INTO member (
@@ -185,45 +185,88 @@
 		resultType="Member">
 		SELECT
 		member_id as memberId,
-		CONCAT(LEFT(login_id, 3), '*******') as loginId,
+		CONCAT(LEFT(login_id, 3),
+		'*******') as loginId,
 		name,
 		status
 		FROM member
-		where member_id = #{memberId} and status = 'active'
+		where member_id =
+		#{memberId} and status = 'active'
 	</select>
 
-	<select id="existsLoginId" parameterType="String" resultType="int">
+	<select id="existsLoginId" parameterType="String"
+		resultType="int">
 		select count(*)
 		from member
 		where login_id=#{value}
-	</select>	
-	
-	<select id="existsEmail" resultType="int">
-    	SELECT COUNT(*)
-    	FROM member
-    	WHERE email = #{email}
-</select>
+	</select>
 
-<select id="selectById" parameterType="int" resultType="Member">
-    SELECT
-        member_id AS memberId,
-        login_id AS loginId,
-        password_hash AS passwordHash,
-        name,
-        email,
-        birth_date AS birthDate,
-        phone,
-        zip_code AS zipCode,
-        address,
-        status,
-        role,
-        grade_id AS gradeId,
-        created_at AS createdAt,
-        updated_at AS updatedAt,
-        last_login_at AS lastLoginAt,
-        oauth_provider AS oauthProvider,
-        oauth_id AS oauthId
-    FROM member
-    WHERE member_id = #{value}
-</select>
+	<select id="existsEmail" resultType="int">
+		SELECT COUNT(*)
+		FROM member
+		WHERE email = #{value}
+	</select>
+
+	<select id="selectById" parameterType="int" resultType="Member">
+		SELECT
+		member_id AS memberId,
+		login_id AS loginId,
+		password_hash AS
+		passwordHash,
+		name,
+		email,
+		birth_date AS birthDate,
+		phone,
+		zip_code AS
+		zipCode,
+		address,
+		status,
+		role,
+		grade_id AS gradeId,
+		created_at AS
+		createdAt,
+		updated_at AS updatedAt,
+		last_login_at AS lastLoginAt,
+		oauth_provider AS oauthProvider,
+		oauth_id AS oauthId
+		FROM member
+		WHERE
+		member_id = #{value}
+	</select>
+
+	<select id="selectPasswordHashById" parameterType="int"
+		resultType="String">
+		SELECT password_hash
+		FROM member
+		WHERE member_id = #{value}
+	</select>
+
+	<select id="existsEmailExcludeSelf" parameterType="map"
+		resultType="int">
+		SELECT COUNT(*)
+		FROM member
+		WHERE email = #{email}
+		AND
+		member_id != #{memberId}
+	</select>
+
+	<update id="updateMyInfo" parameterType="Member">
+		UPDATE member
+		SET
+		email = #{email},
+		birth_date = #{birthDate},
+		phone = #{phone},
+		zip_code = #{zipCode},
+		address = #{address},
+		updated_at = NOW()
+		WHERE member_id = #{memberId}
+	</update>
+
+	<update id="updatePassword" parameterType="map">
+		UPDATE member
+		SET
+		password_hash = #{passwordHash},
+		updated_at = NOW()
+		WHERE member_id = #{memberId}
+	</update>
 </mapper>

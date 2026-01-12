@@ -22,4 +22,8 @@ public interface MemberDAO {
 	    public int existsEmail(String email);
 	    
 	    public Member selectById(Integer memberId);
+	    public String selectPasswordHashById(Integer memberId);
+	    
+	    public int updateMyInfo(Member member);
+	    public int updatePassword(Map<String, Object> param);
 }

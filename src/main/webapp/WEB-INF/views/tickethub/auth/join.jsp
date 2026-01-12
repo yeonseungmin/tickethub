@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=UTF-8" %>
 <!DOCTYPE html>
 <html lang="zxx">
 <head>
@@ -207,7 +207,7 @@
 			var $pw = $("input[name='password']");
 			var $pw2 = $("input[name='passwordConfirm']");
 
-			function syncPwState() {
+			function syncPwState() {                            
 				var ok = $pw.val() === $pw2.val();
 				// 둘 다 입력된 상태에서만 표시
 				if ($pw.val() && $pw2.val() && !ok) {
