@@ -33,6 +33,14 @@ public class MemberServiceImpl implements MemberService {
         if (email.isEmpty()) return null;
         return email.toLowerCase();
     }
+    
+    private String normalizePhone(String phone) {
+        if (phone == null) return null;
+        phone = phone.trim();
+        if (phone.isEmpty()) return null;
+        phone = phone.replaceAll("[^0-9]", ""); // 숫자만 남김
+        return phone;
+    }
 
     @Override
     @Transactional
@@ -152,8 +160,20 @@ public class MemberServiceImpl implements MemberService {
             throw new RuntimeException("이미 가입된 이메일입니다.");
         }
         
+        String phone = normalizePhone(member.getPhone());
+        if (phone == null) throw new RuntimeException("휴대폰 번호는 필수입니다");
+        if (!phone.matches("^01\\d{8,9}$")) { 
+            throw new RuntimeException("휴대폰 번호 형식이 올바르지 않습니다");
+        }
+        member.setPhone(phone);
+        
         if(memberDAO.existsLoginId(member.getLoginId()) > 0) {
         	throw new DuplicateLoginIdException("이미 존재하는 ID가 있습니다.");
+        }
+        
+        // 휴대폰 필수
+        if (member.getPhone() == null || member.getPhone().trim().isEmpty()) {
+            throw new RuntimeException("휴대폰 번호는 필수입니다");
         }
         
         // 기본값 채우기
