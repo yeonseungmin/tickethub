@@ -12,6 +12,7 @@
 		</selectKey>
 	</insert>
 	
+	<!-- work 정보 가져오기 -->
 	<resultMap type="HotWork" id="HotWorkMap">
 		<id property="hotwork_id" column="hotwork_id"/>
 		<result property="work_id" column="work_id" />

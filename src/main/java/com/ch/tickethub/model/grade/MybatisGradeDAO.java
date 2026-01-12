@@ -25,7 +25,7 @@ public class MybatisGradeDAO implements GradeDAO{
 	}
 
 	@Override
-	public Integer selectGradeIdByCode(String gradeCode) {
+	public Integer selectGradeIdByCode(Integer gradeCode) {
 		return sqlSessionTemplate.selectOne("Grade.selectGradeIdByCode",gradeCode);
 	}
 

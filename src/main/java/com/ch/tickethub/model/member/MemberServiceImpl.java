@@ -5,12 +5,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ch.tickethub.dto.Member;
+import com.ch.tickethub.exception.DuplicateLoginIdException;
 import com.ch.tickethub.model.grade.GradeDAO;
 import com.ch.tickethub.util.MailSender;
+import com.ch.tickethub.util.PasswordUtil;
 
 @Service
 public class MemberServiceImpl implements MemberService {
@@ -23,6 +26,13 @@ public class MemberServiceImpl implements MemberService {
 
     @Autowired
     private MailSender mailSender;
+    
+    private String normalizeEmail(String email) {
+        if (email == null) return null;
+        email = email.trim();
+        if (email.isEmpty()) return null;
+        return email.toLowerCase();
+    }
 
     @Override
     @Transactional
@@ -32,7 +42,7 @@ public class MemberServiceImpl implements MemberService {
         if (member == null) return null;
         if ("BLOCKED".equals(member.getStatus())) return null;
         if (member.getPasswordHash() == null) return null; // 소셜회원이 일반로그인 시도 방지
-        if (!password.equals(member.getPasswordHash())) return null;
+        if(!PasswordUtil.matches(password, member.getPasswordHash())) return null;
 
         memberDAO.updateLastLoginAt(member.getMemberId());
         return member;
@@ -56,7 +66,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public Member loginOauthOrRegister(String oauthProvider, String oauthId, String email, String name) {
-
+    	
         // 1) 기존 회원이면 바로 로그인 처리
         Member member = loginOauth(oauthProvider, oauthId);
         if (member != null) return member;
@@ -68,6 +78,8 @@ public class MemberServiceImpl implements MemberService {
         
         // 2) 없으면 가입
         Member newMember = new Member();
+        
+        newMember.setEmail(normalizeEmail(email));
 
         // loginId 정책: provider_oauthId
         newMember.setLoginId(oauthProvider + "_" + oauthId);
@@ -79,7 +91,7 @@ public class MemberServiceImpl implements MemberService {
         newMember.setStatus("NORMAL");
         newMember.setRole("USER");
 
-        Integer welcomeGradeId = gradeDAO.selectGradeIdByCode("WELCOME");
+        Integer welcomeGradeId = gradeDAO.selectGradeIdByCode(100);
         if (welcomeGradeId == null) {
             throw new RuntimeException("WELCOME 등급이 DB에 없습니다. grade 테이블을 확인하세요.");
         }
@@ -87,12 +99,24 @@ public class MemberServiceImpl implements MemberService {
         
         newMember.setOauthProvider(oauthProvider);
         newMember.setOauthId(oauthId);
-        newMember.setEmail(email);
+   
+        try {
+        	   int result = memberDAO.insert(newMember);
+        	   if (result != 1) {
+                   throw new RuntimeException("소셜 회원가입 실패");
+               }
+        	} catch (DuplicateKeyException e) {
+        	    String m = (e.getMostSpecificCause() != null) ? e.getMostSpecificCause().getMessage() : "";
 
-        int result = memberDAO.insert(newMember);
-        if (result != 1) {
-            throw new RuntimeException("소셜 회원가입 실패");
-        }
+        	    if (m.contains("uk_member_email")) {
+        	        throw new RuntimeException("이미 가입된 이메일입니다. 기존 방식으로 로그인 해주세요.");
+        	    } else if (m.contains("uk_member_oauth")) {
+        	        throw new RuntimeException("이미 연결된 소셜 계정입니다. 다시 시도해주세요.");
+        	    } else if (m.contains("uk_member_login")) {
+        	        throw new RuntimeException("이미 존재하는 ID가 있습니다. 소셜 계정 충돌");
+        	    }
+        	    throw new RuntimeException("회원가입 처리 중 중복 데이터가 발생했습니다.");
+        	}
 
         // 가입축하 메일(이메일 있을 때만)
         if (newMember.getEmail() != null && !newMember.getEmail().trim().isEmpty()) {
@@ -107,6 +131,8 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public void register(Member member) {
 
+    	member.setEmail(normalizeEmail(member.getEmail()));
+    	
         // 일반회원(=소셜정보 없음)인 경우 비밀번호 필수
         if (member.getOauthProvider() == null || member.getOauthProvider().trim().isEmpty()) {
             if (member.getPasswordHash() == null || member.getPasswordHash().trim().isEmpty()) {
@@ -122,6 +148,14 @@ public class MemberServiceImpl implements MemberService {
             throw new RuntimeException("이메일은 필수입니다");
         }
 
+        if (memberDAO.existsEmail(member.getEmail()) > 0) {
+            throw new RuntimeException("이미 가입된 이메일입니다.");
+        }
+        
+        if(memberDAO.existsLoginId(member.getLoginId()) > 0) {
+        	throw new DuplicateLoginIdException("이미 존재하는 ID가 있습니다.");
+        }
+        
         // 기본값 채우기
         if (member.getStatus() == null || member.getStatus().trim().isEmpty()) {
             member.setStatus("NORMAL");
@@ -130,15 +164,28 @@ public class MemberServiceImpl implements MemberService {
             member.setRole("USER");
         }
 
-        Integer welcomeGradeId = gradeDAO.selectGradeIdByCode("WELCOME");
+        Integer welcomeGradeId = gradeDAO.selectGradeIdByCode(100);
         if (welcomeGradeId == null) {
             throw new RuntimeException("WELCOME 등급이 DB에 없습니다. grade 테이블을 확인하세요.");
         }
         member.setGradeId(welcomeGradeId);
         
-        int result = memberDAO.insert(member);
-        if (result != 1) {
-            throw new RuntimeException("회원가입 실패");
+        String hashed = PasswordUtil.hash(member.getPasswordHash());
+        member.setPasswordHash(hashed);
+        
+        try {
+            int result = memberDAO.insert(member);
+            if (result != 1) {
+                throw new RuntimeException("회원가입 실패");
+            }
+        } catch (org.springframework.dao.DuplicateKeyException e) {
+            String msg = "이미 가입된 정보가 있습니다.";
+            String m = (e.getMostSpecificCause() != null) ? e.getMostSpecificCause().getMessage() : "";
+
+            if (m.contains("uk_member_email")) msg = "이미 가입된 이메일입니다.";
+            else if (m.contains("uk_member_login")) msg = "이미 존재하는 ID가 있습니다.";
+
+            throw new RuntimeException(msg);
         }
 
         // 가입축하 메일
@@ -179,4 +226,21 @@ public class MemberServiceImpl implements MemberService {
         int result = memberDAO.adminUpdateMemberGrade(param);
         if (result != 1) throw new RuntimeException("회원 등급 변경 실패");
     }
+
+	@Override
+	public LoginResult loginCheck(String loginId, String password) {
+		Member member = memberDAO.selectByLoginId(loginId);
+		
+		if(member == null) return LoginResult.NOT_FOUND;
+		if("BLOCKED".equals(member.getStatus())) return LoginResult.BLOCKED;
+		if(member.getPasswordHash() == null) return LoginResult.SOCIAL_ACCOUNT;
+		
+		if(!PasswordUtil.matches(password, member.getPasswordHash())) return LoginResult.WRONG_PASSWORD;
+		return LoginResult.SUCCESS;
+	}
+
+	@Override
+	public Member selectMyPage(Integer memberId) {
+		return memberDAO.selectById(memberId);
+	}
 }

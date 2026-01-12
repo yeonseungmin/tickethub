@@ -46,6 +46,12 @@
 		
 	</select>
 	
-	
+	<select id="selectById" parameterType="int" resultMap="reviewMapForBestReview">
+		select review_id, work_id, hit, review_like_count, review_title, review_content, review_state, rating
+	    , member_id as memberId
+	    , DATE_FORMAT(review_regdate, '%Y.%m.%d') as review_regdate
+	    from review
+	    where review_id = #{review_id}
+	</select>
 	
 </mapper>
