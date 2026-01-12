@@ -1,5 +1,6 @@
 package com.ch.tickethub.model.member;
 
+import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ch.tickethub.dto.Member;
+import com.ch.tickethub.exception.DuplicateLoginIdException;
 import com.ch.tickethub.model.grade.GradeDAO;
 import com.ch.tickethub.util.MailSender;
 
@@ -122,6 +124,10 @@ public class MemberServiceImpl implements MemberService {
             throw new RuntimeException("이메일은 필수입니다");
         }
 
+        if(memberDAO.existsLoginId(member.getLoginId()) > 0) {
+        	throw new DuplicateLoginIdException("이미 존재하는 ID가 있습니다.");
+        }
+        
         // 기본값 채우기
         if (member.getStatus() == null || member.getStatus().trim().isEmpty()) {
             member.setStatus("NORMAL");
@@ -136,13 +142,17 @@ public class MemberServiceImpl implements MemberService {
         }
         member.setGradeId(welcomeGradeId);
         
-        int result = memberDAO.insert(member);
-        if (result != 1) {
-            throw new RuntimeException("회원가입 실패");
+        try {
+            int result = memberDAO.insert(member);
+            if (result != 1) {
+                throw new RuntimeException("회원가입 실패");
+            }
+        } catch (org.springframework.dao.DuplicateKeyException e) {
+            throw new DuplicateLoginIdException("이미 존재하는 ID가 있습니다.");
         }
-
         // 가입축하 메일
         mailSender.send(member.getEmail(), "Tickethub 가입을 환영합니다", "<h3>가입 완료</h3>");
+      
     }
 
     @Override
