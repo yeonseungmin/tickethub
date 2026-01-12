@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ch.tickethub.dto.Review;
+import com.ch.tickethub.exception.ReviewException;
 
 @Service
 public class ReviewServiceImpl implements ReviewService{
@@ -14,9 +15,8 @@ public class ReviewServiceImpl implements ReviewService{
 	ReviewDAO reviewDAO;
 
 	@Override
-	public void regist(Review review) {
-		// TODO Auto-generated method stub
-		
+	public void regist(Review review) throws ReviewException{
+		reviewDAO.insert(review);
 	}
 
 	@Override

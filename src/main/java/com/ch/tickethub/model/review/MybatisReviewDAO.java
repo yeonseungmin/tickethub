@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.ch.tickethub.dto.Review;
+import com.ch.tickethub.exception.ReviewException;
 
 @Repository
 public class MybatisReviewDAO implements ReviewDAO{
@@ -17,8 +18,13 @@ public class MybatisReviewDAO implements ReviewDAO{
 	SqlSessionTemplate sqlSessionTemplate;
 	
 	@Override
-	public void insert(Review review) {
-		// TODO Auto-generated method stub
+	public void insert(Review review) throws ReviewException{
+		try {
+			sqlSessionTemplate.insert("Review.insert", review);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ReviewException("리뷰 등록 과정 중 오류 발생", e);
+		}
 		
 	}
 

@@ -225,7 +225,7 @@
         $(".btn-round-select").removeClass("active");
         $(element).addClass("active");
         
-        console.log("클래스 추가 완료:", $(element).attr("class")); // active가 들어있는지 확인
+        //console.log("클래스 추가 완료:", $(element).attr("class")); // active가 들어있는지 확인
         
         updateInfo(roundId);
     }
@@ -336,8 +336,46 @@
     }
     // 관람후기 함수 시작
     function registReview(btn) {
+    	const reviewData = {
+    	        review_title: $("input[placeholder='제목을 입력해주세요']").val(),
+    	        //$("[attribute*='value']") 'value'를 포함하는 
+    	        review_content: $("textarea[placeholder*='관람 후기']").val(),
+    	        rating: parseInt($("#selected-rating").text()),
+    	        work: {
+    	            work_id: work.work_id 
+    	        }
+    	        // member_id는 서버 세션에서 꺼내는 것이 낫다.
+    	};
     	
-    	console.log("review 등록하기 !");
+    	if(reviewData.review_content == "" || reviewData.review_title == ""){
+    		alert("누락된 입력");
+    		return;
+    	}
+    	
+    	$.ajax({
+    	    url: "/detail/review/regist",
+    	    method: "POST",
+    	    contentType: "application/json",
+    	    data: JSON.stringify(reviewData),
+    	    success:function(result, status, xhr) {
+    	    	alert(result.message);
+    	        getReviewList(1); // 목록 새로고침
+    	        $("input[placeholder='제목을 입력해주세요']").val("");
+    	        $("textarea[placeholder*='관람 후기']").val("");
+    	    },
+    	    error:function(xhr, status, err) {
+    	        // 서버가 401을 보냈다면 (세션 만료 등)
+    	        if (xhr.status === 401) {
+    	        	let obj = JSON.parse(xhr.responseText);
+    	        	if (confirm(obj.message)) {
+                        location.href = "/auth/login";
+                    }
+    	        } else {
+    	        	let obj = JSON.parse(xhr.responseText);
+    	            alert(obj.message);
+    	        }
+    	    }
+    	});
     }
     
     function registReReview(btn) {
@@ -407,7 +445,6 @@
 	}
 	
 	function deleteComment(btn, type) {
-		
 		if (type == "review") {
 			let id = $(btn).closest("li").val();
 			console.log("삭제할 review_id는 ", id);
@@ -424,7 +461,7 @@
 		paging.init(reviewList, currentPage);
 		let num = paging.num;
 		let curPos = paging.curPos;
-		console.log(curPos);
+		//console.log(curPos);
 		let reviewTag = "";
 		
 		for (let i = 0; i < paging.pageSize; i++) {
@@ -556,8 +593,8 @@
 			</li>
 			`;
 		}
-		console.log("totalPage는 ", paging.totalPage);
-		console.log("lastPage는 ", paging.lastPage);
+		//console.log("totalPage는 ", paging.totalPage);
+		//console.log("lastPage는 ", paging.lastPage);
 		
 		paginationTag += `<li class="page-item`;
 		if(paging.lastPage == paging.totalPage){
@@ -583,8 +620,6 @@
 	function getReviewList(currentPage, orderType="latest") {
 		$(".btn-group .btn").removeClass("active");
 	    $(`.\${orderType}`).addClass("active");
-	    
-	    
 	    
 		$.ajax({
 			url:"/detail/review?work_id=" + work.work_id + "&orderType=" + orderType,
