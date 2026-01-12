@@ -533,7 +533,7 @@
 		                <span class="text-muted text-sm ml-2 review-hit">조회 \${review.hit}</span>
 		            </div>`;
 
-		    // 작성자 본인 여부에 따른 버튼 분기
+		    // 만일 세션 멤버와 같다면? self 신고는 선 넘었지.
 		    if (memberId == review.member.memberId) {
 		        reviewTag += `
 		            <div>

@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="ReReview">
-	<select id="selectByReviewId" parameterType="int" resultType="ReReview">
+	
+	<resultMap id = "reReviewMap" type="ReReview">
+		<id 		property="re_review_id" 				column="re_review_id" />
+		<result property="re_review_content" 		column="re_review_content" />
+		<result property="re_review_regdate" 		column="re_review_regdate" />
+		
+		<association column="memberId"	property="member"		javaType="Member"
+		select = "Member.selectForReview"/>
+	</resultMap>
+
+	<select id="selectByReviewId" parameterType="int" resultMap="reReviewMap">
 		select re_review_id, re_review_content
 		, DATE_FORMAT(re_review_regdate, '%Y.%m.%d') as re_review_regdate
-		, member_id
+		, member_id as memberId
 		from re_review
 		where review_id = #{review_id}
 		order by re_review_regdate desc
