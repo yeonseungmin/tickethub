@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import com.ch.tickethub.dto.MainBanner;
 import com.ch.tickethub.dto.HotWork;
 import com.ch.tickethub.dto.OpeningWork;
+import com.ch.tickethub.dto.BestReview;
 import com.ch.tickethub.dto.GenreRanking;
 import com.ch.tickethub.model.mainpage.MainBannerService;
 import com.ch.tickethub.model.mainpage.HotWorkService;
 import com.ch.tickethub.model.mainpage.OpeningWorkService;
+import com.ch.tickethub.model.bestreview.BestReviewService;
 import com.ch.tickethub.model.mainpage.GenreRankingService;
 
 @Controller
@@ -30,6 +32,9 @@ public class MainController {
 
 	@Autowired
 	private GenreRankingService genreRankingService;
+	
+	@Autowired
+	private BestReviewService bestReviewService;
 
 	@GetMapping("/")
 	public String getMain(Model model) {
@@ -45,6 +50,9 @@ public class MainController {
 
 		List<GenreRanking> genreRankingList = genreRankingService.getList();
 		model.addAttribute("genreRankingList", genreRankingList);
+		
+		List<BestReview> bestReviewList = bestReviewService.getList();
+		model.addAttribute("bestReviewList", bestReviewList);
 
 		return "ticket/index";
 	}

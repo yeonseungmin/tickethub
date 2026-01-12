@@ -31,6 +31,7 @@
 		<typeAlias type = "com.ch.tickethub.dto.HotWork" alias = "HotWork"/>
 		<typeAlias type = "com.ch.tickethub.dto.OpeningWork" alias = "OpeningWork"/>
 		<typeAlias type = "com.ch.tickethub.dto.GenreRanking" alias = "GenreRanking"/>
+		<typeAlias type = "com.ch.tickethub.dto.BestReview" alias = "BestReview"/>
 
 	</typeAliases>
 
@@ -57,6 +58,7 @@
 		<mapper resource = "com/ch/tickethub/config/mybatis/HotWorkMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/OpeningWorkMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/GenreRankingMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/BestReviewMapper.xml"/>
 		
 	</mappers>
 

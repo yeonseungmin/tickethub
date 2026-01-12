@@ -16,17 +16,16 @@ public class MybatisBestReviewDAO implements BestReviewDAO{
 	
 	@Override
 	public List<BestReview> selectAll() {
-		return null;
+		return sqlSessionTemplate.selectList("BestReview.selectAll");
 	}
 
 	@Override
 	public void insert(BestReview bestReview) {
-		
+		sqlSessionTemplate.insert("BestReview.insert", bestReview);
 	}
 
 	@Override
 	public void delete(int bestreview_id) {
-		
+		sqlSessionTemplate.delete("BestReview.delete", bestreview_id);
 	}
-
 }

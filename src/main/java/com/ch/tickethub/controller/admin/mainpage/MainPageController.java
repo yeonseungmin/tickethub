@@ -220,7 +220,6 @@ public class MainPageController {
 	// ============ 베스트 리뷰 관리 ============
 	
 	@GetMapping("/bestreview/bestreview")
-	@ResponseBody
 	public String getBestReview() {
 		return "admin/mainpage/bestreview/bestreview";
 	}

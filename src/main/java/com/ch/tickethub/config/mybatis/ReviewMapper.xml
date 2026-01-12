@@ -25,6 +25,24 @@
 	 	
 	</resultMap>
 	
+	<resultMap type="Review" id="reviewMapForBestReview">
+		<id column="review_id"					property="review_id"/>
+		<result column="work_id"					property="work.work_id"/>
+		<result column="hit"						property="hit"/>
+		<result column="review_like_count"	property="review_like_count"/>
+		<result column="review_title"			property="review_title"/>
+		<result column="review_content"		property="review_content"/>
+		<result column="review_state"			property="review_state"/>	
+		<result column="rating"					property="rating"/>	
+		<result column="review_regdate"		property="review_regdate"/>
+		
+	 	<association column="memberId" property="member"  javaType="Member"
+	 	select = "Member.selectForReview"/>
+	 	<association column="work_id" property="work" javaType="Work" 
+        select="Work.select"/>
+	
+	</resultMap>
+	
 	<select id="selectByWorkId" parameterType="int" resultMap="reviewMapForWork">
 		select review_id, work_id, hit, review_like_count, review_title, review_content, review_state, rating
 		, member_id as memberId
@@ -34,6 +52,12 @@
 		order by review_regdate desc
 	</select>
 	
-	
+	<select id="selectById" parameterType="int" resultMap="reviewMapForBestReview">
+		select review_id, work_id, hit, review_like_count, review_title, review_content, review_state, rating
+	    , member_id as memberId
+	    , DATE_FORMAT(review_regdate, '%Y.%m.%d') as review_regdate
+	    from review
+	    where review_id = #{review_id}
+	</select>
 	
 </mapper>
