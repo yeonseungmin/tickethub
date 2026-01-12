@@ -1,6 +1,8 @@
 package com.ch.tickethub.model.review;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +23,12 @@ public class MybatisReviewDAO implements ReviewDAO{
 	}
 
 	@Override
-	public List<Review> selectByWorkId(int work_id) {
+	public List<Review> selectByWorkId(int work_id, String orderType) {
+		Map<String, Object> map = new HashMap();
+		map.put("work_id", work_id);
+		map.put("orderType", orderType);
 		
-		return sqlSessionTemplate.selectList("Review.selectByWorkId", work_id);
+		return sqlSessionTemplate.selectList("Review.selectByWorkId", map);
 	}
 
 }

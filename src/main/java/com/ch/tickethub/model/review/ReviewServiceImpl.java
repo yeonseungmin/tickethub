@@ -20,9 +20,9 @@ public class ReviewServiceImpl implements ReviewService{
 	}
 
 	@Override
-	public List<Review> getListByWorkId(int work_id) {
+	public List<Review> getListByWorkId(int work_id, String orderType) {
 		
-		return reviewDAO.selectByWorkId(work_id);
+		return reviewDAO.selectByWorkId(work_id, orderType);
 	}
 
 }

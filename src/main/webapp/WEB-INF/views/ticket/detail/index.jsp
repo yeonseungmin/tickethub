@@ -31,6 +31,7 @@
 <% System.out.println(jsonWork); %>
 <script src="/static/assets/js/Util.js"></script>
 <script src="/static/assets/js/Paging.js"></script>
+<script src="/static/assets/js/MoneyConverter.js"></script>
 <script>
 	let currentDate;
 	// 오늘 날짜 최소가 되는 달
@@ -43,6 +44,8 @@
 	
 	// 예비용. 접속자의 멤버 아이디가 1이라면? 나중에 session으로 교체
 	let memberId = 1;
+	
+	let moneyConverter = new MoneyConverter();
 </script>
 <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=<%=naverMapClientId%>"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -349,12 +352,13 @@
         let $span = $(btn).find('span');
         let count = parseInt($span.text());
         let review_id = $(btn).closest("li").val();
-        console.log("좋아요를 늘릴 review_id는 ", review_id);
         
         if ($icon.hasClass('far')) { // 좋아요 안 누른 상태
             $icon.removeClass('far').addClass('fas text-primary'); // 채워진 엄지
             $span.text(count + 1);
             $span.addClass('text-primary font-weight-bold');
+            
+        	console.log("좋아요를 늘릴 review_id는 ", review_id);
         } else { // 이미 누른 상태
             $icon.removeClass('fas text-primary').addClass('far'); // 빈 엄지
             $span.text(count - 1);
@@ -408,7 +412,7 @@
 		
 	}
 	
-	function displayReviewList(currentPage) {
+	function displayReviewList(currentPage, orderType) {
 		
 		paging = new Paging();
 		paging.init(reviewList, currentPage);
@@ -417,110 +421,6 @@
 		console.log(curPos);
 		let reviewTag = "";
 		
-/* 		for(let i = 0; i < paging.pageSize; i++){
-			if(num < 1) break;
-			num--;
-			let review = reviewList[curPos++];
-			// review-item이 review_id를 가지는 것이 낫다. 쓰는 곳이 많음.
-			reviewTag += `									        
-			<li class="review-item border-bottom py-3" value="`;
-			reviewTag += review.review_id + `">
-				<div class="d-flex justify-content-between align-items-end mb-2">
-		            <div>
-		                <span class="text-warning mr-1">`;
-			for(let j = 0; j < review.rating; j++){
-				reviewTag += `<i class="fas fa-star"></i>`;
-			}
-			
-			reviewTag += `</span>`;
-			
-			reviewTag += `
-		                <strong class="text-dark mr-2">`;
-			reviewTag += review.member.loginId + `</strong>`;
-			reviewTag += `
-		                <span class="text-muted text-sm">`;
-			reviewTag += review.review_regdate + `</span>`;
-			// 조회수 review-hit
-			reviewTag += `
-		                <span class="text-muted text-sm ml-2 review-hit">`;
-			reviewTag += `조회 ` + review.hit + `</span>
-		            </div>`;
-				// 만일 세션 멤버와 같다면? self 신고는 선 넘었지.
-				if(memberId == review.member.memberId) {
-					reviewTag += `
-					<div>
-	                    <button class="btn btn-xs btn-link text-muted p-0" onclick="deleteComment(this, 'review')">삭제</button>
-	                </div>
-				</div>
-	                `;
-				} else {
-					reviewTag += `
-				            <div>
-				                <button class="btn btn-xs btn-link text-danger p-0 ml-2" onclick="report(this)" value="
-				                `;
-					reviewTag += review.member.memberId + `">
-				                    <i class="fas fa-exclamation-circle"></i> 신고
-				                </button>
-				            </div>
-				        </div>
-				        `;					
-				}
-			reviewTag += `
-		        <div class="font-weight-bold text-dark mb-1" style="font-size: 1.1rem;">`;
-			reviewTag += review.review_title + `
-		        </div>`;
-			reviewTag += `
-		        <div class="review-text-clamp text-dark mb-1" style="white-space: pre-wrap;">`;
-			reviewTag += review.review_content + `
-				</div>`;
-			reviewTag += `
-		        <button class="btn-more" onclick="toggleReviewText(this)">더보기 <i class="fas fa-chevron-down"></i></button>`;
-			reviewTag += `
-		        <div class="review-actions mt-1">
-		            <button class="btn btn-xs btn-light border mr-1" onclick="toggleLikeReview(this)">
-		                <i class="far fa-thumbs-up"></i> <span>`;
-			reviewTag += review.review_like_count + `</span>
-		            </button>`;
-			reviewTag += `
-		            <button class="btn btn-xs btn-light border" onclick="toggleReplyForm(`;
-			reviewTag += review.review_id + `)">
-		                답글 달기
-		            </button>
-		        </div>`;
-			reviewTag += `
-		        <div id="reply-form-`;
-			reviewTag += review.review_id + `" class="reply-form-container mt-3" style="display: none;">
-		            <div class="card bg-light border-0">
-		                <div class="card-body p-2 d-flex">
-		                    <textarea class="form-control form-control-sm mr-2" rows="2" placeholder="답글을 입력하세요... (최대 150자)"></textarea>
-		                    <button class="btn btn-sm btn-secondary" style="width: 60px;" onclick="registReReview(this)">등록</button>
-		                </div>
-		            </div>
-		        </div>
-		        `;
-			// 여기서부터 일단 나중에
-			reviewTag += `
-		        <div class="reply-list mt-3 pl-4 bg-light rounded p-3">
-		            <div class="reply-item d-flex">
-		                <div class="mr-2 text-muted"><i class="fas fa-level-up-alt fa-rotate-90"></i></div>
-		                <div class="w-100">
-		                    <div class="d-flex justify-content-between mb-1">
-		                        <div>
-		                            <span class="font-weight-bold text-sm">chicago00</span>
-		                            <span class="text-muted text-xs ml-2">2025.01.29</span>
-		                        </div>
-				                <div>
-				                    <button class="btn btn-xs btn-link text-muted p-0">삭제</button>
-				                </div>
-		                    </div>
-		                    <p class="text-sm mb-1">저도 주차 때문에 고생했는데 공감합니다 ㅠㅠ 대중교통이 답이에요.</p>
-		                </div>
-		            </div>
-		        </div>
-		    </li>
-		    `;
-		}
-		 */
 		for (let i = 0; i < paging.pageSize; i++) {
 		    if (num < 1) break;
 		    num--;
@@ -621,25 +521,79 @@
 		let reviewArea = $(".review-list");
 		reviewArea.empty();
 		reviewArea.append(reviewTag);
-    
+		
+		
+		let paginationTag = "";
+		
+		paginationTag += `<li class="page-item`;
+		if(paging.firstPage == 1){
+			 paginationTag += ` disabled`;
+		}
+		paginationTag += `">
+			<a class="page-link" href="javascript:void(0)" onclick="getReviewList(\${paging.firstPage - 1}, '\${orderType}')">이전</a></li>
+		`;
+		
+		for(let pageNumber = paging.firstPage; pageNumber <= paging.lastPage; pageNumber++) {
+			// href="javascript:void(0)" 의미 없는 이동 막음
+			paginationTag += `<li class="page-item`;
+			if(pageNumber == currentPage) paginationTag += ` active`;
+			paginationTag += `">
+			    <a class="page-link" href="javascript:void(0)" onclick="getReviewList(\${pageNumber}, '\${orderType}')">\${pageNumber}</a>
+			</li>
+			`;
+		}
+		console.log("totalPage는 ", paging.totalPage);
+		console.log("lastPage는 ", paging.lastPage);
+		
+		paginationTag += `<li class="page-item`;
+		if(paging.lastPage == paging.totalPage){
+			paginationTag += ` disabled`;
+		}
+		paginationTag += `">
+			<a class="page-link" href="javascript:void(0)" onclick="getReviewList(\${paging.lastPage + 1}, '\${orderType}')">다음</a></li>
+		`;
+		
+		
+/* 	    <ul class="pagination justify-content-center mt-4">
+	        <li class="page-item disabled"><a class="page-link" href="#">이전</a></li>
+	        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+	        <li class="page-item"><a class="page-link" href="#">2</a></li>
+	        <li class="page-item"><a class="page-link" href="#">3</a></li>
+	        <li class="page-item"><a class="page-link" href="#">다음</a></li>
+    	</ul> */
+		let paginationArea = $(".pagination");
+		paginationArea.empty();
+		paginationArea.append(paginationTag);
 	}
 	
+	function getReviewList(currentPage, orderType="latest") {
+		$(".btn-group .btn").removeClass("active");
+	    $(`.\${orderType}`).addClass("active");
+	    
+	    
+	    
+		$.ajax({
+			url:"/detail/review?work_id=" + work.work_id + "&orderType=" + orderType,
+			method:"GET",
+			success:function(result){
+				console.log("관람후기 클릭됨!");
+				reviewList = result;
+				console.log(reviewList);
+				
+				$($(".review-count")[0]).text("리뷰 " + moneyConverter.format(reviewList.length) + "개");
+				$($(".review-count")[1]).text(moneyConverter.format(reviewList.length));
+				
+				displayReviewList(currentPage, orderType);
+			}
+		});
+	}
 	
 	// 관람후기 함수 끝
     
 	function loadTab(info) {
 		
 		if(info == "review"){
-			$.ajax({
-				url:"/detail/review?work_id=" + work.work_id,
-				method:"GET",
-				success:function(result){
-					console.log("관람후기 클릭됨!");
-					reviewList = result;
-					console.log(reviewList);
-					displayReviewList(1);
-				}
-			});
+			getReviewList(1);
 		}
 	}
 	
@@ -698,7 +652,7 @@
             });
             
             // 점수 텍스트 업데이트 (별 하나당 2점으로 계산 예시)
-            $("#selected-rating").text(rating * 2);
+            $("#selected-rating").text(rating);
         });
     })
 	
@@ -735,8 +689,8 @@
                         <div class="d-flex align-items-center">
                             <span class="badge badge-warning text-white mr-2 px-2 py-1" style="font-size: 14px;"><%=work.getGenre().getGenre_name() %> 1위</span>
                             <span class="text-warning mr-1"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></span>
-                            <span class="font-weight-bold text-dark" style="font-size: 18px;">9.8</span>
-                            <span class="text-muted ml-2 text-sm">(리뷰 1,240개)</span>
+                            <span class="font-weight-bold text-dark" style="font-size: 18px;">4.8</span>
+                            <span class="text-muted ml-2 text-sm review-count">(리뷰 1,240개)</span>
                         </div>
                     </div>
 
@@ -850,7 +804,7 @@
 									                    <i class="fas fa-star" data-value="4"></i>
 									                    <i class="far fa-star" data-value="5"></i>
 									                </div>
-									                <span class="ml-2 font-weight-bold" id="selected-rating">8</span>점
+									                <span class="ml-2 font-weight-bold" id="selected-rating">4</span>점
 									            </div>
 									            
 									            <input type="text" class="form-control mb-2" placeholder="제목을 입력해주세요">
@@ -864,11 +818,11 @@
 										
 										<!-- review sequence -->
 									    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
-									        <h5 class="font-weight-bold m-0">총 <span class="text-primary">1,240</span>개의 후기</h5>
+									        <h5 class="font-weight-bold m-0">총 <span class="text-primary review-count">1,240</span>개의 후기</h5>
 									        <div class="btn-group btn-group-sm">
-									            <button class="btn btn-outline-secondary active">최신순</button>
-									            <button class="btn btn-outline-secondary">평점순</button>
-									            <button class="btn btn-outline-secondary">공감순</button>
+									            <button class="btn btn-outline-secondary latest" onclick="getReviewList(1, 'latest')">최신순</button>
+									            <button class="btn btn-outline-secondary rating" onclick="getReviewList(1, 'rating')">평점순</button>
+									            <button class="btn btn-outline-secondary likes" onclick="getReviewList(1, 'likes')">공감순</button>
 									        </div>
 									    </div>
 									
