@@ -8,6 +8,17 @@
 <%@ include file="../../ticket/inc/header.jsp"%>
 <%@ include file="../../ticket/inc/head_link.jsp"%>
 
+<%
+  String alertMsg = (String) request.getAttribute("alertMsg");
+  if (alertMsg != null && !alertMsg.trim().isEmpty()) {
+%>
+<script>
+  alert("<%= alertMsg.replace("\"", "\\\"") %>");
+</script>
+<%
+  }
+%>
+
 <style>
 .auth-card{
 	background:#fff;

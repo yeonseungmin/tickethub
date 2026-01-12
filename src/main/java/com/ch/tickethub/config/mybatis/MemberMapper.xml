@@ -197,4 +197,10 @@
 		from member
 		where login_id=#{value}
 	</select>	
+	
+	<select id="existsEmail" resultType="int">
+    	SELECT COUNT(*)
+    	FROM member
+    	WHERE email = #{email}
+</select>
 </mapper>
