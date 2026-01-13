@@ -4,8 +4,8 @@
 
 	<!-- 등록(select key) -->
 	<insert id="insert" parameterType="MainBanner">
-		insert into mainbanner(work_id, main_image_url)
-		values (#{work_id}, #{main_image_url})
+		insert into mainbanner(work_id, main_image_url, display_order)
+		values (#{work_id}, #{main_image_url}, #{display_order})
 		
 		<selectKey keyColumn="mainbanner_id" resultType="int" order="AFTER" keyProperty="mainbanner_id">
 			select last_insert_id() as mainbanner_id
@@ -16,6 +16,7 @@
 		<id property="mainbanner_id" column="mainbanner_id"/>
 		<result property="main_image_url"  column="main_image_url"/>
 		<result property="work_id" column="work_id" />
+		<result property="display_order" column="display_order" />
 		
 		<!-- 사실 이게 더 불편한데.. 일단 배운대로 쿼리 재사용 한 번 해본다 의미 -->
 		<association column="work_id" property="work" javaType="Work" select="Work.select"></association>
@@ -23,13 +24,13 @@
 	
 	<!-- 공통 sql -->
 	<sql id="sql_select">
-		select mainbanner_id, work_id, main_image_url from mainbanner
+		select mainbanner_id, work_id, main_image_url, display_order from mainbanner
 	</sql>
 	
 	<!-- 전체 조회 -->
 	<select id="selectAll" resultMap="MainBannerMap">
 		<include refid="sql_select"></include>
-		order by mainbanner_id desc
+		order by display_order asc, mainbanner_id desc
 	</select>
 	
 	<!-- 삭제 -->
@@ -43,4 +44,9 @@
 		where mainbanner_id = #{mainbanner_id}
 	</select>
 	
+	<!-- 순서 업데이트 -->
+	<update id="updateOrder" parameterType="MainBanner">
+		update mainbanner set display_order = #{display_order} where mainbanner_id = #{mainbanner_id}
+	</update>
+
 </mapper>

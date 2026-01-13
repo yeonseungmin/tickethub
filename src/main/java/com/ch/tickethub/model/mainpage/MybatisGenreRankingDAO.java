@@ -28,4 +28,9 @@ public class MybatisGenreRankingDAO implements GenreRankingDAO {
     public void delete(int genreranking_id) {
         sqlSessionTemplate.delete("GenreRanking.delete", genreranking_id);
     }
+
+    @Override
+    public void updateOrder(GenreRanking genreRanking) {
+        sqlSessionTemplate.update("GenreRanking.updateOrder", genreRanking);
+    }
 }

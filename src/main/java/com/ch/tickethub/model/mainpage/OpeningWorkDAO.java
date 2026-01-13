@@ -12,4 +12,6 @@ public interface OpeningWorkDAO {
 
     public void delete(int openingwork_id);
 
+    public void updateOrder(OpeningWork openingWork);
+
 }

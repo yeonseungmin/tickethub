@@ -12,8 +12,6 @@
     <title>Grade Management Admin</title>
     <link rel="stylesheet" href="<%=contextPath%>/static/assets/css/seat.css?v=<%=System.currentTimeMillis()%>">
     
-<!--     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
-    
     <script>
         var contextPath = '<%=contextPath%>';
     </script>
@@ -56,7 +54,10 @@
     <div class="admin-seat-wrapper">
         <div class="seat-map-container">
             <div class="stage-label">STAGE</div>
-            <div id="seatArea"></div>
+            <div id="seatArea">
+	             <div class="floor-label" style="top: 0px;">─── 1st FLOOR ───</div>
+	            <div class="floor-label floor-2-label" style="top: 600px;">─── 2nd FLOOR ───</div>
+            </div>
         </div>
 
         <div class="management-side-panel">
@@ -118,82 +119,95 @@
 	 }
 
 	 /**
-	  * 2. 등급 관리 전용 렌더링 함수
+	  * 2. 등급 관리 전용 렌더링 함수 (층 표시 복구 버전)
 	  */
-	 function renderStatusMap(seatList) {
-	     var $container = $('#seatArea').empty();
-	     
-	     // [A] 구역 경계선 그리기 (기존 로직 유지)
-	     var groups = {};
-	     seatList.forEach(function(seat) {
-	         if (!groups[seat.seat_group_id]) {
-	             groups[seat.seat_group_id] = {
-	                 name: seat.group_name || '구역',
-	                 minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity
-	             };
-	         }
-	         var curX = seat.pos_x + (seat.seat_x.charCodeAt(0) - 65) * seat.col_gap;
-	         var curY = seat.pos_y + (seat.seat_y - 1) * seat.row_gap;
-	         var g = groups[seat.seat_group_id];
-	         if (curX < g.minX) g.minX = curX; if (curY < g.minY) g.minY = curY;
-	         if (curX > g.maxX) g.maxX = curX; if (curY > g.maxY) g.maxY = curY;
-	     });
+	  function renderStatusMap(seatList) {
+		     var $container = $('#seatArea').empty();
+		     
+		     $container.append('<div class="floor-label" style="top: 0px;">─── 1st FLOOR ───</div>');
+		     $container.append('<div class="floor-label floor-2-label" style="top: 600px;">─── 2nd FLOOR ───</div>');
+		     
+		     if (!seatList || seatList.length === 0) return;
 
-	     Object.keys(groups).forEach(function(id) {
-	         var g = groups[id];
-	         $('<div class="group-boundary-box"></div>')
-	             .css({
-	                 left: (g.minX - 20) + 'px', 
-	                 top: (g.minY - 20) + 'px',
-	                 width: (g.maxX - g.minX + 72) + 'px', 
-	                 height: (g.maxY - g.minY + 72) + 'px'
-	             })
-	             .append($('<div class="group-name-label"></div>').text(g.name))
-	             .appendTo($container);
-	     });
+		     // [A] 구역 데이터 정리 및 박스 생성
+		     var groups = {};
+		     seatList.forEach(function(seat) {
+		         if (!groups[seat.seat_group_id]) {
+		             groups[seat.seat_group_id] = {
+		                 name: seat.group_name || '구역',
+		                 angle: seat.angle || 0, // [추가] angle 값 수집
+		                 posX: seat.pos_x,       // 구역의 기준 X
+		                 posY: seat.pos_y,       // 구역의 기준 Y
+		                 minRelX: Infinity, minRelY: Infinity, maxX: -Infinity, maxY: -Infinity
+		             };
+		         }
+		         
+		         // 상대 좌표 계산 (박스 크기를 구하기 위함)
+		         var rx = (seat.seat_x.charCodeAt(0) - 65) * seat.col_gap;
+		         var ry = (seat.seat_y - 1) * seat.row_gap;
+		         var g = groups[seat.seat_group_id];
+		         if (rx < g.minRelX) g.minRelX = rx; if (ry < g.minRelY) g.minRelY = ry;
+		         if (rx > g.maxX) g.maxX = rx; if (ry > g.maxY) g.maxY = ry;
+		     });
 
-	     // [B] 좌석 그리기
-	     seatList.forEach(function(seat) {
-	         var finalX = seat.pos_x + (seat.seat_x.charCodeAt(0) - 65) * seat.col_gap;
-	         var finalY = seat.pos_y + (seat.seat_y - 1) * seat.row_gap;
-	         
-	         var rawGrade = seat.grade_name || "A"; 
-	         var gName = rawGrade.toLowerCase();
-	         
-	         var gradeType = (['vip', 'r', 's'].indexOf(gName) > -1) ? gName : 'a';
-	         var imgUrl = contextPath + "/static/assets/seatImg/available_" + gradeType + ".jpg";
+		     Object.keys(groups).forEach(function(id) {
+		         var g = groups[id];
+		         // [변경] 각 구역 박스를 생성하고 변수에 담습니다. (좌석을 이 안에 넣기 위함)
+		         var $box = $('<div class="group-boundary-box"></div>')
+		             .attr('data-group-id', id)
+		             .css({
+		                 left: g.posX + 'px', 
+		                 top: g.posY + 'px',
+		                 width: (g.maxX + 72) + 'px', // 여백 포함
+		                 height: (g.maxY + 72) + 'px',
+		                 position: 'absolute',
+		                 // [핵심] 회전값 적용
+		                 transform: 'rotate(' + g.angle + 'deg)',
+		                 'transform-origin': '0 0' 
+		             });
 
-	         $('<div class="admin-seat"></div>')
-	             .attr({ 
-	                 'data-seat-id': seat.seat_id,
-	                 'data-grade': rawGrade.toUpperCase()
-	             })
-	             .css({ 
-	                 left: finalX + 'px', 
-	                 top: finalY + 'px', 
-	                 backgroundImage: "url('" + imgUrl + "')" 
-	             })
-	             .on('click', function(e) {
-	                 e.stopPropagation();
-	                 if (e.ctrlKey || e.metaKey) {
-	                     var idx = window.selectedSeatIds.indexOf(seat.seat_id);
-	                     if (idx > -1) {
-	                         window.selectedSeatIds.splice(idx, 1);
-	                         $(this).removeClass('selected-multi');
-	                     } else {
-	                         window.selectedSeatIds.push(seat.seat_id);
-	                         $(this).addClass('selected-multi');
-	                     }
-	                 } else {
-	                     $('.admin-seat').removeClass('selected-multi');
-	                     window.selectedSeatIds = [seat.seat_id];
-	                     $(this).addClass('selected-multi');
-	                 }
-	                 updateSelectionInfo(rawGrade.toUpperCase());
-	             })
-	             .appendTo($container);
-	     });
-	 }
+		         $box.append($('<div class="group-name-label"></div>').text(g.name));
+		         $container.append($box);
+		         
+		         // [B] 해당 구역의 좌석들을 박스($box) 내부에 직접 추가
+		         seatList.filter(s => s.seat_group_id == id).forEach(function(seat) {
+		             var relX = (seat.seat_x.charCodeAt(0) - 65) * seat.col_gap + 20;
+		             var relY = (seat.seat_y - 1) * seat.row_gap + 20;
+		             
+		             var rawGrade = seat.grade_name || "A"; 
+		             var gradeType = (['vip', 'r', 's'].indexOf(rawGrade.toLowerCase()) > -1) ? rawGrade.toLowerCase() : 'a';
+		             var imgUrl = contextPath + "/static/assets/seatImg/available_" + gradeType + ".jpg";
+
+		             $('<div class="admin-seat"></div>')
+		                 .attr({ 'data-seat-id': seat.seat_id, 'data-grade': rawGrade.toUpperCase() })
+		                 .css({ 
+		                     left: relX + 'px', 
+		                     top: relY + 'px', 
+		                     backgroundImage: "url('" + imgUrl + "')",
+		                     position: 'absolute'
+		                 })
+		                 .on('click', function(e) {
+		                     e.stopPropagation();
+		                     if (e.ctrlKey || e.metaKey) {
+		                         var idx = window.selectedSeatIds.indexOf(seat.seat_id);
+		                         if (idx > -1) {
+		                             window.selectedSeatIds.splice(idx, 1);
+		                             $(this).removeClass('selected-multi');
+		                         } else {
+		                             window.selectedSeatIds.push(seat.seat_id);
+		                             $(this).addClass('selected-multi');
+		                         }
+		                     } else {
+		                         $('.admin-seat').removeClass('selected-multi');
+		                         window.selectedSeatIds = [seat.seat_id];
+		                         $(this).addClass('selected-multi');
+		                     }
+		                     updateSelectionInfo(rawGrade.toUpperCase());
+		                 })
+		                 .appendTo($box); // [변경] $container가 아닌 $box에 추가 (그래야 같이 회전함)
+		         });
+		     });
+		 }
 
 	 /**
 	  * 3. 정보창 업데이트 함수 (기존 유지)

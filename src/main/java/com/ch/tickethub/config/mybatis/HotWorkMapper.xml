@@ -4,30 +4,32 @@
 
 	<!-- 등록 -->
 	<insert id="insert" parameterType="HotWork">
-		insert into hotwork(work_id)
-		values (#{work_id})
+		insert into hotwork(work_id, display_order)
+		values (#{work_id}, #{display_order})
 		
 		<selectKey keyColumn="hotwork_id" resultType="int" order="AFTER" keyProperty="hotwork_id">
 			select last_insert_id() as hotwork_id
 		</selectKey>
 	</insert>
 	
+	<!-- work 정보 가져오기 -->
 	<resultMap type="HotWork" id="HotWorkMap">
 		<id property="hotwork_id" column="hotwork_id"/>
 		<result property="work_id" column="work_id" />
+		<result property="display_order" column="display_order" />
 		
 		<association column="work_id" property="work" javaType="Work" select="Work.select"></association>
 	</resultMap>
 	
 	<!-- 공통 sql -->
 	<sql id="sql_select">
-		select hotwork_id, work_id from hotwork
+		select hotwork_id, work_id, display_order from hotwork
 	</sql>
 	
 	<!-- 전체 조회 -->
 	<select id="selectAll" resultMap="HotWorkMap">
 		<include refid="sql_select"></include>
-		order by hotwork_id desc
+		order by display_order asc, hotwork_id desc
 	</select>
 	
 	<!-- 삭제 -->
@@ -35,4 +37,9 @@
 		delete from hotwork where hotwork_id = #{hotwork_id}
 	</delete>
 	
+	<!-- 순서 업데이트 -->
+	<update id="updateOrder" parameterType="HotWork">
+		update hotwork set display_order = #{display_order} where hotwork_id = #{hotwork_id}
+	</update>
+
 </mapper>

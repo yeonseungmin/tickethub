@@ -7,6 +7,7 @@
         <result column="group_name"				 		property="group_name"/>
         <result column="pos_x" 								property="pos_x"/>
         <result column="pos_y" 								property="pos_y"/>
+        <result column="angle" 									property="angle"/>
         <result column="row_gap" 							property="row_gap"/>
         <result column="col_gap" 								property="col_gap"/>
         <result column="direction" 							property="direction"/>
@@ -14,7 +15,7 @@
     </resultMap>
 	
     <sql id="sql_select">
-        SELECT seat_group_id, place_id, group_name, pos_x, pos_y, row_gap, col_gap, direction
+        SELECT seat_group_id, place_id, group_name, pos_x, pos_y, angle, row_gap, col_gap, direction
         FROM seat_group
     </sql>
 
@@ -24,9 +25,9 @@
     </select>
 
     <select id="selectList" resultMap="seatGroupMap"> 
-    	SELECT seat_group_id, group_name, pos_x, pos_y, row_gap, col_gap, place_id
-        FROM seat_group
-        WHERE place_id = #{place_id}
+    	SELECT seat_group_id, place_id, group_name, pos_x, pos_y, angle, row_gap, col_gap 
+	    FROM seat_group 
+	    WHERE place_id = #{place_id}
     </select>
     
     <select id="select" parameterType="int" resultMap="seatGroupMap">
@@ -34,17 +35,20 @@
 	    WHERE seat_group_id = #{seat_group_id}
 	</select>
 	
-	
-	<update id="updateGroupPosition" >
+	<!-- ===================== -->
+    <!-- 좌석 배치 저장 -->
+    <!-- ===================== -->
+	<update id="updateGroupPos">
 	    UPDATE seat_group 
 	    SET pos_x = #{pos_x}, 
-	        pos_y = #{pos_y} 
+	        pos_y = #{pos_y}, 
+	        angle = #{angle}
 	    WHERE seat_group_id = #{seat_group_id}
 	</update>
-	
+
     <insert id="insertGroupByPlace" parameterType="SeatGroup">
-	    INSERT INTO seat_group (place_id, group_name, pos_x, pos_y, row_gap, col_gap)  
-	    VALUES (#{place.place_id}, #{group_name}, #{pos_x}, #{pos_y}, #{row_gap}, #{col_gap})
+	    INSERT INTO seat_group (place_id, group_name, pos_x, pos_y,angle, row_gap, col_gap)  
+	    VALUES (#{place.place_id}, #{group_name}, #{pos_x}, #{pos_y},#{angle}, #{row_gap}, #{col_gap})
 	</insert>
 
     </mapper>

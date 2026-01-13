@@ -30,4 +30,12 @@ public class OpeningWorkServiceImpl implements OpeningWorkService {
     public void remove(int openingwork_id) {
         openingWorkDAO.delete(openingwork_id);
     }
+
+    @Transactional
+    @Override
+    public void updateOrders(List<OpeningWork> openingWorkList) {
+        for (OpeningWork openingWork : openingWorkList) {
+            openingWorkDAO.updateOrder(openingWork);
+        }
+    }
 }

@@ -185,13 +185,11 @@
 		resultType="Member">
 		SELECT
 		member_id as memberId,
-		CONCAT(LEFT(login_id, 3),
-		'*******') as loginId,
+		CONCAT(LEFT(login_id, 3), '*******') as loginId,
 		name,
 		status
 		FROM member
-		where member_id =
-		#{memberId} and status = 'active'
+		where member_id = #{memberId} and status = 'normal'
 	</select>
 
 	<select id="existsLoginId" parameterType="String"

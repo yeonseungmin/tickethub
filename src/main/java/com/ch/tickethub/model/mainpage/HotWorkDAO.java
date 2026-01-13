@@ -12,4 +12,6 @@ public interface HotWorkDAO {
 
     public void delete(int hotwork_id);
 
+    public void updateOrder(HotWork hotWork);
+
 }

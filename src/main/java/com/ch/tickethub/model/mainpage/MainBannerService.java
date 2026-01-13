@@ -9,6 +9,10 @@ import com.ch.tickethub.dto.MainBanner;
 public interface MainBannerService {
 
 	public List<MainBanner> getList();
+
 	public void register(MainBanner mainBanner, MultipartFile file);
+
 	public void remove(int mainbanner_id);
+
+	public void updateOrders(List<MainBanner> mainBannerList);
 }

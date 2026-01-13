@@ -12,4 +12,6 @@ public interface GenreRankingDAO {
 
     public void delete(int genreranking_id);
 
+    public void updateOrder(GenreRanking genreRanking);
+
 }

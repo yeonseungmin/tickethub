@@ -22,7 +22,7 @@
     <!-- useGeneratedKeys pk값 생성시 들고와서 keyProperty 에 넣어주라 -->
     <!-- ===================== -->
 	<insert id="insert" parameterType="Seat" useGeneratedKeys="true" keyProperty="seat_id">
-        INSERT INTO seat (seat_group_id, seat_name, seat_x, seat_y, seat_grade_id,floor)
+        INSERT INTO seat (seat_group_id, seat_name, seat_x, seat_y, seat_grade_id, floor)
         VALUES (#{seat_group_id}, #{seat_name}, #{seat_x}, #{seat_y}, #{seat_grade_id},#{floor})
     </insert>
 
@@ -63,12 +63,7 @@
 	    order by seat_x, seat_y
 	</select>
 	
-	<update id="updateSeatsPositionInGroup">
-	    UPDATE seat 
-	    SET pos_x = #{pos_x}, 
-	        pos_y = #{pos_y} 
-	    WHERE seat_group_id = #{seat_group_id}
-	</update>
+
     
 
 

@@ -57,7 +57,7 @@ public class FileManager {
 		// 임시 디렉토리 또는 메모리상의 파일 정보를 이용하여 실제 디스크에 저장하는 코드.
 		try {
 			multipartFile.transferTo(file);
-			Thread.sleep(10); // 일부러 시간을 지연시킨다. 파일 명을 업로드 시간(밀리세컨드)으로 명명하는데, 1밀리세컨드에 2개 이상 업로드되면 파일명 중복되고 오류남.
+			//Thread.sleep(10); // 일부러 시간을 지연시킨다. 파일 명을 업로드 시간(밀리세컨드)으로 명명하는데, 1밀리세컨드에 2개 이상 업로드되면 파일명 중복되고 오류남.
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new UploadException("파일 저장 실패", e);

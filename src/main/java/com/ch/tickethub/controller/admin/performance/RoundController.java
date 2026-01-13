@@ -72,7 +72,7 @@ public class RoundController {
 		return "admin/performance/round/list";
 	}
 	
-	// MissingServletRequestParameterException.class 값을 제대로 입력 받지 못했을 때의 에러. 난 이것도 처리했다.
+	// MissingServletRequestParameterException.class 값을 제대로 입력 받지 못했을 때의 에러.
 	@ExceptionHandler({RoundException.class, UploadException.class, MissingServletRequestParameterException.class, RoundCastingException.class, SQLIntegrityConstraintViolationException.class})
 	@ResponseBody
 	public ResponseEntity<Map<String, String>> handle(Exception e){
