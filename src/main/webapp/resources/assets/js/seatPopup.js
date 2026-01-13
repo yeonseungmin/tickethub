@@ -5,8 +5,10 @@ window.userReserveIds = [];
 window.userReserveObjs = [];  
 
 const USER_PRICE_MAP = { 
-    'vip': 150000, 'r': 120000, 'r석': 120000, 
-    's': 90000, 's석': 90000, 'a': 60000, 'a석': 60000 
+    'vip': 150000, 
+	'r': 120000, 'r석': 120000, 
+    's': 90000, 's석': 90000,
+	'a': 60000, 'a석': 60000 
 };
 
 // [1] 초기화 함수
@@ -27,11 +29,11 @@ function loadUserSeatLayout(roundId) {
     });
 }
 
-// [3] 좌석 맵 렌더링 (층 표시 + 구역 표시 + 상태 로직 통합)
+// [3] 좌석 맵 렌더링 (층 표시 + 구역 표시 + 상태 로직 + angle 회전 통합)
 function renderUserSeatMap(seatList) {
     const $container = $('#seatArea').empty();
     
-    // 1. 층 표시 추가 (CSS에서 z-index: 1로 설정했으므로 좌석보다 뒤에 깔림)
+    // 1. 층 표시 추가
     $container.append('<div class="floor-label" style="top: 0px;">─── 1st FLOOR ───</div>');
     $container.append('<div class="floor-label floor-2-label" style="top: 700px;">─── 2nd FLOOR ───</div>');
 
@@ -39,61 +41,85 @@ function renderUserSeatMap(seatList) {
 
     let groups = {};
 
+    // 1단계: 구역별 회전값 및 기준 위치 데이터 수집
     seatList.forEach(seat => {
-        // ID 및 좌표 계산
-        const sId = seat.round_seat_id || seat.id || seat.seat_id; 
-        const colIndex = (typeof seat.seat_x === 'string') ? seat.seat_x.charCodeAt(0) - 65 : 0;
-        const finalX = seat.pos_x + (colIndex * seat.col_gap);
-        const finalY = seat.pos_y + ((seat.seat_y - 1) * seat.row_gap);
-        
-        const gradeName = (seat.grade_name || "a").toLowerCase();
-        const seatName = `${seat.group_name || ""} ${seat.seat_x}열 ${seat.seat_y}번`;
-
-        // 구역 경계선 데이터 수집
         if (!groups[seat.seat_group_id]) {
             groups[seat.seat_group_id] = {
                 name: seat.group_name || '구역',
-                minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity
+                angle: seat.angle || 0,   // [추가] 회전 각도
+                posX: seat.pos_x || 0,     // 구역 시작 X
+                posY: seat.pos_y || 0,     // 구역 시작 Y
+                maxRelX: 0,
+                maxRelY: 0
             };
         }
         const g = groups[seat.seat_group_id];
-        if (finalX < g.minX) g.minX = finalX; if (finalY < g.minY) g.minY = finalY;
-        if (finalX > g.maxX) g.maxX = finalX; if (finalY > g.maxY) g.maxY = finalY;
+        const colIndex = (typeof seat.seat_x === 'string') ? seat.seat_x.charCodeAt(0) - 65 : 0;
+        const relX = colIndex * (seat.col_gap || 30);
+        const relY = (seat.seat_y - 1) * (seat.row_gap || 30);
 
-        // 좌석 엘리먼트 생성
-        const $seat = $('<div class="admin-seat"></div>')
-            .attr({ 
-                'data-seat-id': String(sId), 
-                'data-grade': gradeName, 
-                'data-name': seatName 
-            })
-            .css({ left: finalX + 'px', top: finalY + 'px' });
-
-        // 상태별 이미지 적용
-        const status = seat.status || seat.is_reserved; 
-        if (status === 'RESERVED' || status === 'CANCELED' || status === 'Y') {
-            $seat.addClass('reserved').css('background-image', `url(${contextPath}/static/assets/seatImg/sold.jpg)`);
-        } else if (status === 'PREEMPTED' || status === 'P') {
-            $seat.addClass('preempted').css('background-image', `url(${contextPath}/static/assets/seatImg/preempted.jpg)`);
-        } else {
-            const imgSuffix = gradeName.includes('vip') ? 'vip' : gradeName[0];
-            $seat.addClass('available').css('background-image', `url(${contextPath}/static/assets/seatImg/available_${imgSuffix}.jpg)`);
-        }
-        $container.append($seat);
+        if (relX > g.maxRelX) g.maxRelX = relX;
+        if (relY > g.maxRelY) g.maxRelY = relY;
     });
 
-    // 2. 구역 경계선 렌더링
-    Object.keys(groups).forEach(id => {
-        const g = groups[id];
-        $('<div class="group-boundary-box"></div>')
+    // 2단계: 구역 박스 생성 및 그 안에 좌석 배치
+    Object.keys(groups).forEach(groupId => {
+        const g = groups[groupId];
+        
+        // 구역 경계선 박스 (transform으로 회전 적용)
+        const $box = $('<div class="group-boundary-box"></div>')
             .css({ 
-                left: (g.minX - 15) + 'px', 
-                top: (g.minY - 15) + 'px', 
-                width: (g.maxX - g.minX + 55) + 'px', 
-                height: (g.maxY - g.minY + 55) + 'px' 
-            })
-            .append($('<div class="group-name-label"></div>').text(g.name))
-            .appendTo($container);
+                left: g.posX + 'px', 
+                top: g.posY + 'px', 
+                width: (g.maxRelX + 72) + 'px', // 여백 포함
+                height: (g.maxRelY + 72) + 'px',
+                position: 'absolute',
+                // [핵심] 회전값 적용
+                transform: `rotate(${g.angle}deg)`,
+                'transform-origin': '0 0'
+            });
+
+        $box.append($('<div class="group-name-label"></div>').text(g.name));
+        $container.append($box);
+
+        // 해당 구역에 속한 좌석들만 필터링하여 박스 내부(Relative)에 배치
+        seatList.filter(s => s.seat_group_id == groupId).forEach(seat => {
+            const sId = seat.round_seat_id || seat.id || seat.seat_id; 
+            const colIndex = (typeof seat.seat_x === 'string') ? seat.seat_x.charCodeAt(0) - 65 : 0;
+            
+            // 박스 내부 기준 상대 좌표 (+20은 박스 테두리와의 여백)
+            const innerX = (colIndex * (seat.col_gap || 30)) + 20;
+            const innerY = ((seat.seat_y - 1) * (seat.row_gap || 30)) + 20;
+            
+            const gradeName = (seat.grade_name || "a").toLowerCase();
+            const seatName = `${seat.group_name || ""} ${seat.seat_x}열 ${seat.seat_y}번`;
+
+            const $seat = $('<div class="admin-seat"></div>')
+                .attr({ 
+                    'data-seat-id': String(sId), 
+                    'data-grade': gradeName, 
+                    'data-name': seatName 
+                })
+                .css({ 
+                    left: innerX + 'px', 
+                    top: innerY + 'px',
+                    position: 'absolute' 
+                });
+
+            // 상태별 이미지 및 클래스 적용 로직 유지
+            const status = seat.status || seat.is_reserved; 
+            if (status === 'RESERVED' || status === 'CANCELED' || status === 'Y') {
+                $seat.addClass('reserved').css('background-image', `url(${contextPath}/static/assets/seatImg/sold.jpg)`);
+            } else if (status === 'PREEMPTED' || status === 'P') {
+                $seat.addClass('preempted').css('background-image', `url(${contextPath}/static/assets/seatImg/preempted.jpg)`);
+            } else {
+                const imgSuffix = gradeName.includes('vip') ? 'vip' : gradeName[0];
+                $seat.addClass('available').css('background-image', `url(${contextPath}/static/assets/seatImg/available_${imgSuffix}.jpg)`);
+            }
+            
+            // [중요] $container가 아닌 $box에 추가해야 함께 회전합니다.
+            $box.append($seat);
+        });
     });
 }
 

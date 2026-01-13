@@ -27,32 +27,30 @@
         <div class="stage-label">STAGE</div>
         <div id="seatArea"></div>
     </div>
-
+    
     <div class="info-sidebar">
         <div class="selected-info-box">
             <h4>선택 좌석</h4>
             <div id="selected-seats-list">
                 <p class="empty-msg">좌석을 선택해 주세요.</p>
             </div>
-            <hr>
-            <div class="seat-legend">
-			    <span class="legend-item"><img src="<%=contextPath%>/static/assets/seatImg/available_vip.jpg"> VIP</span>
-			    <span class="legend-item"><img src="<%=contextPath%>/static/assets/seatImg/available_r.jpg"> R석</span>
-			    <span class="legend-item"><img src="<%=contextPath%>/static/assets/seatImg/available_s.jpg"> S석</span>
-			    <span class="legend-item"><img src="<%=contextPath%>/static/assets/seatImg/available_a.jpg"> A석</span>
-			    <hr>
-			    <span class="legend-item">
-			        <img src="<%=contextPath%>/static/assets/seatImg/sold.jpg"> 판매완료
-			    </span>
-			    <span class="legend-item">
-			        <img src="<%=contextPath%>/static/assets/seatImg/preempted.jpg"> 결제진행중
-			    </span>
-			</div>
+            
+            <hr> <div class="seat-legend">
+		        <div class="legend-item"><img src="<%=contextPath%>/static/assets/seatImg/available_vip.jpg"> VIP</div>
+		        <div class="legend-item"><img src="<%=contextPath%>/static/assets/seatImg/available_r.jpg"> R석</div>
+		        <div class="legend-item"><img src="<%=contextPath%>/static/assets/seatImg/available_s.jpg"> S석</div>
+		        <div class="legend-item"><img src="<%=contextPath%>/static/assets/seatImg/available_a.jpg"> A석</div>
+		    </div>
+		
+		    <hr> <div class="seat-legend">
+		        <div class="legend-item"><img src="<%=contextPath%>/static/assets/seatImg/sold.jpg"> 판매완료</div>
+		        <div class="legend-item"><img src="<%=contextPath%>/static/assets/seatImg/preempted.jpg"> 결제진행중</div>
+		    </div>
+		</div>
             <div class="total-price">
                 <span>총 금액</span>
                 <strong id="total-amount">0</strong>원
             </div>
-        </div>
         <button class="btn-next-step" onclick="goToPayment()">결제하기</button>
     </div>
 </div>

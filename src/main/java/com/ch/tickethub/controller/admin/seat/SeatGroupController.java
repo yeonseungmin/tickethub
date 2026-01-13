@@ -165,6 +165,7 @@ public class SeatGroupController {
             // 초기 배치 설정 (정수형 변수이므로 int로 세팅)
             seatGroup.setPos_x(100);
             seatGroup.setPos_y(100);
+            seatGroup.setAngle(0);
             seatGroup.setRow_gap(35);
             seatGroup.setCol_gap(35);
             
