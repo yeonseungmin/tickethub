@@ -26,4 +26,7 @@ public interface MemberDAO {
 	    
 	    public int updateMyInfo(Member member);
 	    public int updatePassword(Map<String, Object> param);
+	    
+	    List<Member> adminSelectMemberList(Map<String, Object> param);
+	    int adminSelectMemberListCount(Map<String, Object> param);
 }

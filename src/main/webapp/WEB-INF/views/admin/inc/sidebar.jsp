@@ -144,21 +144,9 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="./index.html" class="nav-link">
+                <a href="#" class="nav-link" id="menu-members">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>회원정보</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="./index2.html" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>메일관리</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="./index3.html" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>탈퇴회원</p>
+                  <p>회원 목록</p>
                 </a>
               </li>
             </ul>

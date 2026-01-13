@@ -356,4 +356,31 @@ public class MemberServiceImpl implements MemberService {
 		if (r != 1)
 			throw new RuntimeException("비밀번호 변경 실패");
 	}
+
+	//회원 검색 리스트로 뽑기
+	@Override
+	public List<Member> adminSelectMemberList(String keyword, String status, Integer gradeId, int page, int size) {
+		//controller에서 하는 처리는 화면용, 여기서는 DB용으로 잊지말기!
+		    int offset = (page - 1) * size; 
+
+		    Map<String, Object> param = new HashMap<>();
+		    param.put("keyword", keyword);
+		    param.put("status", status);
+		    param.put("gradeId", gradeId);
+		    param.put("limit", size); //몇개가져올지
+		    param.put("offset", offset); //몇 번째부터 가져올지
+
+		    return memberDAO.adminSelectMemberList(param);
+	}
+
+	// 검색된 회원 수
+	@Override
+	public int adminSelectMemberListCount(String keyword, String status, Integer gradeId) {
+		  	Map<String, Object> param = new HashMap<>();
+		    param.put("keyword", keyword);
+		    param.put("status", status);
+		    param.put("gradeId", gradeId);
+
+		    return memberDAO.adminSelectMemberListCount(param);
+	}
 }

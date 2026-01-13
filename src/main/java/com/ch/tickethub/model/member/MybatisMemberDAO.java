@@ -89,4 +89,14 @@ public class MybatisMemberDAO implements MemberDAO{
 		
 	}
 
+	@Override
+	public List<Member> adminSelectMemberList(Map<String, Object> param) {
+		return sqlSessionTemplate.selectList("Member.adminSelectMemberList", param);
+	}
+
+	@Override
+	public int adminSelectMemberListCount(Map<String, Object> param) {
+		return sqlSessionTemplate.selectOne("Member.adminSelectMemberListCount", param);
+	}
+
 }

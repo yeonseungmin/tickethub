@@ -116,7 +116,7 @@ public class AuthController {
 		session.setAttribute("loginMember", member);
 
 		if ("ADMIN".equals(member.getRole())) {
-			return "redirect:/admin/index";
+			return "redirect:/";
 		}
 		return "redirect:/";
 	}
@@ -230,7 +230,7 @@ public class AuthController {
 		session.setAttribute("loginMember", member);
 
 		if ("ADMIN".equals(member.getRole())) {
-			return "redirect:/admin/index";
+			return "redirect:/";
 		}
 
 		return "redirect:/";
@@ -312,7 +312,7 @@ public class AuthController {
 		session.setAttribute("loginMember", member);
 
 		if ("ADMIN".equals(member.getRole())) {
-			return "redirect:/admin/index";
+			return "redirect:/";
 		}
 
 		return "redirect:/";
@@ -403,7 +403,7 @@ public class AuthController {
 		session.setAttribute("loginMember", member);
 
 		if ("ADMIN".equals(member.getRole())) {
-			return "redirect:/admin/index";
+			return "redirect:/";
 		}
 
 		return "redirect:/";

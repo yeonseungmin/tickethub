@@ -26,4 +26,5 @@ public class Member {
 	private Date lastLoginAt;
 	private String oauthProvider; // 소셜 로그인 이름
 	private String oauthId; // 소셜 로그인 id
+	private String gradeName;
 }

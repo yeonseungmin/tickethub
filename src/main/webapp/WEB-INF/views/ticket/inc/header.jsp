@@ -40,7 +40,7 @@
 
         <% } else if ("ADMIN".equals(loginMember.getRole())) { %>
           <a class="user-actions__link" href="${ctx}/auth/logout">로그아웃</a>
-          <a class="btn btn--primary" href="${ctx}/admin/index">관리자페이지</a>
+          <a class="btn btn--primary" href="${ctx}/admin/main">관리자페이지</a>
 
         <% } else { %>
           <a class="user-actions__link" href="${ctx}/auth/logout">로그아웃</a>

@@ -53,8 +53,9 @@ if (next == null) next = "edit"; // 기본은 edit
 <%@ include file="../../ticket/inc/footer_link.jsp"%>
 
 <script>
+// next뒤에 있는 거 백슬래시보호로 넣어야함!
 (function(){
-  var NEXT = "<%= next.replace("\\", "\\\\").replace("\"","\\\"") %>";
+  var NEXT = "<%= next.replace("\\", "\\\\").replace("\"","\\\"") %>"; 
   var ctx  = "<%=ctx%>";
 
   var pwInput = document.getElementById('pw');
@@ -71,7 +72,7 @@ if (next == null) next = "edit"; // 기본은 edit
   }
 
   function verifyPw(){
-    var pw = (pwInput.value || '').trim();
+    var pw = (pwInput.value || '').trim(); // 공백 없애주기 (바꿀것의 밸류 || 공백).trim();
     hideMsg();
 
     if(!pw){
@@ -83,16 +84,16 @@ if (next == null) next = "edit"; // 기본은 edit
 
     fetch(ctx + '/tickethub/mypage/verify', {
       method: 'POST',
-      headers: {'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'},
+      headers: {'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'}, //password=1234&next=edit로 보내는데, 한글 안 깨지게
       body: 'password=' + encodeURIComponent(pw) + '&next=' + encodeURIComponent(NEXT || 'edit')
     })
     .then(function(r){
       // 서버가 JSON이 아닐 수도 있으니 안전하게 처리
-      return r.text();
+      return r.text(); //일단 글자로 받기
     })
     .then(function(text){
       var data;
-      try { data = JSON.parse(text); }
+      try { data = JSON.parse(text); } //될때 json으로 변환
       catch(e){
         // JSON이 아니면(로그인 만료로 HTML 반환 등) -> 메시지
         showMsg('서버 응답이 JSON이 아닙니다. (로그인 만료/에러 가능)');
@@ -115,7 +116,7 @@ if (next == null) next = "edit"; // 기본은 edit
     });
   }
 
-  // 이벤트 1번만 연결
+  // 이벤트 1번만 연결(헷갈리면 안됨!! 주의하기!)
   btn.addEventListener('click', verifyPw);
   pwInput.addEventListener('keydown', function(e){
     if(e.key === 'Enter'){
