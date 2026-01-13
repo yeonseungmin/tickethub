@@ -1,217 +1,144 @@
-/* Sticky Sidebar */
+/* ==========================================================================
+   1. 사이드바 레이아웃 (노트북 화면에서 잘리지 않도록 설정)
+   ========================================================================== */
 .sticky-sidebar {
     position: sticky;
-    top: 20px; /* 상단 여유 공간 */
-    max-height: calc(100vh - 40px); /* 화면 높이에서 위아래 여백을 뺀 만큼만 차지 */
-    overflow-y: auto; /* 내용이 길어지면 사이드바 안에 스크롤 생성 */
-    padding-right: 5px; /* 스크롤바와 내용 겹침 방지 */
+    top: 20px; 
+    max-height: calc(100vh - 40px); /* 화면 높이에 맞춰 자동 조절 */
+    overflow-y: auto;               /* 내용이 길면 사이드바 내부 스크롤 */
+    padding-right: 5px;
 }
 
-/* 1. 달력 크기 축소 */
-.calendar-table th, .calendar-table td {
-    padding: 5px 2px; /* 셀 간격 축소 */
-    font-size: 0.9rem;  /* 글자 크기 약간 축소 */
+.sticky-sidebar .card-body {
+    padding: 12px !important;       /* 내부 여백을 줄여 전체 높이 감소 */
 }
+
+/* ==========================================================================
+   2. 달력 디자인 (크기 축소 버전)
+   ========================================================================== */
+.calendar-table { 
+    width: 100%; 
+    text-align: center; 
+}
+
+.calendar-table th, .calendar-table td {
+    padding: 5px 2px;               /* 셀 간격 축소 */
+    font-size: 0.85rem;             /* 글자 크기 축소 */
+}
+
+.calendar-table th.sun { color: #dc3545; }
 
 .calendar-day {
-    width: 30px;
+    display: block;
+    width: 30px;                    /* 날짜 원형 크기 (35px -> 30px) */
     height: 30px;
-    line-height: 30px; /* 원형 크기 조절 */
+    line-height: 30px;              /* 숫자 수직 중앙 정렬 */
+    margin: 2px auto;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background 0.2s;
 }
 
-/* 2. 카드 내부 간격 축소 */
-.sticky-sidebar .card-body {
-    padding: 12px !important;
+.calendar-day:hover:not(.disabled) { background-color: #f0f0f0; }
+.calendar-day.disabled { color: #ccc; cursor: default; }
+.calendar-day.sun:not(.disabled) { color: #dc3545; }
+
+.calendar-day.active {
+    background-color: #007bff !important; 
+    color: white !important; 
+    font-weight: bold; 
+    box-shadow: 0 2px 5px rgba(0,123,255,0.4);
 }
 
-/* 3. 회차 선택 버튼 디자인 */
+/* ==========================================================================
+   3. 회차 선택 버튼 (디자인 통일)
+   ========================================================================== */
+.round-select-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
 .btn-round-select {
-    padding: 4px 8px;   /* 유지 */
-    font-size: 13px;    /* 유지 */
-    margin-bottom: 4px; /* 유지 */
-    
+    padding: 5px 10px;
+    font-size: 13px;
     border: 1px solid #ddd;
     background-color: #fff;
     color: #333;
     border-radius: 4px;
-    transition: all 0.2s; /* 부드러운 전환 효과 */
+    transition: all 0.2s;
     cursor: pointer;
+    min-width: 70px;                /* 고정폭 대신 유연한 최소폭 사용 */
+    text-align: center;
 }
 
-/* 2. 활성화(Active) 상태: 크기는 그대로 두고 "색상"만 바꿉니다. */
-.round-select-list .btn-round-select.active {
-    /* 배경과 글자색만 변경하여 선택되었음을 표시 */
-    background-color: #007bff !important; 
-    color: #ffffff !important;
-    border-color: #0056b3 !important;
-    
-    /* 폰트 굵기를 주면 크기 변화 없이 강조됩니다 */
-    font-weight: bold !important;
-    
-    /* 입체감을 위한 살짝의 그림자 */
-    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
-}
-
-/* 마우스를 올렸을 때 (Hover) */
 .btn-round-select:hover {
     border-color: #007bff;
     color: #007bff;
 }
 
-/* 클릭하여 선택된 상태 (Active) */
 .btn-round-select.active {
-    background-color: #007bff !important; /* 배경을 파란색으로 */
-    color: #ffffff !important;           /* 글씨를 흰색으로 */
-    border-color: #0056b3 !important;    /* 테두리를 좀 더 진하게 */
-    font-weight: bold;                   /* 글씨를 두껍게 해서 강조 */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 살짝 입체감 부여 */
+    background-color: #007bff !important;
+    color: #ffffff !important;
+    border-color: #0056b3 !important;
+    font-weight: bold !important;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
 }
 
-/* 탭 메뉴 커스텀 */
+/* ==========================================================================
+   4. 탭 메뉴 & 공연 정보 스타일
+   ========================================================================== */
 .custom-tabs .nav-link { color: #333; font-weight: 600; border-radius: 0; }
-.custom-tabs .nav-link.active { color: #007bff !important; border-top: 3px solid #007bff; background-color: #fff; }
-
-/* 달력 */
-.calendar-table { width: 100%; text-align: center; font-size: 14px; }
-.calendar-table th { padding: 8px 0; font-weight: normal; }
-.calendar-table th.sun { color: #dc3545; }
-.calendar-day {
-    padding: 8px; cursor: pointer; border-radius: 50%; width: 35px; height: 35px; line-height: 19px; margin: 2px auto;
-}
-.calendar-day:hover:not(.disabled) { background-color: #f0f0f0; }
-.calendar-day.disabled { color: #ccc; cursor: default; }
-.calendar-day.sun:not(.disabled) { color: #dc3545; }
-.calendar-day.active {
-    background-color: #007bff; color: white !important; font-weight: bold; box-shadow: 0 2px 5px rgba(0,123,255,0.4);
+.custom-tabs .nav-link.active { 
+    color: #007bff !important; 
+    border-top: 3px solid #007bff; 
+    background-color: #fff; 
 }
 
-/* 버튼이 실제로 비활성화(disabled)되었을 때 */
-button:disabled {
-    background-color: transparent !important;
-    opacity: 0.3 !important; /* 전체적으로 흐릿하게 */
-    cursor: default !important;
-}
-
-button:disabled i {
-    color: #d2d2d2 !important;
-}
-
-/* [스타일] 회차 선택 버튼 */
-.btn-round-select {
-    border: 1px solid #ccc; color: #888; background-color: white; margin-right: 5px; margin-bottom: 5px; width: 80px;
-}
-.btn-round-select.active {
-    border: 2px solid #007bff !important; color: #007bff !important; font-weight: bold;
-}
-
-/* [스타일] 상세 정보 리스트 */
 .info-list li {
-    margin-bottom: 16px; 
+    margin-bottom: 15px; 
     font-size: 15px; 
     border-bottom: 1px solid #f9f9f9; 
-    padding-bottom: 16px;
+    padding-bottom: 15px;
 }
-.info-list li:last-child { border-bottom: none; }
-.info-label { display: inline-block; width: 80px; font-weight: bold; color: #555; vertical-align: top; margin-top: 2px; }
-
-/* info-content: 기본적으로 inline-block이지만, 장소 등에서 flex 필요시 유틸리티 클래스 추가 사용 */
+.info-label { display: inline-block; width: 80px; font-weight: bold; color: #555; vertical-align: top; }
 .info-content { display: inline-block; width: calc(100% - 90px); vertical-align: top; line-height: 1.6; }
+.price-emphasis { font-weight: 700; font-size: 1.1em; color: #333; }
 
-/* 가격 강조 스타일 */
-.price-emphasis { font-weight: 700; font-size: 1.1em; color: #333; margin-right: 2px; }
-
-/* [스타일] 캐스팅 리스트 (본문용) */
-.cast-member { text-align: center; margin-right: 20px; margin-bottom: 20px; width: 90px; display: inline-block; vertical-align: top;}
-.cast-img { width: 80px; height: 80px; object-fit: cover; border-radius: 50%; border: 1px solid #eee; margin-bottom: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+/* 캐스팅 리스트 */
+.cast-member { text-align: center; margin-right: 15px; margin-bottom: 15px; width: 85px; display: inline-block; vertical-align: top;}
+.cast-img { width: 75px; height: 75px; object-fit: cover; border-radius: 50%; border: 1px solid #eee; margin-bottom: 5px; }
 .casting-container { max-height: 140px; overflow: hidden; transition: max-height 0.5s ease; }
 .casting-container.expanded { max-height: 2000px; }
 
-/* [스타일] 좋아요 버튼 */
-.btn-like-wrapper { margin-top: 15px; text-align: center; }
-.btn-like {
-    border: none; background: transparent; padding: 5px 10px; color: #555; font-weight: bold; font-size: 1.1em;
-    transition: transform 0.2s;
-}
-.btn-like:hover { transform: scale(1.1); color: #dc3545; }
-.btn-like.active { color: #dc3545; }
-
-/* [스타일] 사이드바 컴팩트 텍스트 */
-.sidebar-compact-text { font-size: 14px; line-height: 1.6; color: #333; }
-.text-soldout { color: #aaa !important; text-decoration: line-through; }
-.divider-slash { color: #ddd; margin: 0 5px; }
-
-
-
-/* 관람후기 스타일 */
-.review-item:last-child {
-    border-bottom: none !important;
-}
-
-.review-content {
-    font-size: 15px;
-    line-height: 1.6;
-}
-
-.reply-list {
-    background-color: #f8f9fa; /* 답글 영역 회색 배경 */
-    border-radius: 8px;
-}
-
-.reply-item {
-    border-bottom: 1px solid #e9ecef;
-    padding: 10px 0;
-}
-
-.reply-item:last-child {
-    border-bottom: none;
-}
-
-.btn-xs {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-    line-height: 1.5;
-    border-radius: 0.2rem;
-}
-
-/* 별점 입력 인터랙션용 */
-.star-rating-input i:hover {
-    transform: scale(1.2);
-    transition: transform 0.2s;
-}
-
-
-/* 리뷰 텍스트 접기/펼치기 스타일 */
+/* ==========================================================================
+   5. 관람후기 & 대댓글 스타일
+   ========================================================================== */
 .review-text-clamp {
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3; /* 기본 3줄만 표시 */
+    -webkit-line-clamp: 3;
     overflow: hidden;
-    text-overflow: ellipsis;
-    max-height: 4.8em; /* line-height(1.6) * 3줄 */
     line-height: 1.6;
 }
+.review-text-clamp.expanded { display: block; -webkit-line-clamp: unset; }
 
-/* 펼쳐졌을 때 스타일 */
-.review-text-clamp.expanded {
-    display: block;
-    -webkit-line-clamp: unset;
-    max-height: none;
-    overflow: visible;
+.btn-more { font-size: 13px; color: #888; background: none; border: none; cursor: pointer; font-weight: 600; }
+
+.reply-list { background-color: #f8f9fa; border-radius: 8px; padding: 15px; }
+.reply-item { border-bottom: 1px solid #e9ecef; padding: 10px 0; }
+.reply-item:last-child { border-bottom: none; }
+
+/* ==========================================================================
+   6. 기타 유틸리티
+   ========================================================================== */
+.btn-like.active { color: #dc3545; }
+
+button:disabled {
+    background-color: transparent !important;
+    opacity: 0.3 !important;
+    cursor: default !important;
 }
 
-/* 버튼 스타일 */
-.btn-more {
-    font-size: 13px;
-    color: #888;
-    background: none;
-    border: none;
-    padding: 0;
-    margin-top: 5px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    font-weight: 600;
-}
-.btn-more:hover {
-    color: #333;
-    text-decoration: underline;
-}
+.divider-slash { color: #ddd; margin: 0 5px; }
+.text-soldout { color: #aaa !important; text-decoration: line-through; }

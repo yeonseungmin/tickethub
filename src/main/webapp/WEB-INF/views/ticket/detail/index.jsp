@@ -426,7 +426,7 @@
         $(formId).slideToggle("fast");
     }
 
-    // [관람후기] 후기 좋아요 토글 UI (프론트 처리만)
+    // [관람후기] 후기 좋아요 토글 UI
     function toggleLikeReview(btn) {
     	
         let $icon = $(btn).find('i');
