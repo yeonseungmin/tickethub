@@ -281,7 +281,6 @@
 
 	     // 모든 AJAX 요청이 완료될 때까지 대기
 	     Promise.all(requests).then(function() {
-	         alert("성공적으로 저장되었습니다.");
 	         window.pendingChanges = {}; // 내역 비우기
 	         loadSeatLayout(); // 최신 데이터로 다시 그리기
 	     }).catch(function(err) {

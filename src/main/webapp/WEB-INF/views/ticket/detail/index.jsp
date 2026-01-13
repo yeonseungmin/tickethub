@@ -767,7 +767,7 @@
 	
 	    // 주소 끝에 /popup 이 정확히 붙었는지 확인
 	    let url = "${pageContext.request.contextPath}/ticket/reservation/popup?work_id=" + workId + "&round_id=" + roundId;
-	    let specs = "width=1100,height=850,top=50,left=150";
+	    let specs = "width=1920, height=1080,top=50,left=150";
 	    
 	    window.open(url, "reservationPopup", specs);
 	}

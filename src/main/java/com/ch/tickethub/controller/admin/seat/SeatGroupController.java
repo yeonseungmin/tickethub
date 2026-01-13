@@ -3,6 +3,8 @@ package com.ch.tickethub.controller.admin.seat;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -135,16 +137,16 @@ public class SeatGroupController {
         }
     }
     
-    @PostMapping("/updateGroupPos")
+    @PostMapping("/updateGroupsBulk")
     @ResponseBody
-    public String updateGroupPos(@RequestParam int seat_group_id, @RequestParam int pos_x, @RequestParam int pos_y, @RequestParam double angle) {
+    public ResponseEntity<String> updateGroupsBulk(@RequestBody List<SeatGroup> groupList) {
         try {
-        	log.debug("수신 ID: " + seat_group_id + ", X: " + pos_x + ", Y: " + pos_y +", angle:"+angle);
-            // 서비스 호출
-            seatGroupService.updateGroupAndSeatPosition(seat_group_id, pos_x, pos_y, angle);
-            return "success";
+            log.debug("일괄 업데이트 요청 수신. 구역 개수: " + groupList.size());
+            seatGroupService.updateGroupsPositions(groupList);
+            return ResponseEntity.ok("success"); // 명시적으로 200 OK와 success 전달
         } catch (Exception e) {
-            return "error: " + e.getMessage();
+            log.error("업데이트 중 에러 발생: ", e); // 에러 원인을 콘솔에 찍음
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
     
