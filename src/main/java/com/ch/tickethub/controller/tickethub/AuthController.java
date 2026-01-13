@@ -116,7 +116,7 @@ public class AuthController {
 		session.setAttribute("loginMember", member);
 
 		if ("ADMIN".equals(member.getRole())) {
-			return "redirect:/admin/index";
+			return "redirect:/";
 		}
 		return "redirect:/";
 	}
@@ -230,7 +230,7 @@ public class AuthController {
 		session.setAttribute("loginMember", member);
 
 		if ("ADMIN".equals(member.getRole())) {
-			return "redirect:/admin/index";
+			return "redirect:/";
 		}
 
 		return "redirect:/";
@@ -312,7 +312,7 @@ public class AuthController {
 		session.setAttribute("loginMember", member);
 
 		if ("ADMIN".equals(member.getRole())) {
-			return "redirect:/admin/index";
+			return "redirect:/";
 		}
 
 		return "redirect:/";
@@ -403,7 +403,7 @@ public class AuthController {
 		session.setAttribute("loginMember", member);
 
 		if ("ADMIN".equals(member.getRole())) {
-			return "redirect:/admin/index";
+			return "redirect:/";
 		}
 
 		return "redirect:/";
@@ -419,11 +419,12 @@ public class AuthController {
 	@PostMapping("/join")
 	public String join(@RequestParam("loginId") String loginId, @RequestParam("password") String password,
 			@RequestParam("passwordConfirm") String passwordConfirm, @RequestParam("name") String name,
-			@RequestParam("email") String email, Model model) {
+			@RequestParam("email") String email, @RequestParam("phone") String phone, Model model) {
 
 		loginId = (loginId != null) ? loginId.trim() : null;
 		name = (name != null) ? name.trim() : null;
 		email = (email != null) ? email.trim() : null;
+		 phone = (phone != null) ? phone.trim() : null;
 
 		// 1) loginId 체크
 		if (loginId == null || loginId.isEmpty()) {
@@ -472,13 +473,19 @@ public class AuthController {
 		    model.addAttribute("error", "이메일은 필수입니다");
 		    return "tickethub/auth/join";
 		}
+		
+		// 8) phone 체크
+		if (phone == null || phone.isEmpty()) {
+	        model.addAttribute("error", "휴대폰 번호는 필수입니다");
+	        return "tickethub/auth/join";
+	    }
 
 		Member member = new Member();
 		member.setLoginId(loginId);
 		member.setPasswordHash(password); // 해시/검증은 service에서 담당하도록 유지 (나중에 개선)
 		member.setName(name);
 		member.setEmail(email);
-
+		member.setPhone(phone);
 		try {
 			memberService.register(member);
 		} catch (DuplicateLoginIdException e) {

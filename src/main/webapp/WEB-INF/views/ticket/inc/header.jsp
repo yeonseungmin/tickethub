@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page contentType="text/html; charset=UTF-8"%>
 <%@ page import="com.ch.tickethub.dto.Member" %>
 
 <%
@@ -6,18 +6,22 @@
   if (activeNav == null) activeNav = "";
 
   Member loginMember = (Member) session.getAttribute("loginMember");
-  String ctx = request.getContextPath();
+
+  // ✅ include 중복 방지: ctx를 "변수 선언"이 아니라 pageContext에 1회 저장
+  if (pageContext.getAttribute("ctx") == null) {
+    pageContext.setAttribute("ctx", request.getContextPath());
+  }
 %>
 
 <header class="site-header" data-header>
   <div class="site-header__top">
     <div class="container site-header__top-inner">
 
-      <a class="site-header__logo" href="<%=ctx%>/" aria-label="홈으로">
+      <a class="site-header__logo" href="${ctx}/" aria-label="홈으로">
         <span class="site-header__logo-gradient">TICKET HUB</span>
       </a>
 
-      <form class="search" action="<%=ctx%>/search" method="get" role="search">
+      <form class="search" action="${ctx}/search" method="get" role="search">
         <label class="sr-only" for="q">검색</label>
         <input id="q" name="q" class="search__input" type="text"
                placeholder="공연, 전시를 검색해보세요" value="${param.q}" />
@@ -31,16 +35,16 @@
 
       <div class="user-actions">
         <% if (loginMember == null) { %>
-          <a class="user-actions__link" href="<%=ctx%>/auth/login">로그인</a>
-          <a class="btn btn--primary" href="<%=ctx%>/auth/join">회원가입</a>
+          <a class="user-actions__link" href="${ctx}/auth/login">로그인</a>
+          <a class="btn btn--primary" href="${ctx}/auth/join">회원가입</a>
 
         <% } else if ("ADMIN".equals(loginMember.getRole())) { %>
-          <a class="user-actions__link" href="<%=ctx%>/auth/logout">로그아웃</a>
-          <a class="btn btn--primary" href="<%=ctx%>/admin/index">관리자페이지</a>
+          <a class="user-actions__link" href="${ctx}/auth/logout">로그아웃</a>
+          <a class="btn btn--primary" href="${ctx}/admin/main">관리자페이지</a>
 
         <% } else { %>
-          <a class="user-actions__link" href="<%=ctx%>/auth/logout">로그아웃</a>
-          <a class="btn btn--primary" href="<%=ctx%>/tickethub/mypage">마이페이지</a>
+          <a class="user-actions__link" href="${ctx}/auth/logout">로그아웃</a>
+          <a class="btn btn--primary" href="${ctx}/tickethub/mypage">마이페이지</a>
         <% } %>
       </div>
 
@@ -51,19 +55,19 @@
     <div class="container">
       <ul class="nav__list" data-nav-tabs>
         <li class='nav__item <%= "concert".equals(activeNav) ? "is-active" : "" %>'>
-          <a class="nav__link" data-nav-tab href="<%=ctx%>/genre/concert">콘서트</a>
+          <a class="nav__link" data-nav-tab href="${ctx}/genre/concert">콘서트</a>
         </li>
         <li class='nav__item <%= "musical".equals(activeNav) ? "is-active" : "" %>'>
-          <a class="nav__link" data-nav-tab href="<%=ctx%>/genre/musical">뮤지컬</a>
+          <a class="nav__link" data-nav-tab href="${ctx}/genre/musical">뮤지컬</a>
         </li>
         <li class='nav__item <%= "play".equals(activeNav) ? "is-active" : "" %>'>
-          <a class="nav__link" data-nav-tab href="<%=ctx%>/genre/play">연극</a>
+          <a class="nav__link" data-nav-tab href="${ctx}/genre/play">연극</a>
         </li>
         <li class='nav__item <%= "classic".equals(activeNav) ? "is-active" : "" %>'>
-          <a class="nav__link" data-nav-tab href="<%=ctx%>/genre/classic">클래식/무용</a>
+          <a class="nav__link" data-nav-tab href="${ctx}/genre/classic">클래식/무용</a>
         </li>
         <li class='nav__item <%= "kids".equals(activeNav) ? "is-active" : "" %>'>
-          <a class="nav__link" data-nav-tab href="<%=ctx%>/genre/kids">어린이/가족</a>
+          <a class="nav__link" data-nav-tab href="${ctx}/genre/kids">어린이/가족</a>
         </li>
       </ul>
     </div>

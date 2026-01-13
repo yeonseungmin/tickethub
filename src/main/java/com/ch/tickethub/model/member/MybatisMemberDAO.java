@@ -72,4 +72,31 @@ public class MybatisMemberDAO implements MemberDAO{
 		return sqlSessionTemplate.selectOne("Member.selectById", memberId);
 	}
 
+	@Override
+	public String selectPasswordHashById(Integer memberId) {
+		return sqlSessionTemplate.selectOne("Member.selectPasswordHashById", memberId);
+	}
+
+	@Override
+	public int updateMyInfo(Member member) {
+		return sqlSessionTemplate.update("Member.updateMyInfo", member);
+		
+	}
+
+	@Override
+	public int updatePassword(Map<String, Object> param) {
+		return sqlSessionTemplate.update("Member.updatePassword", param);
+		
+	}
+
+	@Override
+	public List<Member> adminSelectMemberList(Map<String, Object> param) {
+		return sqlSessionTemplate.selectList("Member.adminSelectMemberList", param);
+	}
+
+	@Override
+	public int adminSelectMemberListCount(Map<String, Object> param) {
+		return sqlSessionTemplate.selectOne("Member.adminSelectMemberListCount", param);
+	}
+
 }
