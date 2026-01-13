@@ -48,8 +48,12 @@
 	let prevPage;
 	let prevOrderType;
 	
-	// 예비용. 접속자의 멤버 아이디가 1이라면? 나중에 session으로 교체
 	const memberId = <%= (member != null) ? member.getMemberId() : 0 %>;
+	// review_like을 하루 저장하기 위한 키
+	let cookieKey = "likedList_member" + memberId;
+   	let rawCookie = getCookie(cookieKey);
+   	let likedList = rawCookie ? JSON.parse(rawCookie) : [];
+   	
 	console.log(memberId);
 	let moneyConverter = new MoneyConverter();
 </script>
@@ -427,23 +431,47 @@
     }
 
     // [관람후기] 후기 좋아요 토글 UI
+    // 사실 리뷰 좋아요 테이블을 넣으면 좋아요 한 번만 하고 기억할 수 있겠지만 안 하기로 했다.
     function toggleLikeReview(btn) {
     	
-        let $icon = $(btn).find('i');
-        let $span = $(btn).find('span');
-        let count = parseInt($span.text());
+        let icon = $(btn).find("i");
+        let span = $(btn).find("span");
+        let count = parseInt(span.text());
+
         let review_id = $(btn).closest("li").val();
+        	
+        if (icon.hasClass('far')) { // 좋아요 안 누른 상태
+        	//console.log("좋아요를 늘릴 review_id는 ", review_id);
         
-        if ($icon.hasClass('far')) { // 좋아요 안 누른 상태
-            $icon.removeClass('far').addClass('fas text-primary'); // 채워진 엄지
-            $span.text(count + 1);
-            $span.addClass('text-primary font-weight-bold');
-            
-        	console.log("좋아요를 늘릴 review_id는 ", review_id);
-        } else { // 이미 누른 상태
-            $icon.removeClass('fas text-primary').addClass('far'); // 빈 엄지
-            $span.text(count - 1);
-            $span.removeClass('text-primary font-weight-bold');
+        	if(!likedList.includes(review_id) && memberId != 0){
+           		likedList.push(review_id);
+
+	        	$.ajax({
+	            	    url: "/detail/review/like/update",
+	            	    method: "POST",
+	            	    contentType: "application/json",
+	            	    data: JSON.stringify({ "review_id": review_id }),
+	            	    success:function(result, status, xhr) {
+	            	    	let review = result;
+	                        icon.removeClass('far').addClass('fas text-primary'); // 채워진 엄지
+	            			span.addClass('text-primary font-weight-bold');
+	            	    	span.text(moneyConverter.format(review.review_like_count));
+	               			
+	               			document.cookie = `\${cookieKey}=\${JSON.stringify(likedList)}; max-age=86400; path=/`;
+	            	    },
+	            	    error:function(xhr, status, err) {
+            	        	let obj = JSON.parse(xhr.responseText);
+            	            alert(obj.message);
+	            	    }
+				});
+        	} else {
+        		alert("로그인이 필요한 서비스입니다.");
+        	}
+		} else { // 이미 누른 상태
+        	alert("이미 공감하였습니다.");
+            /* icon.removeClass("fas text-primary").addClass("far"); // 빈 엄지
+            span.text(count - 1);
+            span.removeClass("text-primary font-weight-bold"); */
         }
     }
     
@@ -479,8 +507,6 @@
             	
             	hittedList.push(review_id);
             	let cookieValue = JSON.stringify(hittedList);
-            	// 24시간 후에 조회수 늘릴 수 있음.
-            	document.cookie = `hittedList=\${cookieValue}; max-age=86400`;
             	
              	$.ajax({
             	    url: "/detail/review/hit/update",
@@ -491,6 +517,8 @@
             	    	let review = result;
             	    	console.log(review);
             	    	reviewHit.text("조회 " + moneyConverter.format(review.hit));
+            			// 24시간 후에 조회수 늘릴 수 있음. path=/ 상세페이지 경로 한정
+            			document.cookie = `hittedList=\${cookieValue}; max-age=86400; path=/`;
             	    },
             	    error:function(xhr, status, err) {
            	        	let obj = JSON.parse(xhr.responseText);
@@ -504,8 +532,6 @@
             $(btn).html("접기 <i class='fas fa-chevron-up'></i>");
         }
     }
-	
-
 	
 	// [관람후기] 신고 동작
 	function report(btn) {
@@ -587,7 +613,15 @@
 		        <button class="btn-more" onclick="toggleReviewText(this)">더보기 <i class="fas fa-chevron-down"></i></button>
 		        <div class="review-actions mt-1">
 		            <button class="btn btn-xs btn-light border mr-1" onclick="toggleLikeReview(this)">
-		                <i class="far fa-thumbs-up"></i> <span>\${review.review_like_count}</span>
+		                <i class="`;
+			if(likedList.includes(review.review_id)) {
+				reviewTag += `fas text-primary `;
+			} else {
+				reviewTag += `far `;
+			}
+		                
+			reviewTag += `
+		                fa-thumbs-up"></i> <span>\${review.review_like_count}</span>
 		            </button>`;
 			if(memberId != 0) {
 				reviewTag += `

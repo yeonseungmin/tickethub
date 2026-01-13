@@ -35,6 +35,12 @@ public class ReviewServiceImpl implements ReviewService{
 		
 		reviewDAO.updateHit(review_id);
 	}
+
+	@Override
+	public void setLikeCount(int review_id) throws ReviewException{
+		
+		reviewDAO.updateLikeCount(review_id);
+	}
 	
 	
 }

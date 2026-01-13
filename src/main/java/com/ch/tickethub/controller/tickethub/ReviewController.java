@@ -57,6 +57,15 @@ public class ReviewController {
 		return reviewService.getReview(review.getReview_id());
 	}
 	
+	@PostMapping("/detail/review/like/update")
+	@ResponseBody
+	public Review setLikeCount(@RequestBody Review review) {
+		
+		reviewService.setLikeCount(review.getReview_id());
+		
+		return reviewService.getReview(review.getReview_id());
+	}
+	
 	@PostMapping("/detail/review/regist")
 	@ResponseBody
 	public ResponseEntity<Map<String, String>> regist(@RequestBody Review review, HttpSession session){

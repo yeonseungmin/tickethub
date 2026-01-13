@@ -9,4 +9,5 @@ public interface ReviewDAO {
 	public List<Review> selectByWorkId(int work_id, String orderType);
 	public Review select(int review_id);
 	public void updateHit(int review_id);
+	public void updateLikeCount(int review_id);
 }

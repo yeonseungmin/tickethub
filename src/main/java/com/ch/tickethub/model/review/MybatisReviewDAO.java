@@ -57,8 +57,23 @@ public class MybatisReviewDAO implements ReviewDAO{
 			e.printStackTrace();
 			throw new ReviewException("나머지 모든 업데이트 에러", e);
 		}
+	}
+
+	@Override
+	public void updateLikeCount(int review_id) throws ReviewException{
 		
-		
+		try {
+			int updateCount = sqlSessionTemplate.update("Review.updateLikeCount", review_id);
+			
+			if(updateCount == 0) {
+				throw new ReviewException("업데이트 실패");
+			}
+		} catch (ReviewException e){
+			throw e;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ReviewException("나머지 모든 업데이트 에러", e);
+		}
 	}
 
 }

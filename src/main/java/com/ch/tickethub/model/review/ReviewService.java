@@ -9,4 +9,5 @@ public interface ReviewService {
 	public List<Review> getListByWorkId(int work_id, String orderType);
 	public Review getReview(int review_id);
 	public void setHit(int review_id);
+	public void setLikeCount(int review_id);
 }
