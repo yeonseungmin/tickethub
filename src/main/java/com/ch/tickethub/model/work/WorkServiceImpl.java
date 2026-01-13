@@ -22,35 +22,36 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class WorkServiceImpl implements WorkService{
-	
+public class WorkServiceImpl implements WorkService {
+
 	@Autowired
 	private WorkDAO workDAO;
-	
+
 	@Autowired
 	private FileManager fileManager;
-	
+
 	private String rootDir = FileUtil.getRootDir() + "/work";
 
 	@Transactional
 	@Override
 	public void regist(Work work, MultipartFile work_poster_img, MultipartFile work_content_img) throws WorkException {
-		
+
 		String posterFilename = UUID.randomUUID() + "." + fileManager.getExtend(work_poster_img.getOriginalFilename());
-		String contentFilename = UUID.randomUUID() + "." + fileManager.getExtend(work_content_img.getOriginalFilename());
-		
+		String contentFilename = UUID.randomUUID() + "."
+				+ fileManager.getExtend(work_content_img.getOriginalFilename());
+
 		work.setWork_poster_url(posterFilename);
 		work.setWork_content_url(contentFilename);
-		
+
 		workDAO.insert(work);
 		log.debug("insert 직후 mybatis selectKey 동작 후 work의 work_id 값은 " + work.getWork_id());
-		
+
 		String dirName = rootDir + "/p" + work.getWork_id();
 		fileManager.makeDirectory(dirName);
-		
+
 		fileManager.save(work_poster_img, dirName, posterFilename);
 		fileManager.save(work_content_img, dirName, contentFilename);
-		
+
 	}
 
 	@Override
@@ -60,37 +61,42 @@ public class WorkServiceImpl implements WorkService{
 
 	@Override
 	public void cancelUpload(Work work) {
-		
+
 		String dirName = rootDir + "/p" + work.getWork_id();
-		
+
 		fileManager.remove(dirName);
-		
+
 	}
 
 	@Override
 	public Work getWork(int work_id) {
-		
+
 		return workDAO.select(work_id);
 	}
 
 	@Override
 	public List getUniqueCasting(Work work) {
 		Map<Integer, RoundCasting> uniqueCastingMap = new HashMap();
-		
-		for(Round round : work.getRoundList()) {
-			if(round.getRoundCastingList() != null) {
-				for(RoundCasting roundCasting : round.getRoundCastingList()) {
+
+		for (Round round : work.getRoundList()) {
+			if (round.getRoundCastingList() != null) {
+				for (RoundCasting roundCasting : round.getRoundCastingList()) {
 					uniqueCastingMap.put(roundCasting.getPerson().getPerson_id(), roundCasting);
 				}
 			}
 		}
-		
+
 		List<RoundCasting> uniqueCastingList = new ArrayList(uniqueCastingMap.values());
-		
-		// 역할로 묶기. 문제점 내 DTO 특성상 주역 구분이 안 된다. 어쩔 수 없다. 
+
+		// 역할로 묶기. 문제점 내 DTO 특성상 주역 구분이 안 된다. 어쩔 수 없다.
 		uniqueCastingList.sort((a, b) -> a.getRole().compareTo(b.getRole()));
-		
+
 		return uniqueCastingList;
+	}
+
+	@Override
+	public List<Work> getListByGenreId(int genre_id) {
+		return workDAO.selectByGenreId(genre_id);
 	}
 
 }

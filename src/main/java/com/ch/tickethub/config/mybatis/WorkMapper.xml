@@ -90,4 +90,11 @@
 	    WHERE r.place_id = #{place_id}
 	</select>
 
+	<!-- 장르별 Work 조회 (장르 페이지용) -->
+	<select id="selectByGenreId" parameterType="int" resultMap="workMap">
+		<include refid="sql_select"/>
+		where genre_id = #{genre_id}
+		order by work_id desc
+	</select>
+
 </mapper>

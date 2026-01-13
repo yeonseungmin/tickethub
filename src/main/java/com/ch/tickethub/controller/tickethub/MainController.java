@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ch.tickethub.dto.MainBanner;
 import com.ch.tickethub.dto.HotWork;
@@ -55,5 +56,11 @@ public class MainController {
 		model.addAttribute("bestReviewList", bestReviewList);
 
 		return "ticket/index";
+	}
+	
+	@GetMapping("/genreranking/list")
+	@ResponseBody
+	public List<GenreRanking> getGenreRankingListForAjax() {
+		return genreRankingService.getList();
 	}
 }
