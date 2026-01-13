@@ -182,13 +182,15 @@ function updateUserSelectionUI() {
 function goToPayment() {
     if (window.userReserveIds.length === 0) return alert("좌석을 선택해주세요.");
     
-    // AJAX 선점 요청
+    // 1. AJAX로 좌석 선점(Lock) 요청
     $.post(`${contextPath}/ticket/reserveSeats`, {
         round_id: currentRoundId,
         seats: window.userReserveIds.join(",")
     }, function(res) {
+        // 서버에서 성공(success: true)을 보내줘야 넘어감
         if (res.success) {
-            location.href = `${contextPath}/ticket/payment?round_id=${currentRoundId}&seats=${window.userReserveIds.join(",")}`;
+            // 브라우저 주소창에 표시될 경로 (Controller 매핑 주소)
+            location.href = `${contextPath}/ticket/reservation/payment?round_id=${currentRoundId}&seats=${window.userReserveIds.join(",")}`;
         } else {
             alert(res.message || "이미 선택된 좌석이 포함되어 있습니다.");
             location.reload();
