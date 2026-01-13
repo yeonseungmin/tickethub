@@ -63,8 +63,9 @@
 	<select id="selectByWorkId" parameterType="int" resultMap="roundMapForWork">
 		select round_id, round_date, work_id, place_id, is_cancelled
 		, DATE_FORMAT(round_start_time, '%H:%i') as round_start_time 
-		from round where work_id = #{work_id}
-		order by round_date, round_start_time 
+		from round
+		where work_id = #{work_id} and CONCAT(round_date, ' ', round_start_time) > NOW()
+		order by round_date, round_start_time
 	</select>
 
 	
