@@ -6,6 +6,17 @@
 		values(#{work.work_id}, #{member.memberId}, #{review_title}, #{review_content}, #{rating})
 	</insert>
 	
+	<update id="updateHit" parameterType="int">
+		update review
+		set hit = hit + 1
+		where review_id = #{review_id}
+	</update>
+	
+	<update id="updateLikeCount" parameterType="int">
+		update review
+		set review_like_count = review_like_count + 1
+		where review_id = #{review_id}
+	</update>
 	
 	<resultMap id="reviewMapForWork" type="Review">
 		<id column="review_id"					property="review_id"/>
@@ -69,6 +80,11 @@
 	            ORDER BY r.review_regdate DESC		
 	        </otherwise>
 	    </choose>
+	</select>
+	
+	<select id="select" parameterType="int" resultType="Review">
+		select hit, review_like_count from review
+		where review_id = #{review_id}
 	</select>
 	
 	<select id="selectById" parameterType="int" resultMap="reviewMapForBestReview">
