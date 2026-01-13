@@ -68,3 +68,41 @@ html, body {
 #selected-seats-list { flex-grow: 1; background: #111; border-radius: 6px; padding: 10px; margin: 15px 0; overflow-y: auto; }
 #total-amount { color: #ffc107; font-size: 24px; }
 .btn-next-step { width: 100%; padding: 15px; background: #007bff; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+
+
+/* 범례 아이템 전체 정렬 */
+.legend-item {
+    display: flex;
+    align-items: center; /* 이미지와 글자 높이 맞춤 */
+    gap: 6px;            /* 이미지와 글자 사이 간격 */
+    font-size: 13px;     /* 글자 크기 살짝 줄임 */
+    color: #ccc;
+    margin-bottom: 5px;  /* 아이템 간 세로 간격 */
+    white-space: nowrap; /* 글자 줄바꿈 방지 */
+}
+
+/* ★ 핵심: 범례 이미지 크기 강제 고정 */
+.legend-item img {
+    width: 15px !important;  /* 이미지 가로 크기 */
+    height: 15px !important; /* 이미지 세로 크기 */
+    object-fit: cover;       /* 이미지 왜곡 방지 */
+    border-radius: 2px;      /* 모서리 살짝 둥글게 */
+    display: inline-block;
+}
+
+/* hr 태그 간격 조절 */
+hr {
+    border: 0;
+    border-top: 1px solid #444;
+    margin: 12px 0; /* 위아래 간격을 좁게 설정 */
+}
+
+/* 범례 영역을 한 줄에 2개씩 배치하고 싶을 때 */
+.seat-legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 반씩 나눠 가짐 */
+    gap: 5px;
+}
+
+
+

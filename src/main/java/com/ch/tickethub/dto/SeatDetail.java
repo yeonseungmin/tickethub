@@ -17,6 +17,7 @@ public class SeatDetail {
     private String group_name;
     private double pos_x;
     private double pos_y;
+    private double angle;
     private double row_gap;
     private double col_gap;
     private String direction;
