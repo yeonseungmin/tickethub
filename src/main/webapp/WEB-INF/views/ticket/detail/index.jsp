@@ -45,6 +45,8 @@
 	let work = <%=jsonWork%>;
 	let reviewList;
 	let paging;
+	let prevPage;
+	let prevOrderType;
 	
 	// 예비용. 접속자의 멤버 아이디가 1이라면? 나중에 session으로 교체
 	const memberId = <%= (member != null) ? member.getMemberId() : 0 %>;
@@ -281,11 +283,12 @@
     		
     		return isSameDate && isNotCancelled && isValidTime;
     	});
-        
-        //console.log(selectedRoundList);
     	
         if(selectedRoundList.length == 0){
         	roundArea.html("<p class='text-muted text-sm'>선택 가능한 회차가 없습니다.</p>");
+        	
+        	$(".btn-reservation").val(""); 
+            $("#daily-casting-area").text("-");
         	return;
         }
         
@@ -379,9 +382,41 @@
     }
     
     function registReReview(btn) {
+    	const reReviewData = {
+    			re_review_content: $(btn).closest(".card-body").find("textarea").val(),
+    			review: {
+    				review_id: $(btn).closest("li").val()
+    			}
+    	}
     	
-    	let review_id = $(btn).closest("li").val();
-    	console.log("답글을 달 review_id는 ", review_id);
+    	if(reReviewData.re_review_content == "") {
+    		alert("누락된 입력");
+    		return;
+    	}
+    	
+    	$.ajax({
+    	    url: "/detail/re_review/regist",
+    	    method: "POST",
+    	    contentType: "application/json",
+    	    data: JSON.stringify(reReviewData),
+    	    success:function(result, status, xhr) {
+    	    	alert(result.message);
+    	        getReviewList(prevPage, prevOrderType); // 목록 새로고침
+    	        $("textarea[placeholder*='답글을 입력']").val("");
+    	    },
+    	    error:function(xhr, status, err) {
+    	        // 서버가 401을 보냈다면 (세션 만료 등)
+    	        if (xhr.status === 401) {
+    	        	let obj = JSON.parse(xhr.responseText);
+    	        	if (confirm(obj.message)) {
+                        location.href = "/auth/login";
+                    }
+    	        } else {
+    	        	let obj = JSON.parse(xhr.responseText);
+    	            alert(obj.message);
+    	        }
+    	    }
+		});
     }
     
 	// [관람후기] 답글 작성 폼 토글 기능
@@ -456,6 +491,8 @@
 	}
 	
 	function displayReviewList(currentPage, orderType) {
+		prevPage = currentPage;
+		prevOrderType = orderType;
 		
 		paging = new Paging();
 		paging.init(reviewList, currentPage);
@@ -705,18 +742,28 @@
         });
     })
 	
-	
-    
     // 예매 팝업창 열기
 	function openReservation(event) {
 	    if (event) event.preventDefault();
 	    let workId = <%=work.getWork_id()%>;
 	    let roundId = $(".btn-reservation").val();
-		
+	    
 	    if (!roundId) {
 	        alert("회차를 선택해주세요.");
 	        return;
 	    }
+	    
+    	let selectedRound = work.roundList.find((round)=>{
+    		let isSameRound = (round.round_id == roundId);
+    		let isValidTime = validateRoundStartTime(round.round_date + " " + round.round_start_time);
+    		
+    		return isSameRound && isValidTime;
+    	});
+		
+    	if(!selectedRound) {
+    		alert("해당 회차는 만료되었습니다.");
+    		return;
+    	}
 	
 	    // 주소 끝에 /popup 이 정확히 붙었는지 확인
 	    let url = "${pageContext.request.contextPath}/ticket/reservation/popup?work_id=" + workId + "&round_id=" + roundId;
@@ -730,8 +777,7 @@
     <div class="content-wrapper">
         <div class="container pt-5">
             <div class="row">
-                <div class="col-lg-8">
-                    
+                <div class="col-lg-8"> 
                     <div class="mb-4 pb-3 border-bottom">
                         <h1 class="font-weight-bold mb-2" style="font-size: 32px;"><%=work.getWork_title() %></h1>
                         <div class="d-flex align-items-center">
@@ -930,8 +976,6 @@
                             <div class="card-body p-3">
                                 <h6 class="font-weight-bold mb-2">회차 선택</h6>
                                 <div class="round-select-list">
-                                    <button type="button" class="btn btn-round-select active" onclick="selectRound(this, 1)">14:00</button>
-                                    <button type="button" class="btn btn-round-select" onclick="selectRound(this, 2)">19:00</button>
                                 </div>
                             </div>
 
