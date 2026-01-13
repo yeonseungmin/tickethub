@@ -23,11 +23,13 @@ import com.ch.tickethub.dto.Member;
 import com.ch.tickethub.dto.ReReview;
 import com.ch.tickethub.dto.Review;
 import com.ch.tickethub.dto.RoundCasting;
+import com.ch.tickethub.dto.SeatGrade;
 import com.ch.tickethub.dto.Work;
 import com.ch.tickethub.exception.ReReviewException;
 import com.ch.tickethub.exception.ReviewException;
 import com.ch.tickethub.model.rereview.ReReviewService;
 import com.ch.tickethub.model.review.ReviewService;
+import com.ch.tickethub.model.seatgrade.SeatGradeService;
 import com.ch.tickethub.model.work.WorkService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,6 +42,8 @@ public class DetailController {
 	
 	@Autowired
 	WorkService workService;
+	@Autowired
+	SeatGradeService seatGradeService;
 	
     @Autowired
     @Qualifier("naverMapClientId")
@@ -72,11 +76,17 @@ public class DetailController {
     public String openReservation(@RequestParam("work_id") int workId, @RequestParam("round_id") int roundId, Model model) {
         log.info("예매 팝업 호출 - 공연ID: {}, 회차ID: {}", workId, roundId);
         
-        // JSP에서 사용할 수 있도록 모델에 담아줍니다.
-        model.addAttribute("workId", workId);
-        model.addAttribute("roundId", roundId);
+     // 1. 공연 상세 정보 조회 (기본 가격을 가져오기 위함)
+        // 서비스 메서드명은 실제 프로젝트에 맞게 확인해주세요 (예: selectOne, getWork)
+        Work work = workService.getWork(workId); 
+        model.addAttribute("work", work);
         
-        // 사용자가 말한 경로: /ticket/reservation/reservation.jsp
+        // 2. 좌석 등급 리스트 조회 (등급별 할증료를 가져오기 위함)
+        List<SeatGrade> seatGradeList = seatGradeService.getList();
+        model.addAttribute("seatGradeList", seatGradeList);
+        
+        // 3. 회차 ID 전달
+        model.addAttribute("roundId", roundId);
         return "/ticket/reservation/popup";
     }
     

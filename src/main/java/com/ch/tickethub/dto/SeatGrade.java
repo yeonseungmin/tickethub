@@ -10,5 +10,7 @@ public class SeatGrade {
 
     private String on_img_url;
     private String off_img_url;
-
+    private String sold_img_url;
+    
+    private int surcharge;
 }
