@@ -33,7 +33,6 @@ try {
 String error = (String) request.getAttribute("error");
 if (error == null) error = "";
 %>
-<form method="post" action="<%=ctx%>/tickethub/mypage/edit">
 
 <%@ include file="../../ticket/inc/head_link.jsp"%>
 <%@ include file="../../ticket/inc/header.jsp"%>
@@ -86,7 +85,7 @@ if (error == null) error = "";
         <div class="error"><%=error%></div>
       <% } %>
 
-      <form method="post" action="<%=ctx%>/tickethub/mypage/update">
+     <form method="post" action="<%=ctx%>/tickethub/mypage/edit">
         <input type="hidden" name="memberId" value="<%=member.getMemberId()%>" />
 
         <div class="form-grid">

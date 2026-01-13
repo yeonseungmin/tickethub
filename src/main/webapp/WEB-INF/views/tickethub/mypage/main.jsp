@@ -247,7 +247,7 @@ if (toastSuccess != null) session.removeAttribute("TOAST_SUCCESS");
           </div>
 
           <div style="margin-top: 16px;">
-            <%-- ✅ 버튼은 여기서 분기: 일반회원은 비번확인 페이지로, SNS는 바로 edit로 보내거나 막기 --%>
+            <%-- 버튼은 여기서 분기: 일반회원은 비번확인 페이지로, SNS는 바로 edit로 보내거나 막기 --%>
             <% if (!isSocial) { %>
               <a href="<%=request.getContextPath()%>/tickethub/mypage/password"
                  class="btn btn-primary"
