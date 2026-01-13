@@ -55,19 +55,19 @@
     <div class="container">
       <ul class="nav__list" data-nav-tabs>
         <li class='nav__item <%= "concert".equals(activeNav) ? "is-active" : "" %>'>
-          <a class="nav__link" data-nav-tab href="${ctx}/genre/concert">콘서트</a>
+          <a class="nav__link" data-nav-tab href="${ctx}/genre?type=concert">콘서트</a>
         </li>
         <li class='nav__item <%= "musical".equals(activeNav) ? "is-active" : "" %>'>
-          <a class="nav__link" data-nav-tab href="${ctx}/genre/musical">뮤지컬</a>
+          <a class="nav__link" data-nav-tab href="${ctx}/genre?type=musical">뮤지컬</a>
         </li>
         <li class='nav__item <%= "play".equals(activeNav) ? "is-active" : "" %>'>
-          <a class="nav__link" data-nav-tab href="${ctx}/genre/play">연극</a>
+          <a class="nav__link" data-nav-tab href="${ctx}/genre?type=play">연극</a>
         </li>
         <li class='nav__item <%= "classic".equals(activeNav) ? "is-active" : "" %>'>
-          <a class="nav__link" data-nav-tab href="${ctx}/genre/classic">클래식/무용</a>
+          <a class="nav__link" data-nav-tab href="${ctx}/genre?type=classic">클래식/무용</a>
         </li>
         <li class='nav__item <%= "kids".equals(activeNav) ? "is-active" : "" %>'>
-          <a class="nav__link" data-nav-tab href="${ctx}/genre/kids">어린이/가족</a>
+          <a class="nav__link" data-nav-tab href="${ctx}/genre?type=kids">어린이/가족</a>
         </li>
       </ul>
     </div>

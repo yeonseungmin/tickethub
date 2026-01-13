@@ -8,9 +8,14 @@ import com.ch.tickethub.dto.Work;
 
 public interface WorkService {
 	public void regist(Work work, MultipartFile work_poster_img, MultipartFile work_content_img);
+
 	public List getList();
+
 	public Work getWork(int work_id);
-	
+
 	public void cancelUpload(Work work);
+
 	public List getUniqueCasting(Work work);
+
+	public List<Work> getListByGenreId(int genre_id);
 }
