@@ -151,10 +151,11 @@
   		<version>5.8.13</version>
 	</dependency>
 	
+	<!-- JSTL (JSP에서 c:forEach, c:if, fmt 사용용) -->
 	<dependency>
-	    <groupId>javax.servlet</groupId>
-	    <artifactId>jstl</artifactId>
-	    <version>1.2</version>
+    	<groupId>javax.servlet</groupId>
+    	<artifactId>jstl</artifactId>
+    	<version>1.2</version>
 	</dependency>
 	
 </dependencies>

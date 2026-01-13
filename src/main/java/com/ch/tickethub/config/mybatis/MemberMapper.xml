@@ -57,7 +57,7 @@
 		oauth_id = #{oauthId} AND oauth_provider = #{oauthProvider}
 	</select>
 
-	
+
 
 	<insert id="insert" parameterType="Member">
 		INSERT INTO member (
@@ -157,7 +157,7 @@
 		m.oauth_id as oauthId,
 		g.grade_id as
 		gradeId,
-		g.grade_name
+		g.grade_name AS gradeName
 		FROM member m
 		LEFT JOIN grade g ON m.grade_id =
 		g.grade_id
@@ -192,38 +192,141 @@
 		where member_id = #{memberId} and status = 'normal'
 	</select>
 
-	<select id="existsLoginId" parameterType="String" resultType="int">
+	<select id="existsLoginId" parameterType="String"
+		resultType="int">
 		select count(*)
 		from member
 		where login_id=#{value}
-	</select>	
-	
+	</select>
+
 	<select id="existsEmail" resultType="int">
-    	SELECT COUNT(*)
-    	FROM member
-    	WHERE email = #{email}
+		SELECT COUNT(*)
+		FROM member
+		WHERE email = #{value}
+	</select>
+
+	<select id="selectById" parameterType="int" resultType="Member">
+		SELECT
+		member_id AS memberId,
+		login_id AS loginId,
+		password_hash AS
+		passwordHash,
+		name,
+		email,
+		birth_date AS birthDate,
+		phone,
+		zip_code AS
+		zipCode,
+		address,
+		status,
+		role,
+		grade_id AS gradeId,
+		created_at AS
+		createdAt,
+		updated_at AS updatedAt,
+		last_login_at AS lastLoginAt,
+		oauth_provider AS oauthProvider,
+		oauth_id AS oauthId
+		FROM member
+		WHERE
+		member_id = #{value}
+	</select>
+
+	<select id="selectPasswordHashById" parameterType="int"
+		resultType="String">
+		SELECT password_hash
+		FROM member
+		WHERE member_id = #{value}
+	</select>
+
+	<select id="existsEmailExcludeSelf" parameterType="map"
+		resultType="int">
+		SELECT COUNT(*)
+		FROM member
+		WHERE email = #{email}
+		AND
+		member_id != #{memberId}
+	</select>
+
+	<update id="updateMyInfo" parameterType="Member">
+		UPDATE member
+		SET
+		email = #{email},
+		birth_date = #{birthDate},
+		phone = #{phone},
+		zip_code = #{zipCode},
+		address = #{address},
+		updated_at = NOW()
+		WHERE member_id = #{memberId}
+	</update>
+
+	<update id="updatePassword" parameterType="map">
+		UPDATE member
+		SET
+		password_hash = #{passwordHash},
+		updated_at = NOW()
+		WHERE member_id = #{memberId}
+	</update>
+	
+	<!-- 관리자: 회원 목록(검색+필터+페이징+등급명) -->
+<select id="adminSelectMemberList" parameterType="map" resultType="Member">
+  SELECT
+    m.member_id     AS memberId,
+    m.login_id      AS loginId,
+    m.name          AS name,
+    m.email         AS email,
+    m.phone         AS phone,
+    m.status        AS status,
+    m.role          AS role,
+    m.grade_id      AS gradeId,
+    g.grade_name    AS gradeName,
+    m.last_login_at AS lastLoginAt,
+    m.created_at    AS createdAt
+  FROM member m
+  LEFT JOIN grade g ON m.grade_id = g.grade_id
+  <where>
+    <if test="status != null and status != ''">
+      AND m.status = #{status}
+    </if>
+
+    <if test="gradeId != null">
+      AND m.grade_id = #{gradeId}
+    </if>
+
+    <if test="keyword != null and keyword != ''">
+      AND (
+        m.login_id LIKE CONCAT('%', #{keyword}, '%')
+        OR m.name  LIKE CONCAT('%', #{keyword}, '%')
+        OR m.email LIKE CONCAT('%', #{keyword}, '%')
+        OR m.phone LIKE CONCAT('%', #{keyword}, '%')
+      )
+    </if>
+  </where>
+  ORDER BY m.member_id DESC
+  LIMIT #{limit} OFFSET #{offset}
 </select>
 
-<select id="selectById" parameterType="int" resultType="Member">
-    SELECT
-        member_id AS memberId,
-        login_id AS loginId,
-        password_hash AS passwordHash,
-        name,
-        email,
-        birth_date AS birthDate,
-        phone,
-        zip_code AS zipCode,
-        address,
-        status,
-        role,
-        grade_id AS gradeId,
-        created_at AS createdAt,
-        updated_at AS updatedAt,
-        last_login_at AS lastLoginAt,
-        oauth_provider AS oauthProvider,
-        oauth_id AS oauthId
-    FROM member
-    WHERE member_id = #{value}
+<!-- 관리자: 회원 목록 총 개수(페이징용) -->
+<select id="adminSelectMemberListCount" parameterType="map" resultType="int">
+  SELECT COUNT(*)
+  FROM member m
+  <where>
+    <if test="status != null and status != ''">
+      AND m.status = #{status}
+    </if>
+
+    <if test="gradeId != null">
+      AND m.grade_id = #{gradeId}
+    </if>
+
+    <if test="keyword != null and keyword != ''">
+      AND (
+        m.login_id LIKE CONCAT('%', #{keyword}, '%')
+        OR m.name  LIKE CONCAT('%', #{keyword}, '%')
+        OR m.email LIKE CONCAT('%', #{keyword}, '%')
+        OR m.phone LIKE CONCAT('%', #{keyword}, '%')
+      )
+    </if>
+  </where>
 </select>
 </mapper>

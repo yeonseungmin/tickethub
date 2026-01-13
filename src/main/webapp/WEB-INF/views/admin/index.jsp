@@ -809,7 +809,19 @@
               }
             });
           });
-
+		
+       		// 회원 목록 클릭 이벤트
+          $("#menu-members").click(function (e) {
+            e.preventDefault();
+            $.ajax({
+              url: "/admin/members",    // 컨트롤러를 /admin/members로 맞추기..
+              method: "GET",
+              success: function (result) {
+                console.log("회원 목록 클릭됨!!");
+                $(".content-wrapper").html(result);
+              }
+            });
+          });
 
         });
       </script>

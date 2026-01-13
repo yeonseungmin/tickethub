@@ -20,4 +20,13 @@ public interface MemberService {
 	public void adminUpdateMemberGrade(Integer memberId, Integer gradeId);
 
 	public Member selectMyPage(Integer memberId);
+	
+	public boolean verifyPassword(Integer memberId, String rawPassword);
+	
+	public void updateMyInfo(Member formMember);
+	
+	public void updatePassword(Integer memberId, String newRawPassword);
+	
+	public List<Member> adminSelectMemberList(String keyword, String status, Integer gradeId, int page, int size);
+	public int adminSelectMemberListCount(String keyword, String status, Integer gradeId);
 }
