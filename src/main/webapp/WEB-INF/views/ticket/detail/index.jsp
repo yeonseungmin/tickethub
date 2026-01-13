@@ -541,11 +541,58 @@
 	
 	function deleteComment(btn, type) {
 		if (type == "review") {
-			let id = $(btn).closest("li").val();
-			console.log("삭제할 review_id는 ", id);
+			let review_id = $(btn).closest("li").val();
+			console.log("삭제할 review_id는 ", review_id);
+			
+         	$.ajax({
+        	    url: "/detail/review/soft/delete",
+        	    method: "POST",
+        	    contentType: "application/json",
+        	    data: JSON.stringify({ "review_id": review_id }),
+        	    success:function(result, status, xhr) {
+        	    	alert(result.message);
+        	        getReviewList(prevPage, prevOrderType); // 목록 새로고침
+        	    },
+        	    error:function(xhr, status, err) {
+        	        // 서버가 401을 보냈다면 (세션 만료 등)
+        	        if (xhr.status === 401) {
+        	        	let obj = JSON.parse(xhr.responseText);
+        	        	if (confirm(obj.message)) {
+                            location.href = "/auth/login";
+                        }
+        	        } else {
+        	        	let obj = JSON.parse(xhr.responseText);
+        	            alert(obj.message);
+        	        }
+        	    }
+    		});
+         	
 		} else if(type == "re_review"){
-			let id = $(btn).val();
-			console.log("삭제할 re_review_id는 ", id);
+			let re_review_id = $(btn).val();
+			console.log("삭제할 re_review_id는 ", re_review_id);
+			
+         	$.ajax({
+        	    url: "/detail/re_review/delete",
+        	    method: "POST",
+        	    contentType: "application/json",
+        	    data: JSON.stringify({ "re_review_id": re_review_id }),
+        	    success:function(result, status, xhr) {
+        	    	alert(result.message);
+        	        getReviewList(prevPage, prevOrderType); // 목록 새로고침
+        	    },
+        	    error:function(xhr, status, err) {
+        	        // 서버가 401을 보냈다면 (세션 만료 등)
+        	        if (xhr.status === 401) {
+        	        	let obj = JSON.parse(xhr.responseText);
+        	        	if (confirm(obj.message)) {
+                            location.href = "/auth/login";
+                        }
+        	        } else {
+        	        	let obj = JSON.parse(xhr.responseText);
+        	            alert(obj.message);
+        	        }
+        	    }
+    		});
 		}
 		
 	}
@@ -806,7 +853,7 @@
                 }
             });
             
-            // 점수 텍스트 업데이트 (별 하나당 2점으로 계산 예시)
+            // 점수 텍스트 업데이트 (별 하나당 1점으로 계산 예시)
             $("#selected-rating").text(rating);
         });
     })

@@ -18,6 +18,12 @@
 		where review_id = #{review_id}
 	</update>
 	
+	<update id="softDelete" parameterType="int">
+		update review
+		set review_state = 'DELETED',
+			review_deleted_at = now() where review_id = #{review_id}
+	</update>
+	
 	<resultMap id="reviewMapForWork" type="Review">
 		<id column="review_id"					property="review_id"/>
 		<result column="work_id"					property="work.work_id"/>
@@ -68,7 +74,7 @@
 	        r.member_id as memberId,
 	        DATE_FORMAT(r.review_regdate, '%Y.%m.%d') as review_regdate
 	    FROM review r
-	    WHERE r.work_id = #{work_id}
+	    WHERE r.work_id = #{work_id} AND r.review_state = 'ACTIVE'
 	    <choose>
 	        <when test="orderType == 'rating'">
 	            ORDER BY r.rating DESC, r.review_regdate DESC
@@ -77,7 +83,7 @@
 	            ORDER BY r.review_like_count DESC, r.review_regdate DESC
 	        </when>
 	        <otherwise>
-	            ORDER BY r.review_regdate DESC		
+	            ORDER BY r.review_regdate DESC
 	        </otherwise>
 	    </choose>
 	</select>

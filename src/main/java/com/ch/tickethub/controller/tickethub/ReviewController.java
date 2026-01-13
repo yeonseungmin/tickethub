@@ -88,13 +88,31 @@ public class ReviewController {
 		return ResponseEntity.ok(body);
 	}
 	
+	@PostMapping("/detail/review/soft/delete")
+	@ResponseBody
+	public ResponseEntity<Map<String, String>> remove(@RequestBody Review review, HttpSession session){
+		Member loginMember = (Member) session.getAttribute("loginMember");
+		Map<String, String> body = new HashMap<>();
+		
+		if(loginMember == null) {
+			body.put("message", "로그인이 필요한 서비스입니다.\n로그인 페이지로 이동하시겠습니까?");
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+		}
+
+		reviewService.remove(review.getReview_id());
+		
+		body.put("message", "리뷰가 삭제되었습니다.");
+		
+		return ResponseEntity.ok(body);
+	}
+	
 	@ExceptionHandler({ReviewException.class})
 	@ResponseBody
 	public ResponseEntity<Map<String, String>> handle(Exception e){
-		log.debug("리뷰 등록에서 예외가 발생하여, handler 메서드가 호출됨");
+		log.debug("리뷰에서 예외가 발생하여, handler 메서드가 호출됨");
 		
 		Map<String, String> body = new HashMap<>();
-		body.put("message", "서버 오류로 인해 리뷰 등록에 실패했습니다.");
+		body.put("message", "서버 오류로 인해 실패했습니다.");
 		
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
 	}

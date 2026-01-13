@@ -22,5 +22,15 @@ public class MybatisReReviewDAO implements ReReviewDAO{
 			throw new ReReviewException("답글 등록 과정 중 오류 발생", e);
 		}
 	}
+
+	@Override
+	public void delete(int re_review_id) {
+		try {
+			sqlSessionTemplate.delete("ReReview.delete", re_review_id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ReReviewException("답글 삭제 과정 중 오류 발생", e);
+		}
+	}
 	
 }
