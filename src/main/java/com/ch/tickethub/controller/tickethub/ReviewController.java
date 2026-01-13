@@ -32,12 +32,29 @@ public class ReviewController {
 	ReviewService reviewService;
 	
 	// orderType latest, rating, likes
-	@GetMapping("/detail/review")
+	@GetMapping("/detail/review/list")
 	@ResponseBody
-	public List<Review> getReview(int work_id, String orderType) {
+	public List<Review> getReviewList(int work_id, String orderType) {
 		//log.debug("orderType은 {}", orderType);
 		
 		return reviewService.getListByWorkId(work_id , orderType);
+	}
+	
+	@GetMapping("/detail/review")
+	@ResponseBody
+	public Review getReview(int review_id) {
+		//log.debug("review_id는 {}", review_id);
+		
+		return reviewService.getReview(review_id);
+	}
+	
+	@PostMapping("/detail/review/hit/update")
+	@ResponseBody
+	public Review setHit(@RequestBody Review review) {
+		
+		reviewService.setHit(review.getReview_id());
+		
+		return reviewService.getReview(review.getReview_id());
 	}
 	
 	@PostMapping("/detail/review/regist")

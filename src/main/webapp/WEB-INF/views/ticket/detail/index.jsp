@@ -450,10 +450,16 @@
 	// [관람후기] 더보기/접기 버튼 동작
     function toggleReviewText(btn) {
     	let reviewItem = $(btn).closest("li");
+    	let reviewHit = reviewItem.find(".review-hit");
         let textContainer = reviewItem.find(".review-text-clamp");
         let replyList = reviewItem.find(".reply-list");
         // 답글 폼도 같이 닫아줘야 한다.
         let replyForm = reviewItem.find(".reply-form-container");
+        
+        // 쿠키단위로 해당 review_id를 늘리겠다.
+        let rawCookie = getCookie("hittedList")
+        let hittedList = rawCookie ? JSON.parse(rawCookie) : [];
+        let review_id = reviewItem.val();
         
         if (textContainer.hasClass("expanded")) {
             // 접기 동작
@@ -464,14 +470,42 @@
             
         } else {
             // 펼치기 동작
-            let review_id = $(btn).closest("li").val();
-            console.log("조회수를 늘릴 review_id는 ", review_id);
+            //console.log("조회수를 늘릴 review_id는 ", review_id);
+            
+            if (hittedList.includes(review_id)) {
+            	console.log("이미 이 리뷰의 조회수를 올렸습니다.");
+            } else {
+            	console.log("처음 보는 리뷰입니다. 조회수 증가 로직 실행!");
+            	
+            	hittedList.push(review_id);
+            	let cookieValue = JSON.stringify(hittedList);
+            	// 24시간 후에 조회수 늘릴 수 있음.
+            	document.cookie = `hittedList=\${cookieValue}; max-age=86400`;
+            	
+             	$.ajax({
+            	    url: "/detail/review/hit/update",
+            	    method: "POST",
+            	    contentType: "application/json",
+            	    data: JSON.stringify({ "review_id": review_id }),
+            	    success:function(result, status, xhr) {
+            	    	let review = result;
+            	    	console.log(review);
+            	    	reviewHit.text("조회 " + moneyConverter.format(review.hit));
+            	    },
+            	    error:function(xhr, status, err) {
+           	        	let obj = JSON.parse(xhr.responseText);
+           	            alert(obj.message);
+            	    }
+        		});
+            }
             
             textContainer.addClass("expanded");
             replyList.show();
             $(btn).html("접기 <i class='fas fa-chevron-up'></i>");
         }
     }
+	
+
 	
 	// [관람후기] 신고 동작
 	function report(btn) {
@@ -654,12 +688,13 @@
 		paginationArea.append(paginationTag);
 	}
 	
+	// 이거 post방식이 맞는 것 같은데 나중에 하자.
 	function getReviewList(currentPage, orderType="latest") {
 		$(".btn-group .btn").removeClass("active");
 	    $(`.\${orderType}`).addClass("active");
 	    
 		$.ajax({
-			url:"/detail/review?work_id=" + work.work_id + "&orderType=" + orderType,
+			url:"/detail/review/list?work_id=" + work.work_id + "&orderType=" + orderType,
 			method:"GET",
 			success:function(result){
 				console.log("관람후기 클릭됨!");

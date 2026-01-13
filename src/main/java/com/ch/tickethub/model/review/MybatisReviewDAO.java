@@ -37,4 +37,28 @@ public class MybatisReviewDAO implements ReviewDAO{
 		return sqlSessionTemplate.selectList("Review.selectByWorkId", map);
 	}
 
+	@Override
+	public Review select(int review_id) {
+		return sqlSessionTemplate.selectOne("Review.select", review_id);
+	}
+
+	@Override
+	public void updateHit(int review_id) throws ReviewException{
+	
+		try {
+			int updateCount = sqlSessionTemplate.update("Review.updateHit", review_id);
+			
+			if(updateCount == 0) {
+				throw new ReviewException("업데이트 실패");
+			}
+		} catch (ReviewException e){
+			throw e;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ReviewException("나머지 모든 업데이트 에러", e);
+		}
+		
+		
+	}
+
 }

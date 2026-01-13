@@ -132,6 +132,20 @@
 /* ==========================================================================
    6. 기타 유틸리티
    ========================================================================== */
+/* [스타일] 좋아요 버튼 */
+
+.btn-like-wrapper { margin-top: 15px; text-align: center; }
+
+.btn-like {
+
+border: none; background: transparent; padding: 5px 10px; color: #555; font-weight: bold; font-size: 1.1em;
+
+transition: transform 0.2s;
+
+}
+
+.btn-like:hover { transform: scale(1.1); color: #dc3545; }
+
 .btn-like.active { color: #dc3545; }
 
 button:disabled {
