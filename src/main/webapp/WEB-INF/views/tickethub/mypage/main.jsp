@@ -173,7 +173,7 @@ if (toastSuccess != null) session.removeAttribute("TOAST_SUCCESS");
     <div class="mypage-title">
       <div>
         <h2>마이페이지</h2>
-        <div class="mypage-sub">내 계정 정보를 확인할 수 있어요.</div>
+        <div class="mypage-sub">내 계정 정보를 확인할 수 있습니다.</div>
       </div>
       <div>
         <% if ("BLOCKED".equals(member.getStatus())) { %>
@@ -187,7 +187,7 @@ if (toastSuccess != null) session.removeAttribute("TOAST_SUCCESS");
     <%-- ✅ SNS 회원 안내는 member null 체크 이후에만 --%>
     <% if (isSocial) { %>
       <div style="margin: -6px 0 14px; color:#6b7280; font-size:12px;">
-        SNS 회원은 일부 정보만 수정할 수 있어요.
+        SNS 회원은 일부 정보만 수정할 수 있습니다.
       </div>
     <% } %>
 

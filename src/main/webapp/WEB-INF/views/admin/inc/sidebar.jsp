@@ -86,7 +86,7 @@
 		  </ul>
 		</li>      
                
-          <li class="nav-item menu-open performance">
+          <li class="nav-item menu performance">
             <a href="#" class="nav-link active">
               <i class="nav-icon fas fa-tachometer-alt"></i>
               <p>
@@ -152,7 +152,7 @@
             </ul>
           </li>
           
-		<li class="nav-item menu-open seat">
+		<li class="nav-item menu seat">
 		  <a href="#" class="nav-link active">
 		    <i class="nav-icon fas fa-tachometer-alt"></i>
 		    <p>
