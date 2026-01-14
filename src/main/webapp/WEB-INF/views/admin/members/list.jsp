@@ -293,19 +293,43 @@
       reloadMembers({ page: p });
     });
 
-    // 상세 보기 (Ajax로 detail도 오른쪽에 띄우고 싶으면)
-    $(".btn-detail").on("click", function(e){
-      e.preventDefault();
-      const memberId = $(this).data("memberid");
+    function currentListQuery(){
+        const q = $("#member-search-form").serialize(); // page 포함
+        return q ? ("?" + q) : "";
+      }
 
-      $.ajax({
-        url: "/admin/members/detail",
-        method: "GET",
-        data: { memberId: memberId },
-        success: function(result){
-          $(".content-wrapper").html(result);
-        }
+      $(".btn-detail").off("click").on("click", function(e){
+        e.preventDefault();
+        const memberId = $(this).data("memberid");
+
+        const listUrl = "/admin/members" + currentListQuery();
+
+        // 현재 목록 상태를 history에 저장
+        history.pushState(
+          { view: "list", url: listUrl },
+          "",
+          listUrl
+        );
+
+        // 상세로 pushState
+        const detailUrl = "/admin/members/detail?memberId=" + memberId;
+
+        history.pushState(
+          { view: "detail", memberId: memberId, backUrl: listUrl },
+          "",
+          detailUrl
+        );
+
+        // 상세 Ajax 로드
+        $.ajax({
+          url: "/admin/members/detail",
+          method: "GET",
+          data: { memberId: memberId },
+          success: function(result){
+            $(".content-wrapper").html(result);
+          }
+        });
       });
-    });
-  })();
-</script>
+
+    })();
+    </script>

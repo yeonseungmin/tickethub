@@ -18,13 +18,14 @@ public class AdminMemberController {
     @Autowired
     private MemberService memberService;
 
+    //인터셉터만들긴 했지만 혹시 모르니깐 일단 두자..
     private boolean isAdmin(HttpSession session) {
         Object obj = session.getAttribute("loginMember");
         if (obj == null) return false;
         return "ADMIN".equals(((Member)obj).getRole());
     }
 
-    // ✅ 목록 (fragment로 리턴)
+    // 목록 (fragment로 리턴)
     @GetMapping
     public String list(
             @RequestParam(value = "keyword", required = false) String keyword,
@@ -35,7 +36,18 @@ public class AdminMemberController {
             Model model
     ) {
         if (!isAdmin(session)) return "redirect:/auth/login";
-
+        
+        //공백때문에 키워드검색+gradeId검색이 안되는듯..! 일단 방어..
+        if (keyword != null) {
+            keyword = keyword.trim();
+            if (keyword.isEmpty()) keyword = null;
+        }
+        
+        if (status != null) {
+            status = status.trim();
+            if (status.isEmpty()) status = null;
+        }
+        
         int size = 10;
 
         int total = memberService.adminSelectMemberListCount(keyword, status, gradeId);
@@ -58,7 +70,7 @@ public class AdminMemberController {
         return "admin/members/list";
     }
 
-    // ✅ 상세
+    // 상세
     @GetMapping("/detail")
     public String detail(
             @RequestParam("memberId") Integer memberId,
@@ -73,7 +85,7 @@ public class AdminMemberController {
         return "admin/members/detail";
     }
 
-    // ✅ 상태 변경 (AJAX POST 대응)
+    // 상태 변경 (AJAX POST로..
     @PostMapping("/status")
     @ResponseBody
     public String updateStatus(
@@ -81,12 +93,12 @@ public class AdminMemberController {
             @RequestParam("status") String status,
             HttpSession session
     ) {
-        if (!isAdmin(session)) return "FORBIDDEN";
+        if (!isAdmin(session)) return "redirect:/auth/login";
         memberService.adminUpdateMemberStatus(memberId, status);
-        return "OK";
+        return "redirect:/admin/members/detail?memberId=" + memberId;
     }
 
-    // ✅ 등급 변경 (AJAX POST 대응)
+    // 등급 변경 (AJAX POST)
     @PostMapping("/grade")
     @ResponseBody
     public String updateGrade(
@@ -94,8 +106,8 @@ public class AdminMemberController {
             @RequestParam("gradeId") Integer gradeId,
             HttpSession session
     ) {
-        if (!isAdmin(session)) return "FORBIDDEN";
+        if (!isAdmin(session)) return "redirect:/auth/login";
         memberService.adminUpdateMemberGrade(memberId, gradeId);
-        return "OK";
+        return "redirect:/admin/members/detail?memberId=" + memberId;
     }
 }

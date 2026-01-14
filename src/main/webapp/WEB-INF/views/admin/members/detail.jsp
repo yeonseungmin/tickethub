@@ -3,56 +3,26 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
 <style>
-  /* list.jsp와 동일한 폭 규칙 */
-  #content{
-    width: 1200px;
-    min-height: 700px;
-    margin: 0 auto;
+  #content{ width:1200px; min-height:700px; margin:0 auto; }
+  .topnav{
+    overflow:hidden; background:#333; text-align:center;
+    border-radius:6px; margin:12px 0 16px;
   }
-
-  .topnav {
-    overflow: hidden;
-    background-color: #333;
-    text-align: center;
-    border-radius: 6px;
-    margin: 12px 0 16px;
+  .topnav a{
+    float:left; color:#f2f2f2; padding:14px 16px;
+    text-decoration:none; font-size:17px;
   }
-
-  .topnav a {
-    float: left;
-    color: #f2f2f2;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
-    font-size: 17px;
-  }
-
-  .topnav a:hover {
-    background-color: #ddd;
-    color: black;
-  }
-
-  .topnav a.active {
-    background-color: #04AA6D;
-    color: white;
-  }
-
-  .badge-pill { border-radius: 999px; padding: 6px 10px; font-weight: 700; display:inline-block; }
-  .badge-normal { background:#e8f7ef; color:#0f5132; }
-  .badge-blocked{ background:#fdecea; color:#842029; }
-  .badge-admin  { background:#e7f1ff; color:#0b5ed7; }
-  .badge-user   { background:#f1f3f5; color:#495057; }
+  .topnav a:hover{ background:#ddd; color:#000; }
+  .topnav a.active{ background:#04AA6D; color:#fff; }
 </style>
 
 <div id="content">
 
-  <!-- topnav -->
   <div class="topnav">
-    <a href="#" id="nav-members">회원 목록</a>
-    <a class="active" href="#" onclick="return false;">회원 상세</a>
+    <a href="#" class="active" onclick="return false;">회원 상세</a>
+    <a href="#" id="btn-back-list">목록으로</a>
   </div>
 
-  <!-- Content Header -->
   <div class="content-header">
     <div class="container-fluid">
       <div class="row mb-2">
@@ -61,8 +31,8 @@
         </div>
         <div class="col-sm-6">
           <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="#" onclick="return false;">Home</a></li>
-            <li class="breadcrumb-item"><a href="#" id="breadcrumb-members">회원관리</a></li>
+            <li class="breadcrumb-item"><a href="#" id="crumb-home">Home</a></li>
+            <li class="breadcrumb-item"><a href="#" id="crumb-members">회원관리</a></li>
             <li class="breadcrumb-item active">상세</li>
           </ol>
         </div>
@@ -73,230 +43,155 @@
   <section class="content">
     <div class="container-fluid">
 
-      <c:if test="${empty member}">
-        <div class="card">
-          <div class="card-body text-center text-muted" style="padding:24px;">
-            회원 정보를 찾을 수 없습니다.
-          </div>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">기본 정보</h3>
         </div>
-      </c:if>
-
-      <c:if test="${not empty member}">
-        <!-- 기본 정보 카드 -->
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">기본 정보</h3>
-            <div class="card-tools">
-              <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-back">
-                목록으로
-              </button>
-            </div>
-          </div>
-
-          <div class="card-body">
-            <div class="row">
-
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label>ID</label>
-                  <input type="text" class="form-control" value="${member.memberId}" readonly>
-                </div>
-
-                <div class="form-group">
-                  <label>아이디</label>
-                  <input type="text" class="form-control" value="${member.loginId}" readonly>
-                </div>
-
-                <div class="form-group">
-                  <label>이름</label>
-                  <input type="text" class="form-control" value="${member.name}" readonly>
-                </div>
-
-                <div class="form-group">
-                  <label>이메일</label>
-                  <input type="text" class="form-control" value="${member.email}" readonly>
-                </div>
-
-                <div class="form-group">
-                  <label>전화</label>
-                  <input type="text" class="form-control" value="${member.phone}" readonly>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label>상태</label><br/>
-                  <c:choose>
-                    <c:when test="${member.status == 'BLOCKED'}">
-                      <span class="badge-pill badge-blocked">BLOCKED</span>
-                    </c:when>
-                    <c:otherwise>
-                      <span class="badge-pill badge-normal">NORMAL</span>
-                    </c:otherwise>
-                  </c:choose>
-                </div>
-
-                <div class="form-group">
-                  <label>권한</label><br/>
-                  <c:choose>
-                    <c:when test="${member.role == 'ADMIN'}">
-                      <span class="badge-pill badge-admin">ADMIN</span>
-                    </c:when>
-                    <c:otherwise>
-                      <span class="badge-pill badge-user">USER</span>
-                    </c:otherwise>
-                  </c:choose>
-                </div>
-
-                <div class="form-group">
-                  <label>등급</label>
-                  <input type="text" class="form-control"
-                         value="<c:out value='${member.gradeName}'/> ( #<c:out value='${member.gradeId}'/> )"
-                         readonly>
-                </div>
-
-                <div class="form-group">
-                  <label>가입일</label>
-                  <input type="text" class="form-control"
-                         value="<fmt:formatDate value='${member.createdAt}' pattern='yyyy-MM-dd'/>"
-                         readonly>
-                </div>
-
-                <div class="form-group">
-                  <label>마지막 로그인</label>
-                  <input type="text" class="form-control"
-                         value="<fmt:formatDate value='${member.lastLoginAt}' pattern='yyyy-MM-dd HH:mm'/>"
-                         readonly>
-                </div>
-              </div>
-
-            </div>
-          </div>
+        <div class="card-body">
+          <table class="table table-bordered">
+            <tr><th style="width:200px;">회원ID</th><td>${member.memberId}</td></tr>
+            <tr><th>아이디</th><td>${member.loginId}</td></tr>
+            <tr><th>이름</th><td>${member.name}</td></tr>
+            <tr><th>이메일</th><td>${member.email}</td></tr>
+            <tr><th>전화</th><td>${member.phone}</td></tr>
+            <tr><th>상태</th><td>${member.status}</td></tr>
+            <tr><th>권한</th><td>${member.role}</td></tr>
+            <tr><th>등급</th><td>${member.gradeName} (#${member.gradeId})</td></tr>
+            <tr><th>가입일</th><td><fmt:formatDate value="${member.createdAt}" pattern="yyyy-MM-dd"/></td></tr>
+          </table>
         </div>
+      </div>
 
-        <!-- 상태 변경 카드 -->
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">상태 변경</h3>
-          </div>
-          <div class="card-body">
-            <form id="form-status">
-              <input type="hidden" name="memberId" value="${member.memberId}"/>
-
-              <div class="row">
-                <div class="col-md-4">
-                  <select class="form-control" name="status">
-                    <option value="NORMAL"  <c:if test="${member.status == 'NORMAL'}">selected</c:if>>NORMAL</option>
-                    <option value="BLOCKED" <c:if test="${member.status == 'BLOCKED'}">selected</c:if>>BLOCKED</option>
-                  </select>
-                </div>
-                <div class="col-md-3">
-                  <button type="submit" class="btn btn-danger">상태 저장</button>
-                </div>
-              </div>
-            </form>
-            <small class="text-muted">※ 저장 시 현재 상세 화면이 자동 갱신됩니다.</small>
-          </div>
+      <!-- 상태 변경 -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">관리</h3>
         </div>
+        <div class="card-body">
 
-        <!-- 등급 변경 카드 -->
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">등급 변경</h3>
-          </div>
-          <div class="card-body">
-            <form id="form-grade">
-              <input type="hidden" name="memberId" value="${member.memberId}"/>
+          <form id="form-status" class="form-inline" style="gap:10px;">
+            <input type="hidden" name="memberId" value="${member.memberId}">
+            <label>상태</label>
+            <select class="form-control" name="status">
+              <option value="NORMAL"  <c:if test="${member.status=='NORMAL'}">selected</c:if>>NORMAL</option>
+              <option value="BLOCKED" <c:if test="${member.status=='BLOCKED'}">selected</c:if>>BLOCKED</option>
+            </select>
+            <button type="submit" class="btn btn-primary">상태 변경</button>
+          </form>
 
-              <div class="row">
-                <div class="col-md-4">
-                  <input type="number" class="form-control" name="gradeId" value="${member.gradeId}" min="1">
-                </div>
-                <div class="col-md-3">
-                  <button type="submit" class="btn btn-primary">등급 저장</button>
-                </div>
-              </div>
-            </form>
-            <small class="text-muted">※ gradeId만 바꾸는 버전(등급 테이블 연동은 팀 규칙대로 확장).</small>
-          </div>
+          <hr>
+
+          <form id="form-grade" class="form-inline" style="gap:10px;">
+            <input type="hidden" name="memberId" value="${member.memberId}">
+            <label>등급ID</label>
+            <input type="number" class="form-control" name="gradeId" value="${member.gradeId}">
+            <button type="submit" class="btn btn-success">등급 변경</button>
+          </form>
+
         </div>
-
-      </c:if>
+      </div>
 
     </div>
   </section>
 </div>
 
 <script>
-  (function(){
-    // ✅ list 화면 다시 로드
-    function goMembersList(){
-      $.ajax({
-        url: "/admin/members",
-        method: "GET",
-        success: function(result){
-          $(".content-wrapper").html(result);
-        }
-      });
+(function(){
+
+  // 목록으로 돌아갈 URL (list.jsp에서 pushState로 backUrl 넣어둔 걸 사용)
+  function getBackUrl(){
+    const st = history.state;
+    if(st && st.backUrl) return st.backUrl;
+
+    // 혹시 state 없으면 기본 목록
+    return "/admin/members?page=1";
+  }
+
+  function loadListByUrl(url){
+    // url: "/admin/members?keyword=..&page=.."
+    $.ajax({
+      url: url,
+      method: "GET",
+      success: function(result){
+        // 목록으로 돌아갈 때 URL도 맞춰주기
+        history.pushState({ view:"list", url:url }, "", url);
+        $(".content-wrapper").html(result);
+      }
+    });
+  }
+
+  // detail에서 "목록으로" 버튼
+  $("#btn-back-list").off("click").on("click", function(e){
+    e.preventDefault();
+
+    // 1순위: history가 정상이라면 back()
+    // (list.jsp에서 listUrl → detailUrl 순으로 pushState 했기 때문)
+    if(history.length > 1){
+      history.back();
+      return;
     }
 
-    // ✅ detail 화면 다시 로드(갱신용)
-    function reloadDetail(memberId){
-      $.ajax({
-        url: "/admin/members/detail",
-        method: "GET",
-        data: { memberId: memberId },
-        success: function(result){
-          $(".content-wrapper").html(result);
-        }
-      });
-    }
+    // 2순위: 안전망 - 직접 목록 Ajax 로드
+    loadListByUrl(getBackUrl());
+  });
 
-    // 목록으로 버튼
-    $("#btn-back").on("click", function(){
-      goMembersList();
+  // breadcrumb 클릭도 목록으로
+  $("#crumb-members").off("click").on("click", function(e){
+    e.preventDefault();
+    loadListByUrl(getBackUrl());
+  });
+  $("#crumb-home").off("click").on("click", function(e){
+    e.preventDefault();
+    // 홈은 너희 정책에 맞게 처리 (admin/main으로)
+    $.ajax({
+      url: "/admin/main",
+      method: "GET",
+      success: function(result){
+        history.pushState({view:"main"}, "", "/admin/main");
+        $(".content-wrapper").html(result);
+      }
     });
+  });
 
-    // topnav/빵부스러기에서도 목록 이동
-    $("#nav-members, #breadcrumb-members").on("click", function(e){
-      e.preventDefault();
-      goMembersList();
+  // 상태 변경/등급 변경도 "전체 페이지 이동"이 아니라 Ajax로 처리 (fragment 유지)
+  $("#form-status").off("submit").on("submit", function(e){
+    e.preventDefault();
+    $.ajax({
+      url: "/admin/members/status",
+      method: "POST",
+      data: $(this).serialize(),
+      success: function(){
+        // 변경 후 detail 다시 로드
+        const memberId = ${member.memberId};
+        $.ajax({
+          url: "/admin/members/detail",
+          data: { memberId: memberId },
+          success: function(result){
+            $(".content-wrapper").html(result);
+          }
+        });
+      }
     });
+  });
 
-    // ✅ 상태 변경: Ajax POST -> 성공하면 detail 갱신
-    $("#form-status").on("submit", function(e){
-      e.preventDefault();
-      const memberId = $(this).find("input[name='memberId']").val();
-
-      $.ajax({
-        url: "/admin/members/status",
-        method: "POST",
-        data: $(this).serialize(),
-        success: function(){
-          reloadDetail(memberId);
-        },
-        error: function(){
-          alert("상태 변경 중 오류가 발생했습니다.");
-        }
-      });
+  $("#form-grade").off("submit").on("submit", function(e){
+    e.preventDefault();
+    $.ajax({
+      url: "/admin/members/grade",
+      method: "POST",
+      data: $(this).serialize(),
+      success: function(){
+        const memberId = ${member.memberId};
+        $.ajax({
+          url: "/admin/members/detail",
+          data: { memberId: memberId },
+          success: function(result){
+            $(".content-wrapper").html(result);
+          }
+        });
+      }
     });
+  });
 
-    // ✅ 등급 변경: Ajax POST -> 성공하면 detail 갱신
-    $("#form-grade").on("submit", function(e){
-      e.preventDefault();
-      const memberId = $(this).find("input[name='memberId']").val();
-
-      $.ajax({
-        url: "/admin/members/grade",
-        method: "POST",
-        data: $(this).serialize(),
-        success: function(){
-          reloadDetail(memberId);
-        },
-        error: function(){
-          alert("등급 변경 중 오류가 발생했습니다.");
-        }
-      });
-    });
-  })();
+})();
 </script>
