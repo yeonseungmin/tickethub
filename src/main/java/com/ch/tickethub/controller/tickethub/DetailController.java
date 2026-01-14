@@ -51,6 +51,9 @@ public class DetailController {
 	@Autowired
 	ReportCategoryService reportCategoryService;
 	
+	@Autowired
+	ReviewService reviewService;
+	
     @Autowired
     @Qualifier("naverMapClientId")
     private String naverMapClientId;
@@ -61,6 +64,10 @@ public class DetailController {
 		Work work = workService.getWork(work_id);
 		List<RoundCasting> uniqueCastingList = workService.getUniqueCasting(work);
 		List<ReportCategory> reportCategoryList = reportCategoryService.getReportCategoryList();
+		Map<String, Object> stats = reviewService.getReviewStats(work_id);
+		
+		model.addAttribute("avgRating", stats.get("avgRating"));
+	    model.addAttribute("reviewCount", stats.get("reviewCount"));
 			
 		model.addAttribute("work", work);
 		model.addAttribute("uniqueCastingList", uniqueCastingList);

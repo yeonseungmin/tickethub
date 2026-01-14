@@ -1,3 +1,5 @@
+<%@page import="com.ch.tickethub.util.MoneyConverter"%>
+<%@page import="java.math.BigDecimal"%>
 <%@page import="com.ch.tickethub.dto.ReportCategory"%>
 <%@page import="com.ch.tickethub.dto.Member"%>
 <%@page import="com.ch.tickethub.dto.Round"%>
@@ -13,6 +15,16 @@
 	String jsonWork = (String)request.getAttribute("jsonWork");
 	String naverMapClientId = (String)request.getAttribute("naverMapClientId");
 	List<ReportCategory> reportCategoryList = (List)request.getAttribute("reportCategoryList");
+	
+	Object avgObj = request.getAttribute("avgRating");
+	double avgRating = 0.0;
+	
+	avgRating = ((BigDecimal) avgObj).doubleValue();
+	
+	long reviewCount = (Long)request.getAttribute("reviewCount");
+	
+	System.out.println(avgRating);
+	System.out.println(reviewCount);
 	
 	// 장르 이름 가져오기
     String genreName = work.getGenre().getGenre_name();
@@ -32,8 +44,7 @@
 	<link rel="stylesheet" href="/static/assets/css/detail.css">
 </head>
 <body class="layout-top-nav" style="background-color: #ffffff;">
-<% System.out.println(uniqueCastingList); %>
-<% System.out.println(jsonWork); %>
+
 <script src="/static/assets/js/Util.js"></script>
 <script src="/static/assets/js/Paging.js"></script>
 <script src="/static/assets/js/MoneyConverter.js"></script>
@@ -346,7 +357,7 @@
     // 관람후기 함수 시작
     // 신고 팝업
 	function openReportModal(review_id) {
-		console.log("신고 당한 review_id는 ", review_id);
+		//console.log("신고 당한 review_id는 ", review_id);
 	    // 어느 리뷰를 신고하는지 ID를 세팅
 	    $('#report_review_id').val(review_id);
 	    
@@ -559,9 +570,9 @@
             //console.log("조회수를 늘릴 review_id는 ", review_id);
             
             if (hittedList.includes(review_id)) {
-            	console.log("이미 이 리뷰의 조회수를 올렸습니다.");
+            	//console.log("이미 이 리뷰의 조회수를 올렸습니다.");
             } else {
-            	console.log("처음 보는 리뷰입니다. 조회수 증가 로직 실행!");
+            	//console.log("처음 보는 리뷰입니다. 조회수 증가 로직 실행!");
             	
             	hittedList.push(review_id);
             	let cookieValue = JSON.stringify(hittedList);
@@ -573,7 +584,7 @@
             	    data: JSON.stringify({ "review_id": review_id }),
             	    success:function(result, status, xhr) {
             	    	let review = result;
-            	    	console.log(review);
+            	    	//console.log(review);
             	    	reviewHit.text("조회 " + moneyConverter.format(review.hit));
             			// 24시간 후에 조회수 늘릴 수 있음. path=/ 상세페이지 경로 한정
             			document.cookie = `hittedList=\${cookieValue}; max-age=86400; path=/`;
@@ -600,7 +611,7 @@
 	function deleteComment(btn, type) {
 		if (type == "review") {
 			let review_id = $(btn).closest("li").val();
-			console.log("삭제할 review_id는 ", review_id);
+			//console.log("삭제할 review_id는 ", review_id);
 			
          	$.ajax({
         	    url: "/detail/review/soft/delete",
@@ -627,7 +638,7 @@
          	
 		} else if(type == "re_review"){
 			let re_review_id = $(btn).val();
-			console.log("삭제할 re_review_id는 ", re_review_id);
+			//console.log("삭제할 re_review_id는 ", re_review_id);
 			
          	$.ajax({
         	    url: "/detail/re_review/delete",
@@ -835,9 +846,9 @@
 			url:"/detail/review/list?work_id=" + work.work_id + "&orderType=" + orderType,
 			method:"GET",
 			success:function(result){
-				console.log("관람후기 클릭됨!");
+				//console.log("관람후기 클릭됨!");
 				reviewList = result;
-				console.log(reviewList);
+				//console.log(reviewList);
 				
 				$($(".review-count")[0]).text("리뷰 " + moneyConverter.format(reviewList.length) + "개");
 				$($(".review-count")[1]).text(moneyConverter.format(reviewList.length));
@@ -955,9 +966,21 @@
                         <h1 class="font-weight-bold mb-2" style="font-size: 32px;"><%=work.getWork_title() %></h1>
                         <div class="d-flex align-items-center">
                             <span class="badge badge-warning text-white mr-2 px-2 py-1" style="font-size: 14px;"><%=work.getGenre().getGenre_name() %> 1위</span>
-                            <span class="text-warning mr-1"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></span>
-                            <span class="font-weight-bold text-dark" style="font-size: 18px;">4.8</span>
-                            <span class="text-muted ml-2 text-sm review-count">(리뷰 1,240개)</span>
+                            <span class="text-warning mr-1">
+                            <%for(int i = 1; i <= 5; i++) {%>
+                            	<%if(avgRating >= i) {%>
+                            			<i class="fas fa-star"></i>
+                            	<%}else { %>
+                            		<% if(avgRating >= i - 0.5){%>
+                            				<i class="fas fa-star-half-alt"></i>
+                            		<%}else { %>
+                            				<i class="far fa-star"></i>
+                            		<%} %>
+                            	<%} %>
+                            <%} %>
+                            </span>
+                            <span class="font-weight-bold text-dark" style="font-size: 18px;"><%=avgRating %></span>
+                            <span class="text-muted ml-2 text-sm review-count">(리뷰 <%=MoneyConverter.format((int)reviewCount) %>개)</span>
                         </div>
                     </div>
 

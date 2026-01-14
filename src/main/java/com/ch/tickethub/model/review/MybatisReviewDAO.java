@@ -41,6 +41,12 @@ public class MybatisReviewDAO implements ReviewDAO{
 	public Review select(int review_id) {
 		return sqlSessionTemplate.selectOne("Review.select", review_id);
 	}
+	
+
+	@Override
+	public Map<String, Object> selectReviewStats(int work_id) {
+		return sqlSessionTemplate.selectOne("Review.selectReviewStats", work_id);
+	}
 
 	@Override
 	public void updateHit(int review_id) throws ReviewException{
@@ -86,5 +92,6 @@ public class MybatisReviewDAO implements ReviewDAO{
 			throw new ReviewException("리뷰 삭제 과정 중 오류 발생", e);
 		}
 	}
+
 
 }

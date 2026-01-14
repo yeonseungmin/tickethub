@@ -1,6 +1,7 @@
 package com.ch.tickethub.model.review;
 
 import java.util.List;
+import java.util.Map;
 
 import com.ch.tickethub.dto.Review;
 
@@ -11,4 +12,6 @@ public interface ReviewDAO {
 	public void updateHit(int review_id);
 	public void updateLikeCount(int review_id);
 	public void softDelete(int review_id);
+	public Map<String, Object> selectReviewStats(int work_id);
+	
 }
