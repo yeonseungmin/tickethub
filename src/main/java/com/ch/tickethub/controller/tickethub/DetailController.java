@@ -96,7 +96,7 @@ public class DetailController {
 	public List<Map<String, Object>> getSeatStats(int round_id) {
 		List<Map<String, Object>> seatStats = roundService.getSeatStats(round_id);
 		
-		log.debug("seatStats는 {}", seatStats);
+		//log.debug("seatStats는 {}", seatStats);
 		
 		return seatStats;
 	}

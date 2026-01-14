@@ -56,6 +56,8 @@
 	let prevOrderType;
 	
 	const memberId = <%= (member != null) ? member.getMemberId() : 0 %>;
+	const birthDate = <%= (member != null) ? member.getBirthDate() : 0 %>;
+	
 	// review_like을 하루 저장하기 위한 키
 	let cookieKey = "likedList_member" + memberId;
    	let rawCookie = getCookie(cookieKey);
@@ -73,18 +75,18 @@
     // 좋아요 버튼 토글
     function toggleLike(btn) {
         $(btn).toggleClass("active");
-        let $icon = $(btn).find('i');
-        let $count = $("#likeCount");
-        let currentVal = parseInt($count.text().replace(/,/g, ''));
+        let icon = $(btn).find("i");
+        let count = $("#likeCount");
+        let currentVal = parseInt(count.text().replace(/,/g, ''));
 
         if($(btn).hasClass("active")) {
-            $icon.removeClass('far').addClass('fas');
-            $count.text((currentVal + 1).toLocaleString());
+            icon.removeClass('far').addClass('fas');
+            count.text((currentVal + 1).toLocaleString());
         } else {
-            $icon.removeClass('fas').addClass('far');
-            $count.text((currentVal - 1).toLocaleString());
+            icon.removeClass('fas').addClass('far');
+            count.text((currentVal - 1).toLocaleString());
         }
-    } 
+    }
     
     // new Date("2025-11-09")	work_start_date work_end_date 쓸 때 참조
     // new Date("2025-11-09 18:10")
@@ -232,6 +234,7 @@
     	}
     }
     
+    
     // 회차 시작 시간을 눌렀을 때
     function selectRound(element, roundId) {
     	
@@ -242,7 +245,76 @@
         
         updateInfo(roundId);
     }
-	
+    
+    function updateSeatStats(roundId) {
+    	
+/* 		$("#seat-info-area .sidebar-compact-text").html(`
+				<span class="font-weight-bold">VIP</span> <span class="text-soldout">매진</span> <span class="divider-slash">/</span> 
+				<span class="font-weight-bold">R</span> 5석 <span class="divider-slash">/</span> 
+				<span class="font-weight-bold">S</span> 20석 <span class="divider-slash">/</span> 
+				<span class="font-weight-bold">A</span> 50석
+			`); */
+
+/*                                     <div class="info-content price-container">
+                                    	<span>VIP석</span> <span class="price-emphasis">170,000</span><span>원</span>
+                                        <span>R석</span><span class="price-emphasis">140,000</span><span>원</span>
+                                        <span>S석</span><span class="price-emphasis">110,000</span><span>원</span>
+                                        <span>A석</span><span class="price-emphasis">80,000</span><span>원</span>
+                                    </div> */
+                                        
+        $.ajax({
+            url: "/detail/seat/stats",
+            method: "GET",
+            data: { round_id: roundId },
+            success: function(result) {
+                // statList는 [{grade_name: 'VIP', final_price: 100000, available_seats: 0, ...}, ...]
+                let statList = result;
+                let seatTag = "";
+                let priceTag = "";
+                let totalAvailable = 0;
+                
+                statList.forEach((stat, index) => {
+                    const isSoldOut = stat.available_seats == 0;
+                    totalAvailable += stat.available_seats;
+
+                    seatTag += `<span class="font-weight-bold">\${stat.grade_name}</span> `;
+
+                    if (isSoldOut) {
+                    	seatTag += `<span class="text-soldout">매진</span>`;
+                    } else {
+                    	seatTag += `\${stat.available_seats}석`;
+                    }
+
+                    // 구분선 추가 (마지막 요소가 아닐 때만)
+                    if (index < statList.length - 1) {
+                    	seatTag += ` <span class="divider-slash">/</span> `;
+                    }
+                    
+                    priceTag += `<span>\${stat.grade_name}석</span> <span class="price-emphasis">\${moneyConverter.format(stat.final_price)}</span><span>원</span>`;
+                });
+
+                // 상단 좌석 정보 영역 갱신
+                $("#seat-info-area .sidebar-compact-text").html(seatTag);
+                $(".price-container").html(priceTag);
+                
+                if(memberId != 0 && !checkAgeLimit(birthDate, work.age_limit)){
+                	$(".btn-reservation").prop("disabled", true).text("연령 제한");
+                	return;
+                }
+
+                // 모든 등급의 좌석이 0이면 예매 버튼 비활성화
+                if (totalAvailable === 0) {
+                    $(".btn-reservation").prop("disabled", true).text("매진되었습니다");
+                } else {
+                    $(".btn-reservation").prop("disabled", false).text("예매하기");
+                }
+            },
+            error: function() {
+                console.error("좌석 정보를 가져오는 데 실패했습니다.");
+            }
+        });
+    }
+    
     function updateInfo(roundId) {
     	
     	// find true인 첫 번째 element 반환
@@ -254,14 +326,7 @@
     	$(".place button").data("id", round.round_id);
      	//console.log("round_id는 ", $(".place button").data("id"));
      	
-     	//"/detail/seat/stats"
 
-		$("#seat-info-area .sidebar-compact-text").html(`
-			<span class="font-weight-bold">VIP</span> <span class="text-soldout">매진</span> <span class="divider-slash">/</span> 
-			<span class="font-weight-bold">R</span> 5석 <span class="divider-slash">/</span> 
-			<span class="font-weight-bold">S</span> 20석 <span class="divider-slash">/</span> 
-			<span class="font-weight-bold">A</span> 50석
-		`);
 		
 		if(work.genre.genre_name == "뮤지컬" || work.genre.genre_name == "연극") {
 	    	// JS에서 문자열 비교는 localeCompare Java는 compareTo
@@ -276,6 +341,8 @@
 	    	
 			$("#daily-casting-area").text(castingText || "캐스팅 정보가 없습니다.");			
 		}
+     	
+		updateSeatStats(roundId);
 		
 		// 예매하기 할 때 value의 값을 좌석 선택 페이지로 전달해야 한다.
 		$(".btn-reservation").val(roundId);
@@ -1033,7 +1100,7 @@
                                 <li>
                                     <span class="info-label">장소</span>
                                     <span class="info-content d-inline-flex align-items-center place">
-                                        <span>블루스퀘어 </span>
+                                        <span></span>
                                         <button class="btn btn-xs btn-outline-secondary ml-2 rounded-circle" data-id="" onclick="openPlaceModal(this)" title="지도 보기" data-toggle="modal" data-target="#placeModal"><i class="fas fa-map-marker-alt"></i></button>
                                     </span>
                                 </li>
@@ -1051,12 +1118,12 @@
                                 </li>
                                 <li>
                                     <span class="info-label">가격</span>
-                                    <span class="info-content">
-                                        VIP석 <span class="price-emphasis">170,000</span>원 <br>
-                                        R석 <span class="price-emphasis">140,000</span>원 <br>
-                                        S석 <span class="price-emphasis">110,000</span>원 <br>
-                                        A석 <span class="price-emphasis">80,000</span>원
-                                    </span>
+                                    <div class="info-content price-container">
+                                    	<span>VIP석</span> <span class="price-emphasis">170,000</span><span>원</span>
+                                        <span>R석</span><span class="price-emphasis">140,000</span><span>원</span>
+                                        <span>S석</span><span class="price-emphasis">110,000</span><span>원</span>
+                                        <span>A석</span><span class="price-emphasis">80,000</span><span>원</span>
+                                    </div>
                                 </li>
                             </ul>
                         </div>
@@ -1210,17 +1277,12 @@
                             <div class="card-body p-3 bg-light" id="seat-info-area">
                                 <h6 class="font-weight-bold mb-2" style="font-size: 14px;">잔여석 현황</h6>
                                 <div class="sidebar-compact-text">
-                                    <span class="font-weight-bold">VIP</span> 12석 <span class="divider-slash">/</span> 
-                                    <span class="font-weight-bold">R</span> 45석 <span class="divider-slash">/</span> 
-                                    <span class="font-weight-bold">S</span> 80석 <span class="divider-slash">/</span> 
-                                    <span class="font-weight-bold">A</span> 150석
                                 </div>
                             </div>
 						<%if(showCasting) {%>
                             <div class="card-body p-3">
                                 <h6 class="font-weight-bold mb-2">캐스팅</h6>
                                 <div id="daily-casting-area" class="sidebar-compact-text">
-                                    홍길동, 김철수, 이영희, 박민수
                                 </div>
                             </div>
 						<%} %>
