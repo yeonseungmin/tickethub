@@ -1,6 +1,7 @@
 package com.ch.tickethub.model.round;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -80,5 +81,12 @@ public class RoundServiceImpl implements RoundService{
 	        // 일반 사용자 페이지 등 장소 상관없이 공연 회차를 다 보여줄 경우
 	        return roundDAO.selectByWorkId(workId);
 	    }
+	}
+
+
+	@Override
+	public List<Map<String, Object>> getSeatStats(int round_id) {
+		
+		return roundDAO.selectSeatStats(round_id);
 	}
 }

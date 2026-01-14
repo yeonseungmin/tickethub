@@ -1,6 +1,7 @@
 package com.ch.tickethub.model.review;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,11 @@ public class ReviewServiceImpl implements ReviewService{
 	}
 
 	@Override
+	public Map<String, Object> getReviewStats(int work_id) {
+		return reviewDAO.selectReviewStats(work_id);
+	}
+	
+	@Override
 	public void setHit(int review_id) throws ReviewException{
 		
 		reviewDAO.updateHit(review_id);
@@ -46,6 +52,6 @@ public class ReviewServiceImpl implements ReviewService{
 	public void remove(int review_id) throws ReviewException{
 		reviewDAO.softDelete(review_id);
 	}
-	
-	
+
+
 }

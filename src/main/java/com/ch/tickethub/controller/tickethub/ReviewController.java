@@ -48,6 +48,17 @@ public class ReviewController {
 		return reviewService.getReview(review_id);
 	}
 	
+	@GetMapping("/detail/review/stats")
+	@ResponseBody
+	public double getReviewStats(int work_id) {
+		Map<String, Object> stats = reviewService.getReviewStats(work_id);
+		
+		double avgRating = 0.0;
+		Object val = stats.get("avgRating");
+		
+		return avgRating = ((java.math.BigDecimal) val).doubleValue();
+	}
+	
 	@PostMapping("/detail/review/hit/update")
 	@ResponseBody
 	public Review setHit(@RequestBody Review review) {

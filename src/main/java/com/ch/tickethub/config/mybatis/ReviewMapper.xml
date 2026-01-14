@@ -24,6 +24,12 @@
 			review_deleted_at = now() where review_id = #{review_id}
 	</update>
 	
+	<update id="updateBlock" parameterType="int">
+		update review
+		set review_state = 'BLOCKED'
+		where review_id = #{review_id}
+	</update>
+	
 	<resultMap id="reviewMapForWork" type="Review">
 		<id column="review_id"					property="review_id"/>
 		<result column="work_id"					property="work.work_id"/>
@@ -77,13 +83,13 @@
 	    where r.work_id = #{work_id} and r.review_state = 'ACTIVE'
 	    <choose>
 	        <when test="orderType == 'rating'">
-	            ORDER BY r.rating DESC, r.review_regdate DESC
+	            order by r.rating desc, r.review_regdate desc
 	        </when>
 	        <when test="orderType == 'likes'">
-	            ORDER BY r.review_like_count DESC, r.review_regdate DESC
+	            order by r.review_like_count desc, r.review_regdate desc
 	        </when>
 	        <otherwise>
-	            ORDER BY r.review_regdate DESC
+	            order by r.review_regdate desc
 	        </otherwise>
 	    </choose>
 	</select>

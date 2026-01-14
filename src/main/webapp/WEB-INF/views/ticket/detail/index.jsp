@@ -1,3 +1,5 @@
+<%@page import="com.ch.tickethub.util.MoneyConverter"%>
+<%@page import="java.math.BigDecimal"%>
 <%@page import="com.ch.tickethub.dto.ReportCategory"%>
 <%@page import="com.ch.tickethub.dto.Member"%>
 <%@page import="com.ch.tickethub.dto.Round"%>
@@ -13,6 +15,11 @@
 	String jsonWork = (String)request.getAttribute("jsonWork");
 	String naverMapClientId = (String)request.getAttribute("naverMapClientId");
 	List<ReportCategory> reportCategoryList = (List)request.getAttribute("reportCategoryList");
+	String avgRating = (String)request.getAttribute("avgRating");
+	String reviewCount = (String)request.getAttribute("reviewCount");
+	
+	System.out.println(avgRating);
+	System.out.println(reviewCount);
 	
 	// 장르 이름 가져오기
     String genreName = work.getGenre().getGenre_name();
@@ -32,8 +39,7 @@
 	<link rel="stylesheet" href="/static/assets/css/detail.css">
 </head>
 <body class="layout-top-nav" style="background-color: #ffffff;">
-<% System.out.println(uniqueCastingList); %>
-<% System.out.println(jsonWork); %>
+
 <script src="/static/assets/js/Util.js"></script>
 <script src="/static/assets/js/Paging.js"></script>
 <script src="/static/assets/js/MoneyConverter.js"></script>
@@ -67,16 +73,16 @@
     // 좋아요 버튼 토글
     function toggleLike(btn) {
         $(btn).toggleClass("active");
-        let $icon = $(btn).find('i');
-        let $count = $("#likeCount");
-        let currentVal = parseInt($count.text().replace(/,/g, ''));
+        let icon = $(btn).find("i");
+        let count = $("#likeCount");
+        let currentVal = parseInt(count.text().replace(/,/g, ''));
 
         if($(btn).hasClass("active")) {
-            $icon.removeClass('far').addClass('fas');
-            $count.text((currentVal + 1).toLocaleString());
+            icon.removeClass('far').addClass('fas');
+            count.text((currentVal + 1).toLocaleString());
         } else {
-            $icon.removeClass('fas').addClass('far');
-            $count.text((currentVal - 1).toLocaleString());
+            icon.removeClass('fas').addClass('far');
+            count.text((currentVal - 1).toLocaleString());
         }
     } 
     
@@ -226,6 +232,7 @@
     	}
     }
     
+    
     // 회차 시작 시간을 눌렀을 때
     function selectRound(element, roundId) {
     	
@@ -236,7 +243,73 @@
         
         updateInfo(roundId);
     }
-	
+    
+    function updateSeatStats(roundId) {
+    	
+/* 		$("#seat-info-area .sidebar-compact-text").html(`
+				<span class="font-weight-bold">VIP</span> <span class="text-soldout">매진</span> <span class="divider-slash">/</span> 
+				<span class="font-weight-bold">R</span> 5석 <span class="divider-slash">/</span> 
+				<span class="font-weight-bold">S</span> 20석 <span class="divider-slash">/</span> 
+				<span class="font-weight-bold">A</span> 50석
+			`); */
+
+/*                                     <div class="info-content price-container">
+                                    	<span>VIP석</span> <span class="price-emphasis">170,000</span><span>원</span>
+                                        <span>R석</span><span class="price-emphasis">140,000</span><span>원</span>
+                                        <span>S석</span><span class="price-emphasis">110,000</span><span>원</span>
+                                        <span>A석</span><span class="price-emphasis">80,000</span><span>원</span>
+                                    </div> */
+                                        
+        $.ajax({
+            url: "/detail/seat/stats",
+            method: "GET",
+            data: { round_id: roundId },
+            success: function(result) {
+                // statList는 [{grade_name: 'VIP', final_price: 100000, available_seats: 0, ...}, ...]
+                let statList = result;
+                let seatTag = "";
+                let priceTag = "";
+                let totalAvailable = 0;
+                
+                
+                statList.forEach((stat, index) => {
+                    const isSoldOut = stat.available_seats == 0;
+                    totalAvailable += stat.available_seats;
+
+                    seatTag += `<span class="font-weight-bold">\${stat.grade_name}</span> `;
+
+                    if (isSoldOut) {
+                    	seatTag += `<span class="text-soldout">매진</span>`;
+                    } else {
+                    	seatTag += `\${stat.available_seats}석`;
+                    }
+
+                    // 구분선 추가 (마지막 요소가 아닐 때만)
+                    if (index < statList.length - 1) {
+                    	seatTag += ` <span class="divider-slash">/</span> `;
+                    }
+                    
+                    priceTag += `<span>\${stat.grade_name}석</span> <span class="price-emphasis">\${moneyConverter.format(stat.final_price)}</span><span>원</span>`;
+                });
+
+                // 상단 좌석 정보 영역 갱신
+                $("#seat-info-area .sidebar-compact-text").html(seatTag);
+                $(".price-container").html(priceTag);
+                
+
+                // 모든 등급의 좌석이 0이면 예매 버튼 비활성화
+                if (totalAvailable === 0) {
+                    $(".btn-reservation").prop("disabled", true).text("매진되었습니다");
+                } else {
+                    $(".btn-reservation").prop("disabled", false).text("예매하기");
+                }
+            },
+            error: function() {
+                console.error("좌석 정보를 가져오는 데 실패했습니다.");
+            }
+        });
+    }
+    
     function updateInfo(roundId) {
     	
     	// find true인 첫 번째 element 반환
@@ -247,13 +320,8 @@
      	// data-id 에 값 round_id 값 넣어주기 .attr로 바꾸지 마라. 갱신 제대로 안 해준다.
     	$(".place button").data("id", round.round_id);
      	//console.log("round_id는 ", $(".place button").data("id"));
+     	
 
-		$("#seat-info-area .sidebar-compact-text").html(`
-			<span class="font-weight-bold">VIP</span> <span class="text-soldout">매진</span> <span class="divider-slash">/</span> 
-			<span class="font-weight-bold">R</span> 5석 <span class="divider-slash">/</span> 
-			<span class="font-weight-bold">S</span> 20석 <span class="divider-slash">/</span> 
-			<span class="font-weight-bold">A</span> 50석
-		`);
 		
 		if(work.genre.genre_name == "뮤지컬" || work.genre.genre_name == "연극") {
 	    	// JS에서 문자열 비교는 localeCompare Java는 compareTo
@@ -268,6 +336,8 @@
 	    	
 			$("#daily-casting-area").text(castingText || "캐스팅 정보가 없습니다.");			
 		}
+     	
+		updateSeatStats(roundId);
 		
 		// 예매하기 할 때 value의 값을 좌석 선택 페이지로 전달해야 한다.
 		$(".btn-reservation").val(roundId);
@@ -346,7 +416,7 @@
     // 관람후기 함수 시작
     // 신고 팝업
 	function openReportModal(review_id) {
-		console.log("신고 당한 review_id는 ", review_id);
+		//console.log("신고 당한 review_id는 ", review_id);
 	    // 어느 리뷰를 신고하는지 ID를 세팅
 	    $('#report_review_id').val(review_id);
 	    
@@ -427,6 +497,8 @@
     	        getReviewList(1); // 목록 새로고침
     	        $("input[placeholder='제목을 입력해주세요']").val("");
     	        $("textarea[placeholder*='관람 후기']").val("");
+    	        
+    	        getAvgRating();
     	    },
     	    error:function(xhr, status, err) {
     	        // 서버가 401을 보냈다면 (세션 만료 등)
@@ -559,9 +631,9 @@
             //console.log("조회수를 늘릴 review_id는 ", review_id);
             
             if (hittedList.includes(review_id)) {
-            	console.log("이미 이 리뷰의 조회수를 올렸습니다.");
+            	//console.log("이미 이 리뷰의 조회수를 올렸습니다.");
             } else {
-            	console.log("처음 보는 리뷰입니다. 조회수 증가 로직 실행!");
+            	//console.log("처음 보는 리뷰입니다. 조회수 증가 로직 실행!");
             	
             	hittedList.push(review_id);
             	let cookieValue = JSON.stringify(hittedList);
@@ -573,7 +645,7 @@
             	    data: JSON.stringify({ "review_id": review_id }),
             	    success:function(result, status, xhr) {
             	    	let review = result;
-            	    	console.log(review);
+            	    	//console.log(review);
             	    	reviewHit.text("조회 " + moneyConverter.format(review.hit));
             			// 24시간 후에 조회수 늘릴 수 있음. path=/ 상세페이지 경로 한정
             			document.cookie = `hittedList=\${cookieValue}; max-age=86400; path=/`;
@@ -600,7 +672,7 @@
 	function deleteComment(btn, type) {
 		if (type == "review") {
 			let review_id = $(btn).closest("li").val();
-			console.log("삭제할 review_id는 ", review_id);
+			//console.log("삭제할 review_id는 ", review_id);
 			
          	$.ajax({
         	    url: "/detail/review/soft/delete",
@@ -610,6 +682,8 @@
         	    success:function(result, status, xhr) {
         	    	alert(result.message);
         	        getReviewList(prevPage, prevOrderType); // 목록 새로고침
+        	        
+    				getAvgRating();
         	    },
         	    error:function(xhr, status, err) {
         	        // 서버가 401을 보냈다면 (세션 만료 등)
@@ -627,7 +701,7 @@
          	
 		} else if(type == "re_review"){
 			let re_review_id = $(btn).val();
-			console.log("삭제할 re_review_id는 ", re_review_id);
+			//console.log("삭제할 re_review_id는 ", re_review_id);
 			
          	$.ajax({
         	    url: "/detail/re_review/delete",
@@ -835,14 +909,55 @@
 			url:"/detail/review/list?work_id=" + work.work_id + "&orderType=" + orderType,
 			method:"GET",
 			success:function(result){
-				console.log("관람후기 클릭됨!");
+				//console.log("관람후기 클릭됨!");
 				reviewList = result;
-				console.log(reviewList);
+				//console.log(reviewList);
 				
 				$($(".review-count")[0]).text("리뷰 " + moneyConverter.format(reviewList.length) + "개");
 				$($(".review-count")[1]).text(moneyConverter.format(reviewList.length));
 				
 				displayReviewList(currentPage, orderType);
+				
+			}
+		});
+	}
+	
+	function displayReviewStats(avgRating, reviewCount = -1) {
+		const avg = parseFloat(avgRating || 0);
+		
+		if(reviewCount != -1) {
+			const count = parseInt(reviewCount || 0);
+			$($(".review-count")[0]).text("리뷰 " + moneyConverter.format(count) + "개");
+		}
+		
+		let avgTag = "";
+		
+		for(let i = 1; i <= 5; i++) {
+			if(avg >= i) {
+				avgTag += `<i class="fas fa-star"></i>`;
+			} else {
+				if(avg >= i - 0.5) {
+					avgTag += `<i class="fas fa-star-half-alt"></i>`;
+				} else {
+					avgTag += `<i class="far fa-star"></i>`;				
+				}
+			}
+		}
+		
+		let reviewStats = $(".review-stats");
+		reviewStats.find(".text-dark").text(avgRating);
+		reviewStats.find(".text-warning").empty();
+		reviewStats.find(".text-warning").append(avgTag);
+	}
+	
+	function getAvgRating() {
+		$.ajax({
+			url:"/detail/review/stats?work_id=" + work.work_id,
+			method:"GET",
+			success:function(result){
+				//let reviewCount = result.get("reviewCount");
+				let avgRating = result;
+				displayReviewStats(avgRating);
 			}
 		});
 	}
@@ -913,6 +1028,8 @@
             // 점수 텍스트 업데이트 (별 하나당 1점으로 계산 예시)
             $("#selected-rating").text(rating);
         });
+        
+        displayReviewStats(<%=avgRating%>, <%=reviewCount%>);
     })
 	
     // 예매 팝업창 열기
@@ -953,11 +1070,12 @@
                 <div class="col-lg-8"> 
                     <div class="mb-4 pb-3 border-bottom">
                         <h1 class="font-weight-bold mb-2" style="font-size: 32px;"><%=work.getWork_title() %></h1>
-                        <div class="d-flex align-items-center">
+                        <div class="d-flex align-items-center review-stats">
                             <span class="badge badge-warning text-white mr-2 px-2 py-1" style="font-size: 14px;"><%=work.getGenre().getGenre_name() %> 1위</span>
-                            <span class="text-warning mr-1"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></span>
-                            <span class="font-weight-bold text-dark" style="font-size: 18px;">4.8</span>
-                            <span class="text-muted ml-2 text-sm review-count">(리뷰 1,240개)</span>
+                            <span class="text-warning mr-1">
+                            </span>
+                            <span class="font-weight-bold text-dark" style="font-size: 18px;">15.0</span>
+                            <span class="text-muted ml-2 text-sm review-count">(리뷰 개)</span>
                         </div>
                     </div>
 
@@ -978,7 +1096,7 @@
                                 <li>
                                     <span class="info-label">장소</span>
                                     <span class="info-content d-inline-flex align-items-center place">
-                                        <span>블루스퀘어 </span>
+                                        <span></span>
                                         <button class="btn btn-xs btn-outline-secondary ml-2 rounded-circle" data-id="" onclick="openPlaceModal(this)" title="지도 보기" data-toggle="modal" data-target="#placeModal"><i class="fas fa-map-marker-alt"></i></button>
                                     </span>
                                 </li>
@@ -996,12 +1114,12 @@
                                 </li>
                                 <li>
                                     <span class="info-label">가격</span>
-                                    <span class="info-content">
-                                        VIP석 <span class="price-emphasis">170,000</span>원 <br>
-                                        R석 <span class="price-emphasis">140,000</span>원 <br>
-                                        S석 <span class="price-emphasis">110,000</span>원 <br>
-                                        A석 <span class="price-emphasis">80,000</span>원
-                                    </span>
+                                    <div class="info-content price-container">
+                                    	<span>VIP석</span> <span class="price-emphasis">170,000</span><span>원</span>
+                                        <span>R석</span><span class="price-emphasis">140,000</span><span>원</span>
+                                        <span>S석</span><span class="price-emphasis">110,000</span><span>원</span>
+                                        <span>A석</span><span class="price-emphasis">80,000</span><span>원</span>
+                                    </div>
                                 </li>
                             </ul>
                         </div>
@@ -1155,17 +1273,12 @@
                             <div class="card-body p-3 bg-light" id="seat-info-area">
                                 <h6 class="font-weight-bold mb-2" style="font-size: 14px;">잔여석 현황</h6>
                                 <div class="sidebar-compact-text">
-                                    <span class="font-weight-bold">VIP</span> 12석 <span class="divider-slash">/</span> 
-                                    <span class="font-weight-bold">R</span> 45석 <span class="divider-slash">/</span> 
-                                    <span class="font-weight-bold">S</span> 80석 <span class="divider-slash">/</span> 
-                                    <span class="font-weight-bold">A</span> 150석
                                 </div>
                             </div>
 						<%if(showCasting) {%>
                             <div class="card-body p-3">
                                 <h6 class="font-weight-bold mb-2">캐스팅</h6>
                                 <div id="daily-casting-area" class="sidebar-compact-text">
-                                    홍길동, 김철수, 이영희, 박민수
                                 </div>
                             </div>
 						<%} %>

@@ -126,9 +126,9 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a href="./index3.html" class="nav-link">
+                <a href="#" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>댓글 관리</p>
+                  <p>신고 이력 조회</p>
                 </a>
               </li>
             </ul>
