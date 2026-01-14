@@ -36,6 +36,7 @@
 		<typeAlias type = "com.ch.tickethub.dto.ReportCategory" alias = "ReportCategory"/>
 		<typeAlias type = "com.ch.tickethub.dto.SearchResult" alias = "SearchResult"/>
 		<typeAlias type = "com.ch.tickethub.dto.Dashboard" alias = "Dashboard"/>
+		<typeAlias type = "com.ch.tickethub.dto.Order" alias = "Order"/>
 
 	</typeAliases>
 
@@ -68,6 +69,7 @@
 		<mapper resource = "com/ch/tickethub/config/mybatis/ReportCategoryMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/SearchResultMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/DashboardMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/OrderMapper.xml"/>
 		
 	</mappers>
 

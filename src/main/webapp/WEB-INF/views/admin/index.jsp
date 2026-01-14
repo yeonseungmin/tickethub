@@ -481,6 +481,28 @@
                     }
                 });
             });
+            
+            // 주문정보 클릭 이벤트 (비동기 로딩)
+            $("#menu-order-info").click(function (e) {
+                e.preventDefault();
+                $.ajax({
+                    url: "/admin/order/list",
+                    method: "GET",
+                    success: function (result) {
+                        console.log("주문정보 메뉴 클릭됨");
+                        $(".content-wrapper").html(result);
+                        
+                        // (선택사항) 브라우저 뒤로가기 대응을 위한 state 저장
+                        if (history.pushState) {
+                            history.pushState({ url: "/admin/order/list" }, null, "#order-list");
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("주문 정보를 불러오는데 실패했습니다.", error);
+                        alert("데이터를 불러오는 중 오류가 발생했습니다.");
+                    }
+                });
+            });
 
             $("#btn-admin-home").click(function (e) {
                 e.preventDefault();
