@@ -2,6 +2,8 @@ window.userReserveIds = [];
 window.userReserveObjs = [];  
 
 function initUserReservation(roundId) {
+	window.userReserveIds = []; 	// 캐쉬 문제로 한번도 초기화
+	window.userReserveObjs = [];	// 캐쉬 문제로 한번도 초기화
     loadUserSeatLayout(roundId);
 
     // 좌석 클릭 이벤트 바인딩
@@ -11,6 +13,9 @@ function initUserReservation(roundId) {
     });
 }
 
+/* ==========================================
+   1. 좌석 레이아웃 로드 및 렌더링
+   ========================================== */
 function loadUserSeatLayout(roundId) {
     $.get(contextPath + '/admin/roundseat/list', { round_id: roundId }, function(list) {
         renderUserSeatMap(list);
@@ -24,6 +29,7 @@ function renderUserSeatMap(seatList) {
 
     if (!seatList || seatList.length === 0) return;
 
+    // 구역(Group)별 데이터 정리
     let groups = {};
     seatList.forEach(seat => {
         if (!groups[seat.seat_group_id]) {
@@ -35,9 +41,8 @@ function renderUserSeatMap(seatList) {
         }
         const g = groups[seat.seat_group_id];
         
-        // [반전 로직] 가로는 숫자 seat_y 그대로 사용, 세로는 알파벳 seat_x를 숫자로 변환
-        const colIndex = seat.seat_y - 1; // 가로(숫자): 1, 2, 3... -> 0, 1, 2...
-        const rowIndex = (typeof seat.seat_x === 'string') ? seat.seat_x.charCodeAt(0) - 65 : 0; // 세로(알파벳): A, B, C... -> 0, 1, 2...
+        const colIndex = seat.seat_y - 1; 
+        const rowIndex = (typeof seat.seat_x === 'string') ? seat.seat_x.charCodeAt(0) - 65 : 0;
 
         const relX = colIndex * (seat.col_gap || 35);
         const relY = rowIndex * (seat.row_gap || 35);
@@ -46,6 +51,7 @@ function renderUserSeatMap(seatList) {
         if (relY > g.maxRelY) g.maxRelY = relY;
     });
 
+    // 구역 및 좌석 그리기
     Object.keys(groups).forEach(groupId => {
         const g = groups[groupId];
         const $box = $('<div class="group-boundary-box"></div>').css({ 
@@ -58,9 +64,9 @@ function renderUserSeatMap(seatList) {
         $container.append($box);
 
         seatList.filter(s => s.seat_group_id == groupId).forEach(seat => {
-            const sId = seat.round_seat_id || seat.id || seat.seat_id; 
+            // [보강 1] 우선순위를 확실히 정함: round_seat_id가 0이거나 null이면 seat_id를 쓰는 것이 아니라 에러 로그를 남겨야 함
+            const rSeatId = seat.round_seat_id || seat.roundSeatId; 
             
-            // [반전 로직 적용] 
             const colIndex = seat.seat_y - 1; 
             const rowIndex = (typeof seat.seat_x === 'string') ? seat.seat_x.charCodeAt(0) - 65 : 0;
 
@@ -68,83 +74,108 @@ function renderUserSeatMap(seatList) {
             const innerY = (rowIndex * (seat.row_gap || 35)) + 20;
             
             const gradeName = (seat.grade_name || "a").toLowerCase();
-            // 이름 표시도 반전: "A열 1번" (A는 세로줄, 1은 가로번호)
             const seatName = `${seat.group_name || ""} ${seat.seat_x}열 ${seat.seat_y}번`;
 
+            // [보강 2] data-round-seat-id 속성을 명확히 함
+            // 만약 rSeatId가 제대로 안넘어오면 여기서 좌석 태그 생성이 엉망이 되므로 확인용 로그 추가 가능
             const $seat = $('<div class="admin-seat"></div>').attr({ 
-                'data-seat-id': String(sId), 'data-grade': gradeName, 'data-name': seatName 
+                'data-round-seat-id': String(rSeatId), 
+                'data-grade': gradeName, 
+                'data-name': seatName 
             }).css({ left: innerX + 'px', top: innerY + 'px', position: 'absolute' });
 
-            const status = seat.status || seat.is_reserved; 
+            const status = seat.status; 
+            
+            // [보강 3] 상태값 체크 로직 강화 (AVAILABLE인 경우만 클래스 부여)
             if (status === 'RESERVED' || status === 'Y') {
                 $seat.addClass('reserved').css('background-image', `url(${contextPath}/static/assets/seatImg/sold.jpg)`);
             } else if (status === 'PREEMPTED' || status === 'P') {
                 $seat.addClass('preempted').css('background-image', `url(${contextPath}/static/assets/seatImg/preempted.jpg)`);
-            } else {
+            } else if (status === 'AVAILABLE') {
                 const imgSuffix = gradeName.includes('vip') ? 'vip' : gradeName[0];
                 $seat.addClass('available').css('background-image', `url(${contextPath}/static/assets/seatImg/available_${imgSuffix}.jpg)`);
+            } else {
+                // 알 수 없는 상태일 경우 기본 available 처리
+                $seat.addClass('available').css('background-image', `url(${contextPath}/static/assets/seatImg/available_a.jpg)`);
             }
             $box.append($seat);
         });
     });
 }
 
-function handleSeatClick($el) {
-    const personCount = parseInt($('#personCount').val()) || 1;
-    const seatName = $el.attr('data-name'); 
-    
-    // 정규식: "구역 A열 5번" -> ["... A열 ", "5"]
-    const match = seatName.match(/^(.*?\s[A-Z]열\s)(\d+)번$/);
-    if (!match) return;
+/* ==========================================
+   2. 좌석 클릭 핸들러 (인원수 맞춤 선택)
+   ========================================== */
+   function handleSeatClick($el) {
+       const personCount = parseInt($('#personCount').val()) || 1;
+       const seatName = $el.attr('data-name'); 
+       
+       // 1. 인접 좌석 탐색을 위한 정규식
+       const match = seatName.match(/^(.*?\s[A-Z]열\s)(\d+)번$/);
+       if (!match) return;
+       const seatPrefix = match[1];
+       const seatNum = parseInt(match[2]);
 
-    const seatPrefix = match[1]; // "구역 A열 " (세로줄 고정)
-    const seatNum = parseInt(match[2]); // 가로 번호
+       let potentialSeats = [];
+       let tempRight = [];
+       for (let i = 0; i < personCount; i++) {
+           let targetNum = seatNum + i;
+           let $s = $(`.admin-seat[data-name="${seatPrefix}${targetNum}번"]`);
+           if ($s.length > 0 && $s.hasClass('available')) {
+               tempRight.push($s);
+           } else { break; }
+       }
+       
+       if (tempRight.length < personCount) {
+           let tempLeft = [];
+           for (let i = 0; i < personCount; i++) {
+               let targetNum = seatNum - i;
+               let $s = $(`.admin-seat[data-name="${seatPrefix}${targetNum}번"]`);
+               if ($s.length > 0 && $s.hasClass('available')) {
+                   tempLeft.unshift($s);
+               } else { break; }
+           }
+           if (tempLeft.length === personCount) potentialSeats = tempLeft;
+       } else {
+           potentialSeats = tempRight;
+       }
 
-    let potentialSeats = [];
-    
-    // 1. 오른쪽 방향 탐색 (번호 증가)
-    let tempRight = [];
-    for (let i = 0; i < personCount; i++) {
-        let targetNum = seatNum + i;
-        let $s = $(`.admin-seat[data-name="${seatPrefix}${targetNum}번"]`);
-        if ($s.length > 0 && $s.hasClass('available') && !$s.hasClass('reserved') && !$s.hasClass('preempted')) {
-            tempRight.push($s);
-        } else { break; }
-    }
+       // 2. 선택 처리 (핵심 데이터 추출)
+       if (potentialSeats.length === personCount) {
+           resetSelection(); // 전역 배열 window.userReserveIds = [] 초기화 포함
+           
+           potentialSeats.forEach($s => {
+               // [중요!] data-seat-id가 아니라 renderUserSeatMap에서 넣은 data-round-seat-id를 가져옵니다.
+               const rSeatId = $s.attr('data-round-seat-id'); 
+               const grade = String($s.attr('data-grade')).trim().toLowerCase();
 
-    // 2. 오른쪽이 부족하면 왼쪽 방향 탐색 (번호 감소)
-    if (tempRight.length < personCount) {
-        let tempLeft = [];
-        for (let i = 0; i < personCount; i++) {
-            let targetNum = seatNum - i;
-            let $s = $(`.admin-seat[data-name="${seatPrefix}${targetNum}번"]`);
-            if ($s.length > 0 && $s.hasClass('available') && !$s.hasClass('reserved') && !$s.hasClass('preempted')) {
-                tempLeft.unshift($s); // 순서 유지를 위해 앞에 추가
-            } else { break; }
-        }
-        if (tempLeft.length === personCount) potentialSeats = tempLeft;
-    } else {
-        potentialSeats = tempRight;
-    }
+               // 등급별 할증료 계산
+               let surcharge = 0;
+               if (grade === 'vip') surcharge = 100000;
+               else if (grade === 'r') surcharge = 50000;
+               else if (grade === 's') surcharge = 30000;
+               else surcharge = 10000;
 
-    // 3. 인원수 충족 시에만 선택 처리 (alert 없음)
-    if (potentialSeats.length === personCount) {
-        resetSelection();
-        potentialSeats.forEach($s => {
-            const sId = $s.attr('data-seat-id');
-            const grade = $s.attr('data-grade');
-            const price = BASE_PRICE + (GRADE_SURCHARGE_MAP[grade] || 0);
+               const price = BASE_PRICE + surcharge;
 
-            window.userReserveIds.push(sId);
-            window.userReserveObjs.push({ id: sId, name: $s.attr('data-name'), price: price });
+               // [확인] 전역 배열에 round_seat_id(4000번대)를 push
+               if (rSeatId && rSeatId !== "undefined") {
+                   window.userReserveIds.push(rSeatId);
+                   window.userReserveObjs.push({ id: rSeatId, name: $s.attr('data-name'), price: price });
+                   
+                   // 브라우저 콘솔에 강제로 찍어봅니다.
+                   console.log("✅ 좌석 선택됨! PK 확인 ->", rSeatId);
+               } else {
+                   console.error("❌ 에러: round_seat_id를 찾을 수 없습니다! HTML 구조를 확인하세요.");
+               }
 
-            $s.addClass('selected');
-            const imgSuffix = grade.includes('vip') ? 'vip' : grade[0];
-            $s.css('background-image', `url(${contextPath}/static/assets/seatImg/checked_available_${imgSuffix}.jpg)`);
-        });
-        updateUserSelectionUI();
-    }
-}
+               $s.addClass('selected');
+               let imgFile = (grade === 'vip') ? "checked_available_vip.jpg" : "checked_available_" + grade.charAt(0) + ".jpg";
+               $s.css('background-image', 'url(' + contextPath + '/static/assets/seatImg/' + imgFile + ')');
+           });
+           updateUserSelectionUI();
+       }
+   }
 
 function resetSelection() {
     $('.admin-seat.selected').each(function() {
@@ -179,21 +210,52 @@ function updateUserSelectionUI() {
     $('#total-amount').text(totalAmount.toLocaleString());
 }
 
+/**
+ * 결제하기 버튼 클릭 시 실행
+ */
 function goToPayment() {
-    if (window.userReserveIds.length === 0) return alert("좌석을 선택해주세요.");
+    // [수정] URL에서 round_id 파라미터를 강제로 추출해서 undefined 방지
+    const urlParams = new URLSearchParams(window.location.search);
+    const rId = urlParams.get('round_id') || "12"; 
     
-    // 1. AJAX로 좌석 선점(Lock) 요청
-    $.post(`${contextPath}/ticket/reserveSeats`, {
-        round_id: currentRoundId,
+    if (!window.userReserveIds || window.userReserveIds.length === 0) {
+        alert("좌석을 선택해주세요.");
+        return;
+    }
+
+    const params = {
+        round_id: rId,
         seats: window.userReserveIds.join(",")
-    }, function(res) {
-        // 서버에서 성공(success: true)을 보내줘야 넘어감
-        if (res.success) {
-            // 브라우저 주소창에 표시될 경로 (Controller 매핑 주소)
-            location.href = `${contextPath}/ticket/reservation/payment?round_id=${currentRoundId}&seats=${window.userReserveIds.join(",")}`;
-        } else {
-            alert(res.message || "이미 선택된 좌석이 포함되어 있습니다.");
-            location.reload();
+    };
+
+    console.log("최종 전송 데이터:", params);
+
+    // [중요] contextPath가 포함된 정확한 경로 확인
+    // 네트워크 로그에 reserveSeats가 찍혔으므로 경로는 비슷하지만 302가 문제임
+    const url = contextPath + "/ticket/reservation/reserveSeats";
+    
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: params,
+        success: function(res) {
+            console.log("서버 응답:", res);
+            if (res.success) {
+                // 성공 시 이동 (데이터 보존을 위해 params 사용)
+                location.href = contextPath + "/ticket/reservation/payment?round_id=" + rId + "&seats=" + params.seats;
+            } else {
+                alert(res.message || "이미 선택된 좌석이 포함되어 있습니다.");
+                location.reload();
+            }
+        },
+        error: function(xhr) {
+            // 여기서 302 리다이렉트가 발생하면 에러 블록으로 올 수 있음
+            console.error("통신 에러:", xhr.status);
+            if(xhr.status === 302 || xhr.status === 0) {
+                alert("세션이 만료되었거나 접근 권한이 없습니다. 다시 로그인해주세요.");
+            } else {
+                alert("서버 통신 중 오류가 발생했습니다.");
+            }
         }
     });
 }

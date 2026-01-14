@@ -30,7 +30,14 @@ public class SeatDetail {
 
     // round_seat
     private int round_id;
+    private int round_seat_id;
     private String status;
     private Integer reservation_id;
+    
+    //reservation
+    private int surcharge;    // 등급별 추가 금액
+    private int work_price;   // 공연 기본 가격
+    private int price;        // 최종 결제 금액 (기본가 + 추가가)
+    private int seat_grade_id;
 }
 
