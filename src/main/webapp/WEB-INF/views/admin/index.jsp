@@ -1,873 +1,540 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
-  <!DOCTYPE html>
-  <html lang="en">
+<%@ page import="java.util.List" %>
+<%@ page import="java.text.NumberFormat" %>
+<%@ page import="com.ch.tickethub.dto.Dashboard" %>
+<%@ page import="com.ch.tickethub.dto.Genre" %>
+<%@ page import="com.ch.tickethub.dto.Round" %>
+<%@ page import="com.ch.tickethub.dto.Report" %>
+<% 
+    Dashboard dashboard = (Dashboard) request.getAttribute("dashboard"); 
+    // null 체크 
+    long totalRevenue = dashboard != null ? dashboard.getTotalRevenue() : 0L; 
+    int totalMembers = dashboard != null ? dashboard.getTotalMembers() : 0; 
+    int totalTickets = dashboard != null ? dashboard.getTotalTickets() : 0;
+    int activeWorks = dashboard != null ? dashboard.getActiveWorks() : 0; 
+    int pendingReports = dashboard != null ? dashboard.getPendingReports() : 0; 
+    List<Genre> genreList = dashboard != null ? dashboard.getGenreList() : null;
+    List<Round> upcomingRounds = dashboard != null ? dashboard.getUpcomingRounds() : null;
+    List<Report> reportList = dashboard != null ? dashboard.getReportList() : null;
 
-  <head>
+    NumberFormat nf = NumberFormat.getInstance();
+%>
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AdminLTE 3 | Dashboard</title>
-
+    <title>TicketHub 관리자 대시보드</title>
     <%@ include file="./inc/head_link.jsp" %>
-  </head>
+    <link rel="stylesheet" href="/static/assets/css/admin.css">
+</head>
 
-  <body class="hold-transition sidebar-mini layout-fixed">
+<body class="hold-transition sidebar-mini layout-fixed">
     <div class="wrapper">
 
-      <!-- Preloader -->
-      <%@include file="./inc/preloader.jsp" %>
-
-        <!-- Navbar -->
         <%@ include file="./inc/navbar.jsp" %>
-          <!-- /.navbar -->
+        <%@ include file="./inc/sidebar.jsp" %>
 
-          <!-- Main Sidebar Container -->
-          <%@ include file="./inc/sidebar.jsp" %>
-
-            <!-- Content Wrapper. Contains page content -->
-            <div class="content-wrapper">
-              <!-- Content Header (Page header) -->
-              <div class="content-header">
+        <div class="content-wrapper">
+            <section class="content">
                 <div class="container-fluid">
-                  <div class="row mb-2">
-                    <div class="col-sm-6">
-                      <h1 class="m-0">Dashboard</h1>
-                    </div><!-- /.col -->
-                    <div class="col-sm-6">
-                      <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active">Dashboard v1</li>
-                      </ol>
-                    </div><!-- /.col -->
-                  </div><!-- /.row -->
-                </div><!-- /.container-fluid -->
-              </div>
-              <!-- /.content-header -->
 
-              <!-- Main content -->
-              <section class="content">
-                <div class="container-fluid">
-                  <!-- Small boxes (Stat box) -->
-                  <div class="row">
-                    <div class="col-lg-3 col-6">
-                      <!-- small box -->
-                      <div class="small-box bg-info">
-                        <div class="inner">
-                          <h3>150</h3>
-
-                          <p>New Orders</p>
-                        </div>
-                        <div class="icon">
-                          <i class="ion ion-bag"></i>
-                        </div>
-                        <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-                      </div>
+                    <div class="dashboard-header">
+                        <h1>Dashboard</h1>
+                        <p id="dashboard-date-text"></p>
                     </div>
-                    <!-- ./col -->
-                    <div class="col-lg-3 col-6">
-                      <!-- small box -->
-                      <div class="small-box bg-success">
-                        <div class="inner">
-                          <h3>53<sup style="font-size: 20px">%</sup></h3>
 
-                          <p>Bounce Rate</p>
+                    <div class="row">
+                        <div class="col-xl col-lg-4 col-md-6 col-12">
+                            <div class="stat-card-new">
+                                <div class="stat-icon" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
+                                    <i class="fas fa-won-sign"></i>
+                                </div>
+                                <p class="stat-label">누적 매출</p>
+                                <h3 class="stat-value">₩<%= nf.format(totalRevenue) %></h3>
+                            </div>
                         </div>
-                        <div class="icon">
-                          <i class="ion ion-stats-bars"></i>
+                        <div class="col-xl col-lg-4 col-md-6 col-12">
+                            <div class="stat-card-new">
+                                <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <p class="stat-label">총 회원수</p>
+                                <h3 class="stat-value"><%= nf.format(totalMembers) %> 명</h3>
+                            </div>
                         </div>
-                        <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-                      </div>
+                        <div class="col-xl col-lg-4 col-md-6 col-12">
+                            <div class="stat-card-new">
+                                <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                                    <i class="fas fa-ticket-alt"></i>
+                                </div>
+                                <p class="stat-label">예매 티켓수</p>
+                                <h3 class="stat-value"><%= nf.format(totalTickets) %> 매</h3>
+                            </div>
+                        </div>
+                        <div class="col-xl col-lg-6 col-md-6 col-12">
+                            <div class="stat-card-new">
+                                <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                                    <i class="fas fa-theater-masks"></i>
+                                </div>
+                                <p class="stat-label">진행 중 공연</p>
+                                <h3 class="stat-value"><%= activeWorks %> 건</h3>
+                            </div>
+                        </div>
+                        <div class="col-xl col-lg-6 col-md-6 col-12">
+                            <div class="stat-card-new">
+                                <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <p class="stat-label">신고 대기</p>
+                                <h3 class="stat-value"><%= pendingReports %> 건</h3>
+                            </div>
+                        </div>
                     </div>
-                    <!-- ./col -->
-                    <div class="col-lg-3 col-6">
-                      <!-- small box -->
-                      <div class="small-box bg-warning">
-                        <div class="inner">
-                          <h3>44</h3>
 
-                          <p>User Registrations</p>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="card dashboard-card">
+                                <div class="card-header">
+                                    <h3 class="card-title"><i class="fas fa-chart-pie mr-2"></i>장르별 공연 분포</h3>
+                                </div>
+                                <div class="card-body chart-body">
+                                    <div class="chart-container">
+                                        <div class="chart-center-text">
+                                            <span class="chart-total-label">Total</span>
+                                            <span class="chart-total-sub">장르 비율</span>
+                                        </div>
+                                        <canvas id="genreChart"></canvas>
+                                    </div>
+                                    <div id="customLegend" class="chart-legend"></div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="icon">
-                          <i class="ion ion-person-add"></i>
+
+                        <div class="col-lg-6">
+                            <div class="card dashboard-card">
+                                <div class="card-header">
+                                    <h3 class="card-title"><i class="fas fa-calendar-alt mr-2"></i>최신 공연 일정</h3>
+                                </div>
+                                <div class="card-body" style="max-height: 340px; overflow-y: auto;">
+                                    <% 
+                                        if (upcomingRounds != null && !upcomingRounds.isEmpty()) { 
+                                            for (Round round : upcomingRounds) { 
+                                                if (round.getWork() != null) { 
+                                    %>
+                                    <div class="schedule-item">
+                                        <span class="schedule-date"><%= round.getRound_date() %></span>
+                                        <span class="schedule-genre">
+                                            <%= round.getWork().getGenre() != null ? round.getWork().getGenre().getGenre_name() : "기타" %>
+                                        </span>
+                                        <span style="flex: 1;"><%= round.getWork().getWork_title() %></span>
+                                        <span style="color: #666; font-size: 13px; font-weight: 500;">
+                                            <%= round.getRound_start_time() %>
+                                        </span>
+                                    </div>
+                                    <% 
+                                                } 
+                                            } 
+                                        } else { 
+                                    %>
+                                    <p style="text-align: center; color: #aaa; padding: 60px 0; font-size: 14px;">예정된 공연이 없습니다.</p>
+                                    <% } %>
+                                </div>
+                            </div>
                         </div>
-                        <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-                      </div>
                     </div>
-                    <!-- ./col -->
-                    <div class="col-lg-3 col-6">
-                      <!-- small box -->
-                      <div class="small-box bg-danger">
-                        <div class="inner">
-                          <h3>65</h3>
 
-                          <p>Unique Visitors</p>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card dashboard-card">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-flag mr-2" style="color: #dc3545;"></i>신고된 리뷰 (처리 대기)
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>신고일</th>
+                                                <th>작성자</th>
+                                                <th>신고 사유</th>
+                                                <th>상태</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% 
+                                                if (reportList != null && !reportList.isEmpty()) { 
+                                                    for (Report report : reportList) { 
+                                            %>
+                                            <tr>
+                                                <td><%= report.getReport_date() %></td>
+                                                <td>
+                                                    <%= report.getReview() != null && report.getReview().getMember() != null ? report.getReview().getMember().getLoginId() : "-" %>
+                                                </td>
+                                                <td>
+                                                    <%= report.getReportCategory() != null ? report.getReportCategory().getReport_reason() : "-" %>
+                                                </td>
+                                                <td><span class="badge badge-warning">대기</span></td>
+                                            </tr>
+                                            <% 
+                                                    } 
+                                                } else { 
+                                            %>
+                                            <tr>
+                                                <td colspan="4" style="text-align: center; color: #aaa; padding: 40px 0; font-size: 14px;">처리 대기 중인 신고가 없습니다.</td>
+                                            </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
-                        <div class="icon">
-                          <i class="ion ion-pie-graph"></i>
-                        </div>
-                        <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-                      </div>
                     </div>
-                    <!-- ./col -->
-                  </div>
-                  <!-- /.row -->
-                  <!-- Main row -->
-                  <div class="row">
-                    <!-- Left col -->
-                    <section class="col-lg-7 connectedSortable">
-                      <!-- Custom tabs (Charts with tabs)-->
-                      <div class="card">
-                        <div class="card-header">
-                          <h3 class="card-title">
-                            <i class="fas fa-chart-pie mr-1"></i>
-                            Sales
-                          </h3>
-                          <div class="card-tools">
-                            <ul class="nav nav-pills ml-auto">
-                              <li class="nav-item">
-                                <a class="nav-link active" href="#revenue-chart" data-toggle="tab">Area</a>
-                              </li>
-                              <li class="nav-item">
-                                <a class="nav-link" href="#sales-chart" data-toggle="tab">Donut</a>
-                              </li>
-                            </ul>
-                          </div>
-                        </div><!-- /.card-header -->
-                        <div class="card-body">
-                          <div class="tab-content p-0">
-                            <!-- Morris chart - Sales -->
-                            <div class="chart tab-pane active" id="revenue-chart"
-                              style="position: relative; height: 300px;">
-                              <canvas id="revenue-chart-canvas" height="300" style="height: 300px;"></canvas>
-                            </div>
-                            <div class="chart tab-pane" id="sales-chart" style="position: relative; height: 300px;">
-                              <canvas id="sales-chart-canvas" height="300" style="height: 300px;"></canvas>
-                            </div>
-                          </div>
-                        </div><!-- /.card-body -->
-                      </div>
-                      <!-- /.card -->
 
-                      <!-- DIRECT CHAT -->
-                      <div class="card direct-chat direct-chat-primary">
-                        <div class="card-header">
-                          <h3 class="card-title">Direct Chat</h3>
+                </div>
+            </section>
+        </div>
 
-                          <div class="card-tools">
-                            <span title="3 New Messages" class="badge badge-primary">3</span>
-                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                              <i class="fas fa-minus"></i>
-                            </button>
-                            <button type="button" class="btn btn-tool" title="Contacts" data-widget="chat-pane-toggle">
-                              <i class="fas fa-comments"></i>
-                            </button>
-                            <button type="button" class="btn btn-tool" data-card-widget="remove">
-                              <i class="fas fa-times"></i>
-                            </button>
-                          </div>
-                        </div>
-                        <!-- /.card-header -->
-                        <div class="card-body">
-                          <!-- Conversations are loaded here -->
-                          <div class="direct-chat-messages">
-                            <!-- Message. Default to the left -->
-                            <div class="direct-chat-msg">
-                              <div class="direct-chat-infos clearfix">
-                                <span class="direct-chat-name float-left">Alexander Pierce</span>
-                                <span class="direct-chat-timestamp float-right">23 Jan 2:00 pm</span>
-                              </div>
-                              <!-- /.direct-chat-infos -->
-                              <img class="direct-chat-img" src="/static/adminlte/dist/img/user1-128x128.jpg"
-                                alt="message user image">
-                              <!-- /.direct-chat-img -->
-                              <div class="direct-chat-text">
-                                Is this template really for free? That's unbelievable!
-                              </div>
-                              <!-- /.direct-chat-text -->
-                            </div>
-                            <!-- /.direct-chat-msg -->
+        <%@ include file="./inc/footer.jsp" %>
 
-                            <!-- Message to the right -->
-                            <div class="direct-chat-msg right">
-                              <div class="direct-chat-infos clearfix">
-                                <span class="direct-chat-name float-right">Sarah Bullock</span>
-                                <span class="direct-chat-timestamp float-left">23 Jan 2:05 pm</span>
-                              </div>
-                              <!-- /.direct-chat-infos -->
-                              <img class="direct-chat-img" src="/static/adminlte/dist/img/user3-128x128.jpg"
-                                alt="message user image">
-                              <!-- /.direct-chat-img -->
-                              <div class="direct-chat-text">
-                                You better believe it!
-                              </div>
-                              <!-- /.direct-chat-text -->
-                            </div>
-                            <!-- /.direct-chat-msg -->
-
-                            <!-- Message. Default to the left -->
-                            <div class="direct-chat-msg">
-                              <div class="direct-chat-infos clearfix">
-                                <span class="direct-chat-name float-left">Alexander Pierce</span>
-                                <span class="direct-chat-timestamp float-right">23 Jan 5:37 pm</span>
-                              </div>
-                              <!-- /.direct-chat-infos -->
-                              <img class="direct-chat-img" src="/static/adminlte/dist/img/user1-128x128.jpg"
-                                alt="message user image">
-                              <!-- /.direct-chat-img -->
-                              <div class="direct-chat-text">
-                                Working with AdminLTE on a great new app! Wanna join?
-                              </div>
-                              <!-- /.direct-chat-text -->
-                            </div>
-                            <!-- /.direct-chat-msg -->
-
-                            <!-- Message to the right -->
-                            <div class="direct-chat-msg right">
-                              <div class="direct-chat-infos clearfix">
-                                <span class="direct-chat-name float-right">Sarah Bullock</span>
-                                <span class="direct-chat-timestamp float-left">23 Jan 6:10 pm</span>
-                              </div>
-                              <!-- /.direct-chat-infos -->
-                              <img class="direct-chat-img" src="/static/adminlte/dist/img/user3-128x128.jpg"
-                                alt="message user image">
-                              <!-- /.direct-chat-img -->
-                              <div class="direct-chat-text">
-                                I would love to.
-                              </div>
-                              <!-- /.direct-chat-text -->
-                            </div>
-                            <!-- /.direct-chat-msg -->
-
-                          </div>
-                          <!--/.direct-chat-messages-->
-
-                          <!-- Contacts are loaded here -->
-                          <div class="direct-chat-contacts">
-                            <ul class="contacts-list">
-                              <li>
-                                <a href="#">
-                                  <img class="contacts-list-img" src="/static/adminlte/dist/img/user1-128x128.jpg"
-                                    alt="User Avatar">
-
-                                  <div class="contacts-list-info">
-                                    <span class="contacts-list-name">
-                                      Count Dracula
-                                      <small class="contacts-list-date float-right">2/28/2015</small>
-                                    </span>
-                                    <span class="contacts-list-msg">How have you been? I was...</span>
-                                  </div>
-                                  <!-- /.contacts-list-info -->
-                                </a>
-                              </li>
-                              <!-- End Contact Item -->
-                              <li>
-                                <a href="#">
-                                  <img class="contacts-list-img" src="/static/adminlte/dist/img/user7-128x128.jpg"
-                                    alt="User Avatar">
-
-                                  <div class="contacts-list-info">
-                                    <span class="contacts-list-name">
-                                      Sarah Doe
-                                      <small class="contacts-list-date float-right">2/23/2015</small>
-                                    </span>
-                                    <span class="contacts-list-msg">I will be waiting for...</span>
-                                  </div>
-                                  <!-- /.contacts-list-info -->
-                                </a>
-                              </li>
-                              <!-- End Contact Item -->
-                              <li>
-                                <a href="#">
-                                  <img class="contacts-list-img" src="/static/adminlte/dist/img/user3-128x128.jpg"
-                                    alt="User Avatar">
-
-                                  <div class="contacts-list-info">
-                                    <span class="contacts-list-name">
-                                      Nadia Jolie
-                                      <small class="contacts-list-date float-right">2/20/2015</small>
-                                    </span>
-                                    <span class="contacts-list-msg">I'll call you back at...</span>
-                                  </div>
-                                  <!-- /.contacts-list-info -->
-                                </a>
-                              </li>
-                              <!-- End Contact Item -->
-                              <li>
-                                <a href="#">
-                                  <img class="contacts-list-img" src="/static/adminlte/dist/img/user5-128x128.jpg"
-                                    alt="User Avatar">
-
-                                  <div class="contacts-list-info">
-                                    <span class="contacts-list-name">
-                                      Nora S. Vans
-                                      <small class="contacts-list-date float-right">2/10/2015</small>
-                                    </span>
-                                    <span class="contacts-list-msg">Where is your new...</span>
-                                  </div>
-                                  <!-- /.contacts-list-info -->
-                                </a>
-                              </li>
-                              <!-- End Contact Item -->
-                              <li>
-                                <a href="#">
-                                  <img class="contacts-list-img" src="/static/adminlte/dist/img/user6-128x128.jpg"
-                                    alt="User Avatar">
-
-                                  <div class="contacts-list-info">
-                                    <span class="contacts-list-name">
-                                      John K.
-                                      <small class="contacts-list-date float-right">1/27/2015</small>
-                                    </span>
-                                    <span class="contacts-list-msg">Can I take a look at...</span>
-                                  </div>
-                                  <!-- /.contacts-list-info -->
-                                </a>
-                              </li>
-                              <!-- End Contact Item -->
-                              <li>
-                                <a href="#">
-                                  <img class="contacts-list-img" src="/static/adminlte/dist/img/user8-128x128.jpg"
-                                    alt="User Avatar">
-
-                                  <div class="contacts-list-info">
-                                    <span class="contacts-list-name">
-                                      Kenneth M.
-                                      <small class="contacts-list-date float-right">1/4/2015</small>
-                                    </span>
-                                    <span class="contacts-list-msg">Never mind I found...</span>
-                                  </div>
-                                  <!-- /.contacts-list-info -->
-                                </a>
-                              </li>
-                              <!-- End Contact Item -->
-                            </ul>
-                            <!-- /.contacts-list -->
-                          </div>
-                          <!-- /.direct-chat-pane -->
-                        </div>
-                        <!-- /.card-body -->
-                        <div class="card-footer">
-                          <form action="#" method="post">
-                            <div class="input-group">
-                              <input type="text" name="message" placeholder="Type Message ..." class="form-control">
-                              <span class="input-group-append">
-                                <button type="button" class="btn btn-primary">Send</button>
-                              </span>
-                            </div>
-                          </form>
-                        </div>
-                        <!-- /.card-footer-->
-                      </div>
-                      <!--/.direct-chat -->
-
-                      <!-- TO DO List -->
-                      <div class="card">
-                        <div class="card-header">
-                          <h3 class="card-title">
-                            <i class="ion ion-clipboard mr-1"></i>
-                            To Do List
-                          </h3>
-
-                          <div class="card-tools">
-                            <ul class="pagination pagination-sm">
-                              <li class="page-item"><a href="#" class="page-link">&laquo;</a></li>
-                              <li class="page-item"><a href="#" class="page-link">1</a></li>
-                              <li class="page-item"><a href="#" class="page-link">2</a></li>
-                              <li class="page-item"><a href="#" class="page-link">3</a></li>
-                              <li class="page-item"><a href="#" class="page-link">&raquo;</a></li>
-                            </ul>
-                          </div>
-                        </div>
-                        <!-- /.card-header -->
-                        <div class="card-body">
-                          <ul class="todo-list" data-widget="todo-list">
-                            <li>
-                              <!-- drag handle -->
-                              <span class="handle">
-                                <i class="fas fa-ellipsis-v"></i>
-                                <i class="fas fa-ellipsis-v"></i>
-                              </span>
-                              <!-- checkbox -->
-                              <div class="icheck-primary d-inline ml-2">
-                                <input type="checkbox" value="" name="todo1" id="todoCheck1">
-                                <label for="todoCheck1"></label>
-                              </div>
-                              <!-- todo text -->
-                              <span class="text">Design a nice theme</span>
-                              <!-- Emphasis label -->
-                              <small class="badge badge-danger"><i class="far fa-clock"></i> 2 mins</small>
-                              <!-- General tools such as edit or delete-->
-                              <div class="tools">
-                                <i class="fas fa-edit"></i>
-                                <i class="fas fa-trash-o"></i>
-                              </div>
-                            </li>
-                            <li>
-                              <span class="handle">
-                                <i class="fas fa-ellipsis-v"></i>
-                                <i class="fas fa-ellipsis-v"></i>
-                              </span>
-                              <div class="icheck-primary d-inline ml-2">
-                                <input type="checkbox" value="" name="todo2" id="todoCheck2" checked>
-                                <label for="todoCheck2"></label>
-                              </div>
-                              <span class="text">Make the theme responsive</span>
-                              <small class="badge badge-info"><i class="far fa-clock"></i> 4 hours</small>
-                              <div class="tools">
-                                <i class="fas fa-edit"></i>
-                                <i class="fas fa-trash-o"></i>
-                              </div>
-                            </li>
-                            <li>
-                              <span class="handle">
-                                <i class="fas fa-ellipsis-v"></i>
-                                <i class="fas fa-ellipsis-v"></i>
-                              </span>
-                              <div class="icheck-primary d-inline ml-2">
-                                <input type="checkbox" value="" name="todo3" id="todoCheck3">
-                                <label for="todoCheck3"></label>
-                              </div>
-                              <span class="text">Let theme shine like a star</span>
-                              <small class="badge badge-warning"><i class="far fa-clock"></i> 1 day</small>
-                              <div class="tools">
-                                <i class="fas fa-edit"></i>
-                                <i class="fas fa-trash-o"></i>
-                              </div>
-                            </li>
-                            <li>
-                              <span class="handle">
-                                <i class="fas fa-ellipsis-v"></i>
-                                <i class="fas fa-ellipsis-v"></i>
-                              </span>
-                              <div class="icheck-primary d-inline ml-2">
-                                <input type="checkbox" value="" name="todo4" id="todoCheck4">
-                                <label for="todoCheck4"></label>
-                              </div>
-                              <span class="text">Let theme shine like a star</span>
-                              <small class="badge badge-success"><i class="far fa-clock"></i> 3 days</small>
-                              <div class="tools">
-                                <i class="fas fa-edit"></i>
-                                <i class="fas fa-trash-o"></i>
-                              </div>
-                            </li>
-                            <li>
-                              <span class="handle">
-                                <i class="fas fa-ellipsis-v"></i>
-                                <i class="fas fa-ellipsis-v"></i>
-                              </span>
-                              <div class="icheck-primary d-inline ml-2">
-                                <input type="checkbox" value="" name="todo5" id="todoCheck5">
-                                <label for="todoCheck5"></label>
-                              </div>
-                              <span class="text">Check your messages and notifications</span>
-                              <small class="badge badge-primary"><i class="far fa-clock"></i> 1 week</small>
-                              <div class="tools">
-                                <i class="fas fa-edit"></i>
-                                <i class="fas fa-trash-o"></i>
-                              </div>
-                            </li>
-                            <li>
-                              <span class="handle">
-                                <i class="fas fa-ellipsis-v"></i>
-                                <i class="fas fa-ellipsis-v"></i>
-                              </span>
-                              <div class="icheck-primary d-inline ml-2">
-                                <input type="checkbox" value="" name="todo6" id="todoCheck6">
-                                <label for="todoCheck6"></label>
-                              </div>
-                              <span class="text">Let theme shine like a star</span>
-                              <small class="badge badge-secondary"><i class="far fa-clock"></i> 1 month</small>
-                              <div class="tools">
-                                <i class="fas fa-edit"></i>
-                                <i class="fas fa-trash-o"></i>
-                              </div>
-                            </li>
-                          </ul>
-                        </div>
-                        <!-- /.card-body -->
-                        <div class="card-footer clearfix">
-                          <button type="button" class="btn btn-primary float-right"><i class="fas fa-plus"></i> Add
-                            item</button>
-                        </div>
-                      </div>
-                      <!-- /.card -->
-                    </section>
-                    <!-- /.Left col -->
-                    <!-- right col (We are only adding the ID to make the widgets sortable)-->
-                    <section class="col-lg-5 connectedSortable">
-
-                      <!-- Map card -->
-                      <div class="card bg-gradient-primary">
-                        <div class="card-header border-0">
-                          <h3 class="card-title">
-                            <i class="fas fa-map-marker-alt mr-1"></i>
-                            Visitors
-                          </h3>
-                          <!-- card tools -->
-                          <div class="card-tools">
-                            <button type="button" class="btn btn-primary btn-sm daterange" title="Date range">
-                              <i class="far fa-calendar-alt"></i>
-                            </button>
-                            <button type="button" class="btn btn-primary btn-sm" data-card-widget="collapse"
-                              title="Collapse">
-                              <i class="fas fa-minus"></i>
-                            </button>
-                          </div>
-                          <!-- /.card-tools -->
-                        </div>
-                        <div class="card-body">
-                          <div id="world-map" style="height: 250px; width: 100%;"></div>
-                        </div>
-                        <!-- /.card-body-->
-                        <div class="card-footer bg-transparent">
-                          <div class="row">
-                            <div class="col-4 text-center">
-                              <div id="sparkline-1"></div>
-                              <div class="text-white">Visitors</div>
-                            </div>
-                            <!-- ./col -->
-                            <div class="col-4 text-center">
-                              <div id="sparkline-2"></div>
-                              <div class="text-white">Online</div>
-                            </div>
-                            <!-- ./col -->
-                            <div class="col-4 text-center">
-                              <div id="sparkline-3"></div>
-                              <div class="text-white">Sales</div>
-                            </div>
-                            <!-- ./col -->
-                          </div>
-                          <!-- /.row -->
-                        </div>
-                      </div>
-                      <!-- /.card -->
-
-                      <!-- solid sales graph -->
-                      <div class="card bg-gradient-info">
-                        <div class="card-header border-0">
-                          <h3 class="card-title">
-                            <i class="fas fa-th mr-1"></i>
-                            Sales Graph
-                          </h3>
-
-                          <div class="card-tools">
-                            <button type="button" class="btn bg-info btn-sm" data-card-widget="collapse">
-                              <i class="fas fa-minus"></i>
-                            </button>
-                            <button type="button" class="btn bg-info btn-sm" data-card-widget="remove">
-                              <i class="fas fa-times"></i>
-                            </button>
-                          </div>
-                        </div>
-                        <div class="card-body">
-                          <canvas class="chart" id="line-chart"
-                            style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                        </div>
-                        <!-- /.card-body -->
-                        <div class="card-footer bg-transparent">
-                          <div class="row">
-                            <div class="col-4 text-center">
-                              <input type="text" class="knob" data-readonly="true" value="20" data-width="60"
-                                data-height="60" data-fgColor="#39CCCC">
-
-                              <div class="text-white">Mail-Orders</div>
-                            </div>
-                            <!-- ./col -->
-                            <div class="col-4 text-center">
-                              <input type="text" class="knob" data-readonly="true" value="50" data-width="60"
-                                data-height="60" data-fgColor="#39CCCC">
-
-                              <div class="text-white">Online</div>
-                            </div>
-                            <!-- ./col -->
-                            <div class="col-4 text-center">
-                              <input type="text" class="knob" data-readonly="true" value="30" data-width="60"
-                                data-height="60" data-fgColor="#39CCCC">
-
-                              <div class="text-white">In-Store</div>
-                            </div>
-                            <!-- ./col -->
-                          </div>
-                          <!-- /.row -->
-                        </div>
-                        <!-- /.card-footer -->
-                      </div>
-                      <!-- /.card -->
-
-                      <!-- Calendar -->
-                      <div class="card bg-gradient-success">
-                        <div class="card-header border-0">
-
-                          <h3 class="card-title">
-                            <i class="far fa-calendar-alt"></i>
-                            Calendar
-                          </h3>
-                          <!-- tools card -->
-                          <div class="card-tools">
-                            <!-- button with a dropdown -->
-                            <div class="btn-group">
-                              <button type="button" class="btn btn-success btn-sm dropdown-toggle"
-                                data-toggle="dropdown" data-offset="-52">
-                                <i class="fas fa-bars"></i>
-                              </button>
-                              <div class="dropdown-menu" role="menu">
-                                <a href="#" class="dropdown-item">Add new event</a>
-                                <a href="#" class="dropdown-item">Clear events</a>
-                                <div class="dropdown-divider"></div>
-                                <a href="#" class="dropdown-item">View calendar</a>
-                              </div>
-                            </div>
-                            <button type="button" class="btn btn-success btn-sm" data-card-widget="collapse">
-                              <i class="fas fa-minus"></i>
-                            </button>
-                            <button type="button" class="btn btn-success btn-sm" data-card-widget="remove">
-                              <i class="fas fa-times"></i>
-                            </button>
-                          </div>
-                          <!-- /. tools -->
-                        </div>
-                        <!-- /.card-header -->
-                        <div class="card-body pt-0">
-                          <!--The calendar -->
-                          <div id="calendar" style="width: 100%"></div>
-                        </div>
-                        <!-- /.card-body -->
-                      </div>
-                      <!-- /.card -->
-                    </section>
-                    <!-- right col -->
-                  </div>
-                  <!-- /.row (main row) -->
-                </div><!-- /.container-fluid -->
-              </section>
-              <!-- /.content -->
-            </div>
-            <!-- /.content-wrapper -->
-            <%@ include file="./inc/footer.jsp" %>
-
-              <!-- Control Sidebar -->
-              <%@ include file="./inc/control_sidebar.jsp" %>
-
-                <!-- /.control-sidebar -->
     </div>
-    <!-- ./wrapper -->
+
     <%@ include file="./inc/footer_link.jsp" %>
-      <script>
-        $(() => {	// ====== 비동기 클릭 이벤트 함수 =======
-        	
-        	// 전역 AJAX 401 처리: content-wrapper에 로그인 박히는 문제 방지
-            $(document).ajaxError(function (event, jqxhr) {
-              if (jqxhr.status === 401) {
-                // 서버가 Location 헤더 줬으면 그쪽으로, 아니면 기본 로그인으로
-                const loc = jqxhr.getResponseHeader("Location") || "/auth/login";
-                window.location.href = loc;
-              }
+
+    <script>
+        $(function () {
+            <%
+                java.util.List<com.ch.tickethub.dto.Genre> filteredList = new java.util.ArrayList<>();
+                if (genreList != null) {
+                    for (com.ch.tickethub.dto.Genre g : genreList) {
+                        if (!"전시/행사".equals(g.getGenre_name())) {
+                            filteredList.add(g);
+                        }
+                    }
+                }
+            %>
+
+            var genreLabels = [
+                <% 
+                    for (int i = 0; i < filteredList.size(); i++) {
+                        out.print("'" + filteredList.get(i).getGenre_name() + "'");
+                        if (i < filteredList.size() - 1) out.print(",");
+                    }
+                %>
+            ];
+
+            var genreData = [
+                <% 
+                    for (int i = 0; i < filteredList.size(); i++) {
+                        int count = filteredList.get(i).getWorkList() != null ? filteredList.get(i).getWorkList().size() : 0;
+                        out.print(count);
+                        if (i < filteredList.size() - 1) out.print(",");
+                    }
+                %>
+            ];
+
+            var chartColors = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#06b6d4'];
+            var ctx = document.getElementById('genreChart').getContext('2d');
+
+            var myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: genreLabels,
+                    datasets: [{
+                        data: genreData,
+                        backgroundColor: chartColors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                        hoverOffset: 6,
+                        hoverBorderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: true
+                        }
+                    },
+                    layout: { padding: 0 }
+                }
             });
 
-          // 메인배너 관리 클릭 이벤트
-          $("#menu-main-banner").click(function (e) {
-            e.preventDefault();
-            $.ajax({
-              url: "/admin/mainpage/mainbanner/banner",
-              method: "GET",
-              success: function (result) {
-                console.log("메인배너관리 클릭됨!!");
-                $(".content-wrapper").html(result);
-              }
-            });
-          });
+            function generateCustomLegend(chart) {
+                var legendHtml = [];
+                var data = chart.data;
+                legendHtml.push('<ul class="legend-list">');
+                for (var i = 0; i < data.labels.length; i++) {
+                    legendHtml.push('<li>');
+                    legendHtml.push('<span class="legend-dot" style="background-color:' + data.datasets[0].backgroundColor[i] + '"></span>');
+                    legendHtml.push('<span class="legend-text">' + data.labels[i] + '</span>');
+                    legendHtml.push('</li>');
+                }
+                legendHtml.push('</ul>');
+                document.getElementById('customLegend').innerHTML = legendHtml.join("");
+            }
 
-          // 인기작 관리 클릭 이벤트
-          $("#menu-hot-work").click(function (e) {
-            e.preventDefault();
-            $.ajax({
-              url: "/admin/mainpage/hotwork/hotwork",
-              method: "GET",
-              success: function (result) {
-                console.log("인기작관리 클릭됨!!");
-                $(".content-wrapper").html(result);
-              }
-            });
-          });
+            generateCustomLegend(myChart);
 
-          // 오픈예정 관리 클릭 이벤트
-          $("#menu-opening-work").click(function (e) {
-            e.preventDefault();
-            $.ajax({
-              url: "/admin/mainpage/openingwork/openingwork",
-              method: "GET",
-              success: function (result) {
-                console.log("오픈예정관리 클릭됨!!");
-                $(".content-wrapper").html(result);
-              }
+            $("#btn-admin-home").click(function (e) {
+                e.preventDefault();
+                window.location.href = "/admin/main";
             });
-          });
-
-		  // 장르별 화제작 관리 클릭 이벤트
-          $("#menu-genre-ranking").click(function (e) {
-            e.preventDefault();
-            $.ajax({
-              url: "/admin/mainpage/genreranking/genreranking",
-              method: "GET",
-              success: function (result) {
-                console.log("장르별 화제작관리 클릭됨!!");
-                $(".content-wrapper").html(result);
-              }
-            });
-          });
-          
-		  // 베스트 리뷰 관리 클릭 이벤트
-          $("#menu-bestreview-work").click(function (e) {
-            e.preventDefault();
-            $.ajax({
-              url: "/admin/mainpage/bestreview/bestreview",
-              method: "GET",
-              success: function (result) {
-                console.log("베스트 리뷰관리 클릭됨!!");
-                $(".content-wrapper").html(result);
-              }
-            });
-          });
-
-          // 인물 관리 클릭 이벤트
-          $($(".performance .nav-item")[0]).click(function (e) {
-            e.preventDefault();
-            $.ajax({
-              url: "/admin/performance/person",
-              method: "GET",
-              success: function (result) {
-                console.log("인물관리 클릭됨!!");
-                $(".content-wrapper").html(result);
-              }
-            });
-          });
-
-          // 장소 관리 클릭 이벤트
-          $($(".performance .nav-item")[1]).click(function (e) {
-            e.preventDefault();
-            $.ajax({
-              url: "/admin/performance/place",
-              method: "GET",
-              success: function (result) {
-                console.log("장소관리 클릭됨!!");
-                $(".content-wrapper").html(result);
-              }
-            });
-          });
-
-          // 주최/기획 관리 클릭 이벤트
-          $($(".performance .nav-item")[2]).click(function (e) {
-            e.preventDefault();
-            $.ajax({
-              url: "/admin/performance/publisher",
-              method: "GET",
-              success: function (result) {
-                console.log("주최/기획 관리 클릭됨!!");
-                $(".content-wrapper").html(result);
-              }
-            });
-          });
-
-          // 작품 관리 클릭 이벤트
-          $($(".performance .nav-item")[3]).click(function (e) {
-            e.preventDefault();
-            $.ajax({
-              url: "/admin/performance/work",
-              method: "GET",
-              success: function (result) {
-                console.log("작품 관리 클릭됨!!");
-                $(".content-wrapper").html(result);
-              }
-            });
-          });
-
-          // 회차 관리 클릭 이벤트
-          $($(".performance .nav-item")[4]).click(function (e) {
-            e.preventDefault();
-            $.ajax({
-              url: "/admin/performance/round",
-              method: "GET",
-              success: function (result) {
-                console.log("회차 관리 클릭됨!!");
-                $(".content-wrapper").html(result);
-              }
-            });
-          });
-
-
-
-          // 좌석 상태 관리 클릭 (첫 번째 메뉴)
-          $($(".seat .nav-item")[0]).click(function (e) {
-            e.preventDefault();
-            $.ajax({
-              url: "/admin/seatmanager/seat/state/main", // 수정됨
-              method: "GET",
-              success: function (result) {
-                $(".content-wrapper").html(result);
-              }
-            });
-          });
-
-          // 좌석 등급 관리 클릭 (두 번째 메뉴)
-          $($(".seat .nav-item")[1]).click(function (e) {
-            e.preventDefault();
-            $.ajax({
-              url: "/admin/seatmanager/seat/grade/main", // 수정됨
-              method: "GET",
-              success: function (result) {
-                $(".content-wrapper").html(result);
-              }
-            });
-          });
-		
-       		// 회원 목록 클릭 이벤트
-          $("#menu-members").click(function (e) {
-            e.preventDefault();
-            $.ajax({
-              url: "/admin/members",    // 컨트롤러를 /admin/members로 맞추기..
-              method: "GET",
-              success: function (result) {
-                console.log("회원 목록 클릭됨!!");
-                $(".content-wrapper").html(result);
-              }
-            });
-          });
-
         });
-        (function(){
-        	  const ctx = "${pageContext.request.contextPath}";
+     // Dashboard 날짜 동적 표시
+        (function() {
+            var today = new Date();
+            var year = today.getFullYear();
+            var month = today.getMonth() + 1;
+            var day = today.getDate();
+            var weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+            var weekday = weekdays[today.getDay()];
+            
+            var dateStr = year + '년 ' + month + '월 ' + day + '일 ' + weekday + '요일 기준 현황입니다.';
+            var el = document.getElementById('dashboard-date-text');
+            if (el) el.textContent = dateStr;
+        })();
+    </script>
 
-        	  window.addEventListener("popstate", function(e){
-        	    const st = e.state;
+    <script>
+    $(() => {	// ====== 비동기 클릭 이벤트 함수 =======
+    	
+    	// 전역 AJAX 401 처리: content-wrapper에 로그인 박히는 문제 방지
+        $(document).ajaxError(function (event, jqxhr) {
+          if (jqxhr.status === 401) {
+            // 서버가 Location 헤더 줬으면 그쪽으로, 아니면 기본 로그인으로
+            const loc = jqxhr.getResponseHeader("Location") || "/auth/login";
+            window.location.href = loc;
+          }
+        });
 
-        	    // state 없으면: (pushState가 없어서) 아무 것도 못함
-        	    // -> 여기서 return 하는 건 정상. "안되는" 주 원인도 여기.
-        	    if(!st) return;
+      // 메인배너 관리 클릭 이벤트
+      $("#menu-main-banner").click(function (e) {
+        e.preventDefault();
+        $.ajax({
+          url: "/admin/mainpage/mainbanner/banner",
+          method: "GET",
+          success: function (result) {
+            console.log("메인배너관리 클릭됨!!");
+            $(".content-wrapper").html(result);
+          }
+        });
+      });
 
-        	    // url 기반 복원
-        	    if(st.url){
-        	      $.ajax({
-        	        url: st.url.startsWith("http") ? st.url : (st.url.startsWith(ctx) ? st.url : ctx + st.url),
-        	        method: "GET",
-        	        success: function(result){
-        	          $(".content-wrapper").html(result);
-        	        }
-        	      });
-        	      return;
-        	    }
+      // 인기작 관리 클릭 이벤트
+      $("#menu-hot-work").click(function (e) {
+        e.preventDefault();
+        $.ajax({
+          url: "/admin/mainpage/hotwork/hotwork",
+          method: "GET",
+          success: function (result) {
+            console.log("인기작관리 클릭됨!!");
+            $(".content-wrapper").html(result);
+          }
+        });
+      });
 
-        	    // detail 기반 복원 (view/memberId 저장해둔 경우)
-        	    if(st.view === "detail" && st.memberId){
-        	      $.ajax({
-        	        url: ctx + "/admin/members/detail",
-        	        data: { memberId: st.memberId },
-        	        success: function(result){
-        	          $(".content-wrapper").html(result);
-        	        }
-        	      });
-        	    }
-        	  });
-        	})();
-      </script>
-  </body>
+      // 오픈예정 관리 클릭 이벤트
+      $("#menu-opening-work").click(function (e) {
+        e.preventDefault();
+        $.ajax({
+          url: "/admin/mainpage/openingwork/openingwork",
+          method: "GET",
+          success: function (result) {
+            console.log("오픈예정관리 클릭됨!!");
+            $(".content-wrapper").html(result);
+          }
+        });
+      });
 
-  </html>
+	  // 장르별 화제작 관리 클릭 이벤트
+      $("#menu-genre-ranking").click(function (e) {
+        e.preventDefault();
+        $.ajax({
+          url: "/admin/mainpage/genreranking/genreranking",
+          method: "GET",
+          success: function (result) {
+            console.log("장르별 화제작관리 클릭됨!!");
+            $(".content-wrapper").html(result);
+          }
+        });
+      });
+      
+	  // 베스트 리뷰 관리 클릭 이벤트
+      $("#menu-bestreview-work").click(function (e) {
+        e.preventDefault();
+        $.ajax({
+          url: "/admin/mainpage/bestreview/bestreview",
+          method: "GET",
+          success: function (result) {
+            console.log("베스트 리뷰관리 클릭됨!!");
+            $(".content-wrapper").html(result);
+          }
+        });
+      });
+
+      // 인물 관리 클릭 이벤트
+      $($(".performance .nav-item")[0]).click(function (e) {
+        e.preventDefault();
+        $.ajax({
+          url: "/admin/performance/person",
+          method: "GET",
+          success: function (result) {
+            console.log("인물관리 클릭됨!!");
+            $(".content-wrapper").html(result);
+          }
+        });
+      });
+
+      // 장소 관리 클릭 이벤트
+      $($(".performance .nav-item")[1]).click(function (e) {
+        e.preventDefault();
+        $.ajax({
+          url: "/admin/performance/place",
+          method: "GET",
+          success: function (result) {
+            console.log("장소관리 클릭됨!!");
+            $(".content-wrapper").html(result);
+          }
+        });
+      });
+
+      // 주최/기획 관리 클릭 이벤트
+      $($(".performance .nav-item")[2]).click(function (e) {
+        e.preventDefault();
+        $.ajax({
+          url: "/admin/performance/publisher",
+          method: "GET",
+          success: function (result) {
+            console.log("주최/기획 관리 클릭됨!!");
+            $(".content-wrapper").html(result);
+          }
+        });
+      });
+
+      // 작품 관리 클릭 이벤트
+      $($(".performance .nav-item")[3]).click(function (e) {
+        e.preventDefault();
+        $.ajax({
+          url: "/admin/performance/work",
+          method: "GET",
+          success: function (result) {
+            console.log("작품 관리 클릭됨!!");
+            $(".content-wrapper").html(result);
+          }
+        });
+      });
+
+      // 회차 관리 클릭 이벤트
+      $($(".performance .nav-item")[4]).click(function (e) {
+        e.preventDefault();
+        $.ajax({
+          url: "/admin/performance/round",
+          method: "GET",
+          success: function (result) {
+            console.log("회차 관리 클릭됨!!");
+            $(".content-wrapper").html(result);
+          }
+        });
+      });
+      
+      // 신고 관리 클릭 이벤트
+      $($(".performance .nav-item")[5]).click(function (e) {
+        e.preventDefault();
+        $.ajax({
+          url: "/admin/performance/report",
+          method: "GET",
+          success: function (result) {
+            console.log("신고 관리 클릭됨!!");
+            $(".content-wrapper").html(result);
+          }
+        });
+      });
+
+
+
+      // 좌석 상태 관리 클릭 (첫 번째 메뉴)
+      $($(".seat .nav-item")[0]).click(function (e) {
+        e.preventDefault();
+        $.ajax({
+          url: "/admin/seatmanager/seat/state/main", // 수정됨
+          method: "GET",
+          success: function (result) {
+            $(".content-wrapper").html(result);
+          }
+        });
+      });
+
+      // 좌석 등급 관리 클릭 (두 번째 메뉴)
+      $($(".seat .nav-item")[1]).click(function (e) {
+        e.preventDefault();
+        $.ajax({
+          url: "/admin/seatmanager/seat/grade/main", // 수정됨
+          method: "GET",
+          success: function (result) {
+            $(".content-wrapper").html(result);
+          }
+        });
+      });
+	
+   		// 회원 목록 클릭 이벤트
+      $("#menu-members").click(function (e) {
+        e.preventDefault();
+        $.ajax({
+          url: "/admin/members",    // 컨트롤러를 /admin/members로 맞추기..
+          method: "GET",
+          success: function (result) {
+            console.log("회원 목록 클릭됨!!");
+            $(".content-wrapper").html(result);
+          }
+        });
+      });
+
+    });
+    (function(){
+    	  const ctx = "${pageContext.request.contextPath}";
+
+    	  window.addEventListener("popstate", function(e){
+    	    const st = e.state;
+
+    	    // state 없으면: (pushState가 없어서) 아무 것도 못함
+    	    // -> 여기서 return 하는 건 정상. "안되는" 주 원인도 여기.
+    	    if(!st) return;
+
+    	    // url 기반 복원
+    	    if(st.url){
+    	      $.ajax({
+    	        url: st.url.startsWith("http") ? st.url : (st.url.startsWith(ctx) ? st.url : ctx + st.url),
+    	        method: "GET",
+    	        success: function(result){
+    	          $(".content-wrapper").html(result);
+    	        }
+    	      });
+    	      return;
+    	    }
+
+    	    // detail 기반 복원 (view/memberId 저장해둔 경우)
+    	    if(st.view === "detail" && st.memberId){
+    	      $.ajax({
+    	        url: ctx + "/admin/members/detail",
+    	        data: { memberId: st.memberId },
+    	        success: function(result){
+    	          $(".content-wrapper").html(result);
+    	        }
+    	      });
+    	    }
+    	  });
+    	})();
+    </script>
+</body>
+
+</html>

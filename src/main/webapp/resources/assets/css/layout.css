@@ -22,50 +22,63 @@
   font-size: 28px;
   line-height: 1;
 }
-.site-header__logo-gradient{
-  background: linear-gradient(90deg, var(--purple), var(--pink));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.site-header__logo-gradient {
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); 
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 800;
+    letter-spacing: -0.02em;
 }
 
-.search{
-  flex: 1;
-  max-width: 720px;
-  position: relative;
-  margin: 0 12px;
+/* 1. 검색창 컨테이너: 너비를 키우고 좌우 여백을 줘서 중앙 밸런스를 맞춤 */
+.search {
+    flex: 1;
+    max-width: 800px; /* 검색창을 더 길게 확장 */
+    position: relative;
+    margin: 0 50px; /* 로고와 버튼 사이에서 적절한 거리 유지 */
 }
-.search__input{
-  width: 100%;
-  border: 1px solid transparent;
-  background: var(--gray-50);
-  border-radius: 999px;
-  padding: 7px 46px 7px 18px;
-  outline: none;
-  transition: background-color .2s ease, box-shadow .2s ease;
+
+/* 2. 입력창: 다시 둥글게 만들고 전체 너비를 채움 */
+.search__input {
+    width: 100%; /* 컨테이너를 꽉 채우도록 수정 */
+    background: #f3f4f6 !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 999px !important; /* 다시 둥글게 수정 */
+    padding: 12px 50px 12px 24px !important; /* 높이감과 좌우 여백 확보 */
+    font-size: 15px !important;
+    outline: none;
+    transition: all 0.2s ease;
 }
-.search__input:focus{
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(124,58,237,.18);
+
+/* 검색창 클릭(포커스) 시 효과 */
+.search__input:focus {
+    background: #fff !important;
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
 }
-.search__btn{
-  position:absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: #9ca3af;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  transition: color .2s ease, background-color .2s ease;
+
+/* 3. 돋보기 아이콘: 입력창 안쪽 오른쪽 끝에 딱 붙임 */
+.search__btn {
+    position: absolute;
+    right: 12px; /* 둥근 입력창 안쪽으로 고정 */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 34px;
+    height: 34px;
+    background: transparent !important;
+    border: none !important;
+    color: #6366f1 !important; /* 아이콘 색상도 테마와 통일 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
 }
-.search__btn:hover{ color: var(--purple); background: rgba(124,58,237,.06); }
+
+.search__btn:hover {
+    transform: translateY(-50%) scale(1.1); /* 호버 시 살짝 커지는 효과 */
+}
 
 .user-actions{
   display:flex;
