@@ -2,24 +2,34 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="SeatGrade">
 
+	 <sql id="sql_select">
+        SELECT grade_name, on_img_url, off_img_url, sold_img_url, surcharge
+        FROM seat_grade
+    </sql>
+
+
     <insert id="insert" parameterType="SeatGrade" useGeneratedKeys="true" keyProperty="seat_grade_id">
-        INSERT INTO seat_grade (grade_name, on_img_url, off_img_url)
-        VALUES (#{grade_name}, #{on_img_url}, #{off_img_url})
+    	INSERT INTO seat_grade (grade_name, on_img_url, off_img_url, sold_img_url, surcharge) 
+        VALUES (#{grade_name}, #{on_img_url}, #{off_img_url}, #{sold_img_url}, #{surcharge})
     </insert>
 
     <select id="selectAll" resultType="SeatGrade">
-        SELECT * FROM seat_grade ORDER BY seat_grade_id ASC
+    	<include refid="sql_select"/>
+        Order By seat_grade_id ASC
     </select>
 
     <select id="select" parameterType="int" resultType="SeatGrade">
-        SELECT * FROM seat_grade WHERE seat_grade_id = #{seat_grade_id}
+        <include refid="sql_select"/>
+        WHERE seat_grade_id = #{seat_grade_id}
     </select>
 
     <update id="update" parameterType="SeatGrade">
         UPDATE seat_grade
         SET grade_name = #{grade_name},
             on_img_url = #{on_img_url},
-            off_img_url = #{off_img_url}
+            off_img_url = #{off_img_url},
+            sold_img_url = #{sold_img_url},
+            surcharge = #{surcharge}
         WHERE seat_grade_id = #{seat_grade_id}
     </update>
 

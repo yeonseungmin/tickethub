@@ -45,9 +45,15 @@
 	let work = <%=jsonWork%>;
 	let reviewList;
 	let paging;
+	let prevPage;
+	let prevOrderType;
 	
-	// 예비용. 접속자의 멤버 아이디가 1이라면? 나중에 session으로 교체
 	const memberId = <%= (member != null) ? member.getMemberId() : 0 %>;
+	// review_like을 하루 저장하기 위한 키
+	let cookieKey = "likedList_member" + memberId;
+   	let rawCookie = getCookie(cookieKey);
+   	let likedList = rawCookie ? JSON.parse(rawCookie) : [];
+   	
 	console.log(memberId);
 	let moneyConverter = new MoneyConverter();
 </script>
@@ -281,11 +287,12 @@
     		
     		return isSameDate && isNotCancelled && isValidTime;
     	});
-        
-        //console.log(selectedRoundList);
     	
         if(selectedRoundList.length == 0){
         	roundArea.html("<p class='text-muted text-sm'>선택 가능한 회차가 없습니다.</p>");
+        	
+        	$(".btn-reservation").val(""); 
+            $("#daily-casting-area").text("-");
         	return;
         }
         
@@ -379,9 +386,41 @@
     }
     
     function registReReview(btn) {
+    	const reReviewData = {
+    			re_review_content: $(btn).closest(".card-body").find("textarea").val(),
+    			review: {
+    				review_id: $(btn).closest("li").val()
+    			}
+    	}
     	
-    	let review_id = $(btn).closest("li").val();
-    	console.log("답글을 달 review_id는 ", review_id);
+    	if(reReviewData.re_review_content == "") {
+    		alert("누락된 입력");
+    		return;
+    	}
+    	
+    	$.ajax({
+    	    url: "/detail/re_review/regist",
+    	    method: "POST",
+    	    contentType: "application/json",
+    	    data: JSON.stringify(reReviewData),
+    	    success:function(result, status, xhr) {
+    	    	alert(result.message);
+    	        getReviewList(prevPage, prevOrderType); // 목록 새로고침
+    	        $("textarea[placeholder*='답글을 입력']").val("");
+    	    },
+    	    error:function(xhr, status, err) {
+    	        // 서버가 401을 보냈다면 (세션 만료 등)
+    	        if (xhr.status === 401) {
+    	        	let obj = JSON.parse(xhr.responseText);
+    	        	if (confirm(obj.message)) {
+                        location.href = "/auth/login";
+                    }
+    	        } else {
+    	        	let obj = JSON.parse(xhr.responseText);
+    	            alert(obj.message);
+    	        }
+    	    }
+		});
     }
     
 	// [관람후기] 답글 작성 폼 토글 기능
@@ -391,34 +430,64 @@
         $(formId).slideToggle("fast");
     }
 
-    // [관람후기] 후기 좋아요 토글 UI (프론트 처리만)
+    // [관람후기] 후기 좋아요 토글 UI
+    // 사실 리뷰 좋아요 테이블을 넣으면 좋아요 한 번만 하고 기억할 수 있겠지만 안 하기로 했다.
     function toggleLikeReview(btn) {
     	
-        let $icon = $(btn).find('i');
-        let $span = $(btn).find('span');
-        let count = parseInt($span.text());
+        let icon = $(btn).find("i");
+        let span = $(btn).find("span");
+        let count = parseInt(span.text());
+
         let review_id = $(btn).closest("li").val();
+        	
+        if (icon.hasClass('far')) { // 좋아요 안 누른 상태
+        	//console.log("좋아요를 늘릴 review_id는 ", review_id);
         
-        if ($icon.hasClass('far')) { // 좋아요 안 누른 상태
-            $icon.removeClass('far').addClass('fas text-primary'); // 채워진 엄지
-            $span.text(count + 1);
-            $span.addClass('text-primary font-weight-bold');
-            
-        	console.log("좋아요를 늘릴 review_id는 ", review_id);
-        } else { // 이미 누른 상태
-            $icon.removeClass('fas text-primary').addClass('far'); // 빈 엄지
-            $span.text(count - 1);
-            $span.removeClass('text-primary font-weight-bold');
+        	if(!likedList.includes(review_id) && memberId != 0){
+           		likedList.push(review_id);
+
+	        	$.ajax({
+	            	    url: "/detail/review/like/update",
+	            	    method: "POST",
+	            	    contentType: "application/json",
+	            	    data: JSON.stringify({ "review_id": review_id }),
+	            	    success:function(result, status, xhr) {
+	            	    	let review = result;
+	                        icon.removeClass('far').addClass('fas text-primary'); // 채워진 엄지
+	            			span.addClass('text-primary font-weight-bold');
+	            	    	span.text(moneyConverter.format(review.review_like_count));
+	               			
+	               			document.cookie = `\${cookieKey}=\${JSON.stringify(likedList)}; max-age=86400; path=/`;
+	            	    },
+	            	    error:function(xhr, status, err) {
+            	        	let obj = JSON.parse(xhr.responseText);
+            	            alert(obj.message);
+	            	    }
+				});
+        	} else {
+        		alert("로그인이 필요한 서비스입니다.");
+        	}
+		} else { // 이미 누른 상태
+        	alert("이미 공감하였습니다.");
+            /* icon.removeClass("fas text-primary").addClass("far"); // 빈 엄지
+            span.text(count - 1);
+            span.removeClass("text-primary font-weight-bold"); */
         }
     }
     
 	// [관람후기] 더보기/접기 버튼 동작
     function toggleReviewText(btn) {
     	let reviewItem = $(btn).closest("li");
+    	let reviewHit = reviewItem.find(".review-hit");
         let textContainer = reviewItem.find(".review-text-clamp");
         let replyList = reviewItem.find(".reply-list");
         // 답글 폼도 같이 닫아줘야 한다.
         let replyForm = reviewItem.find(".reply-form-container");
+        
+        // 쿠키단위로 해당 review_id를 늘리겠다.
+        let rawCookie = getCookie("hittedList")
+        let hittedList = rawCookie ? JSON.parse(rawCookie) : [];
+        let review_id = reviewItem.val();
         
         if (textContainer.hasClass("expanded")) {
             // 접기 동작
@@ -429,8 +498,34 @@
             
         } else {
             // 펼치기 동작
-            let review_id = $(btn).closest("li").val();
-            console.log("조회수를 늘릴 review_id는 ", review_id);
+            //console.log("조회수를 늘릴 review_id는 ", review_id);
+            
+            if (hittedList.includes(review_id)) {
+            	console.log("이미 이 리뷰의 조회수를 올렸습니다.");
+            } else {
+            	console.log("처음 보는 리뷰입니다. 조회수 증가 로직 실행!");
+            	
+            	hittedList.push(review_id);
+            	let cookieValue = JSON.stringify(hittedList);
+            	
+             	$.ajax({
+            	    url: "/detail/review/hit/update",
+            	    method: "POST",
+            	    contentType: "application/json",
+            	    data: JSON.stringify({ "review_id": review_id }),
+            	    success:function(result, status, xhr) {
+            	    	let review = result;
+            	    	console.log(review);
+            	    	reviewHit.text("조회 " + moneyConverter.format(review.hit));
+            			// 24시간 후에 조회수 늘릴 수 있음. path=/ 상세페이지 경로 한정
+            			document.cookie = `hittedList=\${cookieValue}; max-age=86400; path=/`;
+            	    },
+            	    error:function(xhr, status, err) {
+           	        	let obj = JSON.parse(xhr.responseText);
+           	            alert(obj.message);
+            	    }
+        		});
+            }
             
             textContainer.addClass("expanded");
             replyList.show();
@@ -456,6 +551,8 @@
 	}
 	
 	function displayReviewList(currentPage, orderType) {
+		prevPage = currentPage;
+		prevOrderType = orderType;
 		
 		paging = new Paging();
 		paging.init(reviewList, currentPage);
@@ -516,7 +613,15 @@
 		        <button class="btn-more" onclick="toggleReviewText(this)">더보기 <i class="fas fa-chevron-down"></i></button>
 		        <div class="review-actions mt-1">
 		            <button class="btn btn-xs btn-light border mr-1" onclick="toggleLikeReview(this)">
-		                <i class="far fa-thumbs-up"></i> <span>\${review.review_like_count}</span>
+		                <i class="`;
+			if(likedList.includes(review.review_id)) {
+				reviewTag += `fas text-primary `;
+			} else {
+				reviewTag += `far `;
+			}
+		                
+			reviewTag += `
+		                fa-thumbs-up"></i> <span>\${review.review_like_count}</span>
 		            </button>`;
 			if(memberId != 0) {
 				reviewTag += `
@@ -617,12 +722,13 @@
 		paginationArea.append(paginationTag);
 	}
 	
+	// 이거 post방식이 맞는 것 같은데 나중에 하자.
 	function getReviewList(currentPage, orderType="latest") {
 		$(".btn-group .btn").removeClass("active");
 	    $(`.\${orderType}`).addClass("active");
 	    
 		$.ajax({
-			url:"/detail/review?work_id=" + work.work_id + "&orderType=" + orderType,
+			url:"/detail/review/list?work_id=" + work.work_id + "&orderType=" + orderType,
 			method:"GET",
 			success:function(result){
 				console.log("관람후기 클릭됨!");
@@ -705,22 +811,32 @@
         });
     })
 	
-	
-    
     // 예매 팝업창 열기
 	function openReservation(event) {
 	    if (event) event.preventDefault();
 	    let workId = <%=work.getWork_id()%>;
 	    let roundId = $(".btn-reservation").val();
-		
+	    
 	    if (!roundId) {
 	        alert("회차를 선택해주세요.");
 	        return;
 	    }
+	    
+    	let selectedRound = work.roundList.find((round)=>{
+    		let isSameRound = (round.round_id == roundId);
+    		let isValidTime = validateRoundStartTime(round.round_date + " " + round.round_start_time);
+    		
+    		return isSameRound && isValidTime;
+    	});
+		
+    	if(!selectedRound) {
+    		alert("해당 회차는 만료되었습니다.");
+    		return;
+    	}
 	
 	    // 주소 끝에 /popup 이 정확히 붙었는지 확인
 	    let url = "${pageContext.request.contextPath}/ticket/reservation/popup?work_id=" + workId + "&round_id=" + roundId;
-	    let specs = "width=1100,height=850,top=50,left=150";
+	    let specs = "width=1920, height=1080,top=50,left=150";
 	    
 	    window.open(url, "reservationPopup", specs);
 	}
@@ -730,8 +846,7 @@
     <div class="content-wrapper">
         <div class="container pt-5">
             <div class="row">
-                <div class="col-lg-8">
-                    
+                <div class="col-lg-8"> 
                     <div class="mb-4 pb-3 border-bottom">
                         <h1 class="font-weight-bold mb-2" style="font-size: 32px;"><%=work.getWork_title() %></h1>
                         <div class="d-flex align-items-center">
@@ -930,8 +1045,6 @@
                             <div class="card-body p-3">
                                 <h6 class="font-weight-bold mb-2">회차 선택</h6>
                                 <div class="round-select-list">
-                                    <button type="button" class="btn btn-round-select active" onclick="selectRound(this, 1)">14:00</button>
-                                    <button type="button" class="btn btn-round-select" onclick="selectRound(this, 2)">19:00</button>
                                 </div>
                             </div>
 

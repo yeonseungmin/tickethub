@@ -25,4 +25,22 @@ public class ReviewServiceImpl implements ReviewService{
 		return reviewDAO.selectByWorkId(work_id, orderType);
 	}
 
+	@Override
+	public Review getReview(int review_id) {
+		return reviewDAO.select(review_id);
+	}
+
+	@Override
+	public void setHit(int review_id) throws ReviewException{
+		
+		reviewDAO.updateHit(review_id);
+	}
+
+	@Override
+	public void setLikeCount(int review_id) throws ReviewException{
+		
+		reviewDAO.updateLikeCount(review_id);
+	}
+	
+	
 }

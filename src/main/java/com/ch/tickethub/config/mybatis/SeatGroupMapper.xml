@@ -38,12 +38,28 @@
 	<!-- ===================== -->
     <!-- 좌석 배치 저장 -->
     <!-- ===================== -->
-	<update id="updateGroupPos">
-	    UPDATE seat_group 
-	    SET pos_x = #{pos_x}, 
-	        pos_y = #{pos_y}, 
-	        angle = #{angle}
-	    WHERE seat_group_id = #{seat_group_id}
+	<update id="updateGroupsPositions" parameterType="java.util.List">
+	    UPDATE seat_group
+	    SET 
+	        pos_x = CASE 
+	            <foreach collection="list" item="item">
+	                WHEN seat_group_id = #{item.seat_group_id} THEN #{item.pos_x}
+	            </foreach>
+	            ELSE pos_x END,
+	        pos_y = CASE 
+	            <foreach collection="list" item="item">
+	                WHEN seat_group_id = #{item.seat_group_id} THEN #{item.pos_y}
+	            </foreach>
+	            ELSE pos_y END,
+	        angle = CASE 
+	            <foreach collection="list" item="item">
+	                WHEN seat_group_id = #{item.seat_group_id} THEN #{item.angle}
+	            </foreach>
+	            ELSE angle END
+	    WHERE seat_group_id IN 
+	    <foreach collection="list" item="item" open="(" separator="," close=")">
+	        #{item.seat_group_id}
+	    </foreach>
 	</update>
 
     <insert id="insertGroupByPlace" parameterType="SeatGroup">

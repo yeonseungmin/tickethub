@@ -169,7 +169,8 @@
 
 /* Banner cards */
 .banner-card{
-  width: 320px;
+  width: calc((100% - 54px) / 4);  
+  min-width: 200px;  
 }
 .banner-card .poster{
   border-radius: 18px;
@@ -201,4 +202,16 @@
   .opening-card-h{ width: 220px; }
 }
 
+/* 캐러셀 배너 아래 여백 */
+.genre-banner {
+    margin-bottom: 100px;
+}
 
+/* "{장르명} 둘러보기" 제목 스타일 */
+.genre-browse-title {
+    font-size: 28px;
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 60px;
+    color: #111827;
+}

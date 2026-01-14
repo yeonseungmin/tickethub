@@ -6,3 +6,10 @@ function getZeroNum(n) {
 
     return result;
 }
+
+function getCookie(key){
+    cookieRow = document.cookie.split("; ")
+        .find(row=>row.startsWith(key));
+        
+	return cookieRow ? cookieRow.split("=")[1] : null;
+}

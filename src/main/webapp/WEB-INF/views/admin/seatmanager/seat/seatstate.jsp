@@ -122,9 +122,16 @@
 <script>
     /* 1. 전역 변수 설정 */
     var isDragging = false;
-    var currentGroup = null; // 현재 선택되거나 드래그 중인 구역 ID
+    var isSelecting = false;    
+    var currentGroup = null; 
     var offset = { x: 0, y: 0 };
-    var groupsData = {}; // 각 구역의 위치(posX, posY)와 각도(angle) 정보를 저장
+    var groupsData = {}; 
+    var startX, startY;
+    // Lasso 선택 상자 객체 준비
+    var $selectionBox = $('<div id="selection-box" class="selection-box"></div>');
+
+    window.selectedSeatIds = [];    // ID 관리용
+    window.selectedSeatObjs = [];   // 명칭 표시용 {id, label} 객체 관리용
 
     $(document).ready(function() {
         // [장소 선택] 구역 목록 갱신
@@ -139,83 +146,76 @@
             loadSeatLayout();
         });
 
-        /* 2. 저장 버튼 로직 (수정) */
-        $(document).on('click', '#btnSaveLayout', function() {
+        /* 2. 저장 버튼 로직 */
+        $(document).off('click', '#btnSaveLayout').on('click', '#btnSaveLayout', function() {
             const groupIds = Object.keys(groupsData);
             if (groupIds.length === 0) { alert("저장할 데이터가 없습니다."); return; }
-            
-            // 저장 전 데이터 최종 확인 (콘솔에서 확인 가능)
-            console.log("저장 전 전체 데이터 상태:", groupsData);
+            if (!confirm("모든 구역의 위치와 회전 각도를 저장하시겠습니까?")) return;
 
-            if (!confirm("모든 구역의 위치와 회전 각도를 DB에 저장하시겠습니까?")) return;
+            const updateList = groupIds.map(gid => ({
+                seat_group_id: gid,
+                pos_x: Math.round(groupsData[gid].posX),
+                pos_y: Math.round(groupsData[gid].posY),
+                angle: parseInt(groupsData[gid].angle) || 0
+            }));
 
-            let total = groupIds.length;
-            let successFlag = true;
-
-            groupIds.forEach(function(gid) {
-                const g = groupsData[gid];
-                
-                // ★ 여기서 콘솔을 확인하여 angle이 0인지 확인하세요.
-                console.log(`전송 시도 -> ID: ${gid}, Angle: ${g.angle}`);
-
-                $.ajax({
-                    url: contextPath + '/admin/seatgroup/updateGroupPos',
-                    type: 'POST',
-                    data: { 
-                        "seat_group_id": gid, 
-                        "pos_x": Math.round(g.posX), 
-                        "pos_y": Math.round(g.posY),
-                        "angle": g.angle // || 0 을 제거하고 실제 값을 보냅니다.
-                    },
-                    success: function(res) {
-                        console.log(gid + " 저장 완료");
-                    },
-                    error: function(xhr) { 
-                        console.error(gid + " 저장 실패:", xhr.responseText);
-                        successFlag = false; 
-                    },
-                    complete: function() { 
-                        if (--total === 0) {
-                            if(successFlag) alert("성공적으로 저장되었습니다.");
-                            else alert("저장 중 일부 오류가 발생했습니다.");
-                        }
+            $.ajax({
+                url: contextPath + '/admin/seatgroup/updateGroupsBulk', 
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(updateList),
+                dataType: 'text',
+                success: function(res) {
+                    if (res.includes("<!DOCTYPE") || res.includes("<html")) {
+                        alert("서버 응답 오류가 발생했습니다.");
+                    } else {
+                        alert("성공적으로 저장되었습니다.");
                     }
-                });
+                },
+                error: function(xhr) {
+                    alert("저장 실패: (HTTP " + xhr.status + ")");
+                }
             });
+        });
+
+        /* --- 마우스 드래그 범위 선택 시작 --- */
+        $('#seatArea').on('mousedown', function(e) {
+            // 좌석이나 구역 박스를 클릭한 경우 드래그 선택 방지
+            if ($(e.target).closest('.admin-seat, .group-boundary-box').length > 0) return;
+            
+            isSelecting = true;
+            var containerOffset = $(this).offset();
+            startX = e.pageX - containerOffset.left;
+            startY = e.pageY - containerOffset.top;
+            
+            // 기존 상자 제거 후 새로 추가 (중복 방지)
+            $('#selection-box').remove();
+            $selectionBox.css({ 
+                left: startX, 
+                top: startY, 
+                width: 0, 
+                height: 0, 
+                display: 'block' 
+            }).appendTo('#seatArea');
+
+            if (!e.ctrlKey) {
+                $('.admin-seat').removeClass('selected-multi');
+                window.selectedSeatIds = [];
+                window.selectedSeatObjs = [];
+                updateSelectionInfo();
+            }
         });
     });
 
-    /* 2. 좌석 선택 관련 함수 */
-    function toggleSeatSelection($el, seatId, status, isMulti) {
-        if (isMulti) {
-            const idx = window.selectedSeatIds.indexOf(seatId);
-            if (idx > -1) {
-                window.selectedSeatIds.splice(idx, 1);
-                $el.removeClass('selected-multi');
-            } else {
-                window.selectedSeatIds.push(seatId);
-                $el.addClass('selected-multi');
-            }
-        } else {
-            $('.admin-seat').removeClass('selected-multi');
-            window.selectedSeatIds = [seatId];
-            $el.addClass('selected-multi');
-        }
-        updateSelectionInfo(status);
-    }
-
-    function updateSelectionInfo(status) {
-        const count = window.selectedSeatIds.length;
-        $('#selName').text(count > 0 ? count + "개 선택됨" : "-");
-        $('#selState').text(count === 1 ? (status || "SELECTED") : (count > 1 ? "MULTI" : "-"));
-    }
-
-    /* 3. 데이터 로드 및 렌더링 */
+    /* 3. 데이터 로드 및 렌더링 (매핑 로직 유지) */
     function loadSeatLayout() {
         var roundId = $('#roundSelect').val();
         if (!roundId) { alert('회차를 선택해주세요.'); return; }
+        
         window.selectedSeatIds = [];
-        updateSelectionInfo("-");
+        window.selectedSeatObjs = [];
+        updateSelectionInfo();
+
         $.get(contextPath + '/admin/roundseat/list', { round_id: roundId }, function(seatList) {
             renderStatusMap(seatList);
         });
@@ -223,41 +223,43 @@
 
     function renderStatusMap(seatList) {
         var $container = $('#seatArea');
-        // 기존 렌더링 요소 제거 (라벨 제외)
         $container.find('.admin-seat, .group-boundary-box').remove();
 
         var groups = {};
-        // 1단계: 구역별 데이터 수집 및 내부 상대 범위 계산
         seatList.forEach(function(seat) {
             if (!groups[seat.seat_group_id]) {
                 groups[seat.seat_group_id] = {
                     name: seat.group_name || 'Unknown',
-                    minRelX: Infinity, minRelY: Infinity, maxRelX: -Infinity, maxRelY: -Infinity,
+                    maxRelX: 0, maxRelY: 0,
                     posX: seat.pos_x, posY: seat.pos_y,
                     angle: seat.angle || 0,
-                    colGap: seat.col_gap, rowGap: seat.row_gap
+                    colGap: seat.col_gap || 35, rowGap: seat.row_gap || 35
                 };
             }
-            var rx = (seat.seat_x.charCodeAt(0) - 65) * seat.col_gap;
-            var ry = (seat.seat_y - 1) * seat.row_gap;
+            
+            /* [매핑 수정] 
+               가로(X) = seat_y (숫자: 1, 2, 3...)
+               세로(Y) = seat_x (알파벳: A, B, C...)
+            */
+            var rx = (seat.seat_y - 1) * (seat.col_gap || 35);
+            var ry = (seat.seat_x.charCodeAt(0) - 65) * (seat.row_gap || 35);
+            
             var g = groups[seat.seat_group_id];
-            if (rx < g.minRelX) g.minRelX = rx; if (ry < g.minRelY) g.minRelY = ry;
-            if (rx > g.maxRelX) g.maxRelX = rx; if (ry > g.maxRelY) g.maxRelY = ry;
+            if (rx > g.maxRelX) g.maxRelX = rx; 
+            if (ry > g.maxRelY) g.maxRelY = ry;
         });
         groupsData = groups;
 
-        // 2단계: 구역 박스(부모) 및 좌석(자식) 생성
         Object.keys(groups).forEach(function(groupId) {
             var g = groups[groupId];
-            
-            // 구역 경계 박스 생성
+            var boxWidth = Math.max(g.maxRelX + 72, 100); 
+            var boxHeight = Math.max(g.maxRelY + 72, 80);
+
             var $box = $('<div class="group-boundary-box"></div>')
                 .attr('data-group-id', groupId)
                 .css({ 
-                    left: g.posX + 'px', 
-                    top: g.posY + 'px', 
-                    width: (g.maxRelX - g.minRelX + 72) + 'px', 
-                    height: (g.maxRelY - g.minRelY + 72) + 'px',
+                    left: g.posX + 'px', top: g.posY + 'px', 
+                    width: boxWidth + 'px', height: boxHeight + 'px',
                     transform: 'rotate(' + g.angle + 'deg)',
                     position: 'absolute'
                 });
@@ -265,123 +267,170 @@
             $box.append($('<div class="group-name-label"></div>').text(g.name));
             $container.append($box);
             
-            // 구역 마우스 다운 (드래그 시작 및 선택)
             $box.on('mousedown', function(e) {
-                if ($(e.target).hasClass('admin-seat')) return; // 좌석 클릭 시 드래그 방지
-                
+                if ($(e.target).hasClass('admin-seat')) return; 
                 isDragging = true;
                 currentGroup = groupId;
-                
-                // UI 선택 표시
                 $('.group-boundary-box').css('border-color', '#444');
                 $(this).css('border-color', '#007bff');
                 $('#groupAngle').val(g.angle);
-
                 var boxOffset = $(this).position();
                 offset.x = e.pageX - boxOffset.left;
                 offset.y = e.pageY - boxOffset.top;
                 e.preventDefault();
             });
 
-            // 해당 구역의 좌석들을 박스 내부로 추가
             seatList.filter(s => s.seat_group_id == groupId).forEach(function(seat) {
                 var sStatus = (seat.status || 'AVAILABLE').toUpperCase();
-                var innerX = (seat.seat_x.charCodeAt(0) - 65) * seat.col_gap + 20;
-                var innerY = (seat.seat_y - 1) * seat.row_gap + 20;
+                
+                // 가로(rx) 숫자 위치, 세로(ry) 알파벳 위치 적용
+                var innerX = (seat.seat_y - 1) * (seat.col_gap || 35) + 20;
+                var innerY = (seat.seat_x.charCodeAt(0) - 65) * (seat.row_gap || 35) + 20;
+                
+                // 명칭: A행 1열 (A는 seat_x, 1은 seat_y)
+                var seatLabel = seat.seat_x + "행 " + seat.seat_y + "열";
 
                 var $seatDiv = $('<div class="admin-seat"></div>')
-                    .attr({ 'data-seat-id': seat.seat_id })
+                    .attr({ 'data-seat-id': seat.seat_id, 'data-label': seatLabel })
                     .css({ 
-                        left: innerX + 'px', 
-                        top: innerY + 'px', 
+                        left: innerX + 'px', top: innerY + 'px', 
                         backgroundImage: "url('" + contextPath + "/static/assets/adminSeatImg/" + sStatus + ".png')",
                         position: 'absolute'
                     });
 
-                // 좌석 클릭 시 선택 토글
                 $seatDiv.on('click', function(e) {
-                    e.stopPropagation(); // 부모 박스 드래그 이벤트 방지
-                    toggleSeatSelection($(this), seat.seat_id, sStatus, e.ctrlKey);
-                });
+                    e.stopPropagation();
+                    var sId = String($(this).attr('data-seat-id'));
+                    var sLabel = $(this).attr('data-label');
 
+                    if (e.ctrlKey) {
+                        if (window.selectedSeatIds.includes(sId)) {
+                            window.selectedSeatIds = window.selectedSeatIds.filter(id => id !== sId);
+                            window.selectedSeatObjs = window.selectedSeatObjs.filter(o => o.id !== sId);
+                            $(this).removeClass('selected-multi');
+                        } else {
+                            window.selectedSeatIds.push(sId);
+                            window.selectedSeatObjs.push({id: sId, label: sLabel});
+                            $(this).addClass('selected-multi');
+                        }
+                    } else {
+                        $('.admin-seat').removeClass('selected-multi');
+                        window.selectedSeatIds = [sId];
+                        window.selectedSeatObjs = [{id: sId, label: sLabel}];
+                        $(this).addClass('selected-multi');
+                    }
+                    updateSelectionInfo();
+                });
                 $box.append($seatDiv);
             });
         });
     }
 
-    /* 4. 마우스 이동 및 드래그 로직 */
+    /* 4. 마우스 이동 로직 (이동 + Lasso) */
     $(document).on('mousemove', function(e) {
-        if (!isDragging || !currentGroup) return;
-        
-        var $box = $('.group-boundary-box[data-group-id="' + currentGroup + '"]');
-        var newL = e.pageX - offset.x;
-        var newT = e.pageY - offset.y;
-        
-        $box.css({ left: newL + 'px', top: newT + 'px' });
-        
-        // 데이터 객체 실시간 갱신
-        groupsData[currentGroup].posX = newL;
-        groupsData[currentGroup].posY = newT;
+        if (isDragging && currentGroup) {
+            var $box = $('.group-boundary-box[data-group-id="' + currentGroup + '"]');
+            var areaW = $('#seatArea').width();
+            var areaH = $('#seatArea').height();
+            var boxW = $box.outerWidth();
+            var boxH = $box.outerHeight();
+
+            var newL = e.pageX - offset.x;
+            var newT = e.pageY - offset.y;
+
+            if (newL < 0) newL = 0; if (newT < 0) newT = 0;
+            if (newL + boxW > areaW) newL = areaW - boxW;
+            if (newT + boxH > areaH) newT = areaH - boxH;
+
+            $box.css({ left: newL + 'px', top: newT + 'px' });
+            groupsData[currentGroup].posX = newL;
+            groupsData[currentGroup].posY = newT;
+        }
+
+        if (isSelecting) {
+            var containerOffset = $('#seatArea').offset();
+            var currentX = e.pageX - containerOffset.left;
+            var currentY = e.pageY - containerOffset.top;
+            
+            var width = Math.abs(currentX - startX);
+            var height = Math.abs(currentY - startY);
+            var left = Math.min(currentX, startX);
+            var top = Math.min(currentY, startY);
+            
+            $('#selection-box').css({ left: left, top: top, width: width, height: height });
+
+            // 범위 내 좌석 체크
+            var boxRect = $('#selection-box')[0].getBoundingClientRect();
+            $('.admin-seat').each(function() {
+                var seatRect = this.getBoundingClientRect();
+                var isInside = !(seatRect.right < boxRect.left || seatRect.left > boxRect.right || 
+                                 seatRect.bottom < boxRect.top || seatRect.top > boxRect.bottom);
+                
+                var sId = String($(this).attr('data-seat-id'));
+                var sLabel = $(this).attr('data-label');
+
+                if (isInside && !window.selectedSeatIds.includes(sId)) {
+                    window.selectedSeatIds.push(sId);
+                    window.selectedSeatObjs.push({id: sId, label: sLabel});
+                    $(this).addClass('selected-multi');
+                }
+            });
+            updateSelectionInfo();
+        }
     });
 
     $(document).on('mouseup', function() {
-        isDragging = false; // 드래그 상태만 해제 (선택된 currentGroup은 유지)
+        if (isSelecting) {
+            $('#selection-box').hide();
+        }
+        isDragging = false;
+        isSelecting = false;
     });
 
-    /* 5. 기울기(회전) 적용 */
-    function applyRotation() {
-        if (!currentGroup) { 
-            alert("기울기를 변경할 구역을 먼저 선택(클릭)하세요."); 
-            return; 
+    /* 5. 정보 업데이트 (요구사항 반영) */
+    function updateSelectionInfo() {
+        var count = window.selectedSeatIds.length;
+        
+        // 1. 선택 좌석 이름 표시 (A행 1열 외 n개)
+        var nameText = "-";
+        if (count > 0) {
+            nameText = window.selectedSeatObjs[0].label;
+            if (count > 1) {
+                nameText += " 외 " + (count - 1) + "개";
+            }
         }
-        
-        // 1. 입력값 가져오기
-        var angleValue = $('#groupAngle').val();
-        var angle = parseInt(angleValue) || 0;
-        
-        var $box = $('.group-boundary-box[data-group-id="' + currentGroup + '"]');
-        
-        // 2. 화면에 즉시 반영
-        $box.css('transform', 'rotate(' + angle + 'deg)');
-        
-        // 3. [중요] 데이터 객체에 저장
-        if (groupsData[currentGroup]) {
-            groupsData[currentGroup].angle = angle;
-            console.log("기울기 적용 성공! 구역:", currentGroup, "각도:", groupsData[currentGroup].angle);
-        } else {
-            console.error("해당 구역 데이터를 찾을 수 없습니다:", currentGroup);
-        }
+        $('#selName').text(nameText);
+
+        // 2. 상태 칸에 선택 개수 표시
+        $('#selState').text(count > 0 ? count + "개 선택됨" : "-");
     }
 
-    /* 6. 좌석 상태 변경 및 관리 함수 */
-    function changeStatus(status) {
-        let ids = window.selectedSeatIds.filter(id => id != null && id !== "");
-        if (ids.length === 0) { alert("변경할 좌석을 선택해주세요."); return; }
-        var roundId = $('#roundSelect').val();
-        if (!roundId) { alert("회차를 먼저 선택해주세요."); return; }
-        
-        if (!confirm(ids.length + "개 좌석을 [" + status + "]로 변경하시겠습니까?")) return;
+    /* 6. 기울기(회전) 적용 */
+    function applyRotation() {
+        if (!currentGroup) { alert("구역을 먼저 선택하세요."); return; }
+        var angle = parseInt($('#groupAngle').val()) || 0;
+        var $box = $('.group-boundary-box[data-group-id="' + currentGroup + '"]');
+        $box.css('transform', 'rotate(' + angle + 'deg)');
+        if (groupsData[currentGroup]) groupsData[currentGroup].angle = angle;
+    }
 
-        let requests = ids.map(id => 
-            $.post(contextPath + '/admin/roundseat/updateStatus', { 
-                seat_id: id, round_id: roundId, status: status 
-            })
-        );
-        
-        Promise.all(requests).then(() => { 
-            loadSeatLayout(); 
+    /* 7. 좌석 상태 변경 및 삭제 */
+    function changeStatus(status) {
+        if (window.selectedSeatIds.length === 0) return alert("좌석을 선택해주세요.");
+        var roundId = $('#roundSelect').val();
+        if (!confirm(window.selectedSeatIds.length + "개 좌석을 [" + status + "]로 변경하시겠습니까?")) return;
+
+        let requests = window.selectedSeatIds.map(id => $.post(contextPath + '/admin/roundseat/updateStatus', { seat_id: id, round_id: roundId, status: status }));
+        Promise.all(requests).then(() => {
+            alert("변경 완료");
+            loadSeatLayout();
         });
     }
 
     function deleteSeat() {
-        let ids = window.selectedSeatIds.filter(id => id != null && id !== "");
-        if (ids.length === 0) { alert("삭제할 좌석을 선택해주세요."); return; }
-        if (!confirm("선택한 " + ids.length + "개 좌석을 삭제하시겠습니까?")) return;
-
-        let requests = ids.map(id => 
-            $.post(contextPath + '/admin/seatmanager/seat/state/delete', { seat_id: id })
-        );
-        
+        if (window.selectedSeatIds.length === 0) return alert("좌석을 선택해주세요.");
+        if (!confirm("선택한 좌석을 삭제하시겠습니까?")) return;
+        let requests = window.selectedSeatIds.map(id => $.post(contextPath + '/admin/seatmanager/seat/state/delete', { seat_id: id }));
         Promise.all(requests).then(() => { 
             alert("삭제 완료"); 
             window.selectedSeatIds = []; 
@@ -389,22 +438,15 @@
         });
     }
 
-    /* 7. 구역 및 좌석 생성 보조 함수 */
+    /* 8. 생성 관련 */
     function createSeats() {
         var groupId = $('#groupSelect').val();
         var rowCount = $('#rowCount').val();
         var colCount = $('#colCount').val();
         if (!groupId || !rowCount || !colCount) return alert("정보를 모두 입력하세요.");
-        
-        $.post(contextPath + '/admin/seatgroup/createBulk', { 
-            "seat_group_id": groupId, 
-            "row_count": rowCount, 
-            "col_count": colCount 
-        }, function(res) {
-            if (res.trim() === "success") { 
-                alert("좌석 생성 완료"); 
-                loadSeatLayout(); 
-            }
+        $.post(contextPath + '/admin/seatgroup/createBulk', { "seat_group_id": groupId, "row_count": rowCount, "col_count": colCount }, function(res) {
+            alert("좌석 생성 완료");
+            loadSeatLayout();
         });
     }
 
@@ -412,28 +454,18 @@
         const placeId = $('#placeSelect').val();
         const groupName = $('#newGroupName').val();
         if (!placeId || !groupName) return alert("장소와 구역명을 확인하세요.");
-        
-        $.post(contextPath + '/admin/seatgroup/area/add', { 
-            place_id: placeId, 
-            group_name: groupName 
-        }, function(res) {
-            if (res === "success") { 
-                alert("새 구역이 등록되었습니다."); 
-                $('#newGroupName').val(''); 
-                refreshGroupSelect(placeId); 
-            }
+        $.post(contextPath + '/admin/seatgroup/area/add', { place_id: placeId, group_name: groupName }, function(res) {
+            alert("새 구역 등록 완료");
+            $('#newGroupName').val('');
+            refreshGroupSelect(placeId);
         });
     }
 
     function refreshGroupSelect(placeId) {
         $.get(contextPath + '/admin/seatgroup/list', { place_id: placeId }, function(groupList) {
-            const $groupSelect = $('#groupSelect');
-            $groupSelect.empty().append('<option value="">구역 선택</option>');
-            if (groupList) {
-                groupList.forEach(g => {
-                    $groupSelect.append('<option value="' + g.seat_group_id + '">' + g.group_name + '</option>');
-                });
-            }
+            const $gs = $('#groupSelect');
+            $gs.empty().append('<option value="">구역 선택</option>');
+            if (groupList) groupList.forEach(g => { $gs.append('<option value="' + g.seat_group_id + '">' + g.group_name + '</option>'); });
         });
     }
 </script>

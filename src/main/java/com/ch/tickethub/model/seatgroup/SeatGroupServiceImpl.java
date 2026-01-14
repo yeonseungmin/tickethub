@@ -51,9 +51,6 @@ public class SeatGroupServiceImpl implements SeatGroupService {
     @Transactional
     @Override
     public int updatePosition(int seat_group_id, int pos_x, int pos_y, double angle) {
-    	log.debug("=== 서비스 진입 성공 ===");
-    	log.debug("전달받은 ID: " + seat_group_id);
-    	log.debug("서비스 계층 확인: " + angle);
         return seatGroupDAO.updatePosition(seat_group_id, pos_x, pos_y, angle);
     }
 
@@ -96,10 +93,9 @@ public class SeatGroupServiceImpl implements SeatGroupService {
     }
     
     @Override
-    @Transactional // 두 작업을 하나의 트랜잭션으로 묶음
-    public void updateGroupAndSeatPosition(int seatGroupId, int posX, int posY, double angle) {
-    	// 1. 구역 업데이트 (이것만 실행)
-        seatGroupDAO.updateGroupPos(seatGroupId, posX, posY,angle);
+    @Transactional // 여러 건을 처리하므로 트랜잭션 처리가 중요합니다!
+    public void updateGroupsPositions(List<SeatGroup> groupList) {
+        seatGroupDAO.updateGroupsPositions(groupList);
     }
     
     public void insertGroupByPlace(SeatGroup seatGroup) {

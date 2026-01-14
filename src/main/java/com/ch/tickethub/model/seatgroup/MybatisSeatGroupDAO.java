@@ -64,16 +64,9 @@ public class MybatisSeatGroupDAO implements SeatGroupDAO {
         return sqlSessionTemplate.delete("SeatGroup.delete", seat_group_id);
     }
 
-    @Override
-    public void updateGroupPos(@Param("seat_group_id") int seat_group_id, @Param("pos_x") int pos_x, @Param("pos_y") int pos_y,@Param("angle") double angle) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("seat_group_id", seat_group_id);
-        params.put("pos_x", pos_x);
-        params.put("pos_y", pos_y);
-        params.put("angle", angle);
-        
-       int result = sqlSessionTemplate.update(NAMESPACE + ".updateGroupPos", params);
-        log.debug(">>> DB 업데이트 결과(영향받은 행): " + result);
+    public void updateGroupsPositions(List<SeatGroup> groupList) {
+        // 세션의 update 메서드를 호출 (네임스페이스.ID)
+        sqlSessionTemplate.update("SeatGroup.updateGroupsPositions", groupList);
     }
 
     @Override
