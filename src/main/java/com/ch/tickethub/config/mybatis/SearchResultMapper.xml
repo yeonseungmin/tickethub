@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="SearchResult">
+
+	<!-- resultMap 정의 -->
+	<resultMap type="SearchResult" id="SearchResultMap">
+		<id property="work_id" column="work_id"/>
+		
+		<!-- Work.select 쿼리 재사용 -->
+		<association column="work_id" property="work" javaType="Work" select="Work.select"></association>
+	</resultMap>
+
+	<!-- 공통 sql -->
+	<sql id="sql_select">
+		select work_id from work
+	</sql>
+
+	<!-- 키워드로 검색 -->
+	<select id="selectByKeyword" parameterType="String" resultMap="SearchResultMap">
+		<include refid="sql_select"></include>
+		where work_title LIKE CONCAT('%', #{keyword}, '%')
+		order by work_id desc
+	</select>
+
+	<!-- 자동완성용 (최대 10개) -->
+	<select id="selectAutocomplete" parameterType="String" resultMap="SearchResultMap">
+		<include refid="sql_select"></include>
+		where work_title LIKE CONCAT('%', #{keyword}, '%')
+		order by work_id desc
+		limit 10
+	</select>
+
+</mapper>

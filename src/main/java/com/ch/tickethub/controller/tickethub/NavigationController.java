@@ -38,9 +38,4 @@ public class NavigationController {
         return workService.getListByGenreId(genre_id);
     }
 
-    // 3. 검색 페이지 (/search)
-    @GetMapping("/search")
-    public String search() {
-        return "ticket/search/list";
-    }
 }

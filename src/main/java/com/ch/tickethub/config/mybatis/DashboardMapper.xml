@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Dashboard">
+
+	<!-- ========== 통계 카드 쿼리 ========== -->
+	
+	<select id="selectTotalRevenue" resultType="long">
+		SELECT 100000000 + COALESCE(SUM(total_paid), 0) FROM reservation
+	</select>
+	
+	<select id="selectTotalMembers" resultType="int">
+		SELECT COUNT(*) FROM member WHERE status = 'NORMAL'
+	</select>
+	
+	<select id="selectTotalTickets" resultType="int">
+		SELECT COUNT(*) FROM round_seat WHERE status = 'RESERVED'
+	</select>
+	
+	<select id="selectActiveWorks" resultType="int">
+		SELECT COUNT(*) FROM work WHERE work_end_date >= CURDATE()
+	</select>
+	
+	<select id="selectPendingReports" resultType="int">
+		SELECT COUNT(*) FROM report WHERE report_state = 'RECEIVED'
+	</select>
+
+	<!-- ========== 장르별 공연 분포 (기존 Genre DTO 활용) ========== -->
+	
+	<resultMap id="genreWithCountMap" type="Genre">
+		<id property="genre_id" column="genre_id"/>
+		<result property="genre_name" column="genre_name"/>
+		<!-- work 개수를 workList.size()로 대신 사용하기 위해 collection -->
+		<collection column="genre_id" property="workList" 
+			javaType="java.util.List" ofType="Work"
+			select="selectWorksByGenreId"/>
+	</resultMap>
+	
+	<select id="selectWorksByGenreId" parameterType="int" resultType="Work">
+		SELECT work_id FROM work WHERE genre_id = #{genre_id}
+	</select>
+	
+	<select id="selectGenreWithWorkCount" resultMap="genreWithCountMap">
+		SELECT genre_id, genre_name FROM genre ORDER BY genre_id
+	</select>
+
+	<!-- ========== 근일 공연 일정 (기존 Round DTO 활용) ========== -->
+	
+	<resultMap id="upcomingRoundMap" type="Round">
+		<id property="round_id" column="round_id"/>
+		<result property="round_date" column="round_date"/>
+		<result property="round_start_time" column="round_start_time"/>
+		<association column="work_id" property="work" javaType="Work" select="Work.select"/>
+	</resultMap>
+	
+	<select id="selectUpcomingRounds" resultMap="upcomingRoundMap">
+		SELECT round_id, DATE_FORMAT(round_date, '%m/%d') as round_date, 
+		       TIME_FORMAT(round_start_time, '%H:%i') as round_start_time, work_id
+		FROM round
+		WHERE round_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)
+		  AND is_cancelled = 0
+		ORDER BY round_date, round_start_time
+		LIMIT 10
+	</select>
+
+	<!-- ========== 신고된 리뷰 목록 (기존 Report DTO 활용) ========== -->
+	
+	<resultMap id="reportWithReviewMap" type="Report">
+		<id property="report_id" column="report_id"/>
+		<result property="report_date" column="report_date"/>
+		<result property="report_state" column="report_state"/>
+		<association column="review_id" property="review" javaType="Review" select="Review.select"/>
+		<association column="report_category_id" property="reportCategory" javaType="ReportCategory" select="ReportCategory.select"/>
+	</resultMap>
+	
+	<select id="selectPendingReportList" resultMap="reportWithReviewMap">
+		SELECT report_id, review_id, report_category_id,
+		       DATE_FORMAT(report_date, '%m/%d') as report_date, report_state
+		FROM report
+		WHERE report_state = 'RECEIVED'
+		ORDER BY report_date DESC
+		LIMIT 10
+	</select>
+
+</mapper>

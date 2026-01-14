@@ -21,8 +21,8 @@ public class QueueServiceImpl implements QueueService {
 	private static final String ACTIVE_LIST_KEY = "tickethub:active:%s";
 
 	// 최대 인원
-	private static final int MAX_SITE_USERS = 1000; // 사이트 전체
-	private static final int MAX_PERFORMANCE_USERS = 100; // 공연별 인원
+	private static final int MAX_SITE_USERS = 200; // 사이트 전체
+	private static final int MAX_PERFORMANCE_USERS = 200; // 공연별 인원
 
 	// 유효시간
 	private static final long TTL_MINUTES = 20;
@@ -134,7 +134,17 @@ public class QueueServiceImpl implements QueueService {
 					redisTemplate.opsForZSet().remove(waitingKey, userId);
 
 					// active 에 넣기
-					long nextTime = System.currentTimeMillis() + (TTL_MINUTES * 60 * 1000);
+					// 더미 유저는 10초 뒤 만료, 일반 유저는 20분 뒤 만료
+					long ttl;
+					if (userId.startsWith("dummy_user")) {
+					    // 더미 유저 번호(i)를 추출해서 퇴장 시간을 5초 ~ 25초 사이로 골고루 분산
+					    int dummyIndex = Integer.parseInt(userId.substring(userId.lastIndexOf("_") + 1));
+					    ttl = (5 + (dummyIndex % 20)) * 1000; 
+					} else {
+					    ttl = TTL_MINUTES * 60 * 1000; // 실제 유저는 기존대로 20분
+					}
+					long nextTime = System.currentTimeMillis() + ttl;
+
 					redisTemplate.opsForZSet().add(activeKey, userId, (double) nextTime);
 				}
 			}
@@ -163,7 +173,7 @@ public class QueueServiceImpl implements QueueService {
 
 		// 만약 대기열이 비어있다면, dummy_user n명 추가.
 		if (count == null || count == 0) {
-			for (int i = 1; i <= 300; i++) {
+			for (int i = 1; i <= 400; i++) {
 				redisTemplate.opsForZSet().add(entryWaitKey, "dummy_user_" + i, (double) i);
 			}
 		}

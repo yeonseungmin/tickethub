@@ -10,7 +10,10 @@
 <!-- Bootstrap 4 -->
 <script src="/static/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- ChartJS -->
-<script src="/static/adminlte/plugins/chart.js/Chart.min.js"></script>
+
+<!-- <script src="/static/adminlte/plugins/chart.js/Chart.min.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
 <!-- Sparkline -->
 <script src="/static/adminlte/plugins/sparklines/sparkline.js"></script>
 <!-- JQVMap -->
@@ -32,9 +35,9 @@
 <!-- AdminLTE App -->
 <script src="/static/adminlte/dist/js/adminlte.js"></script>
 <!-- AdminLTE for demo purposes -->
-<script src="/static/adminlte/dist/js/demo.js"></script>
+<!-- <script src="/static/adminlte/dist/js/demo.js"></script> -->
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-<script src="/static/adminlte/dist/js/pages/dashboard.js"></script>
+<!-- <script src="/static/adminlte/dist/js/pages/dashboard.js"></script> -->
 
 <!-- select2를 사용하기 위해서는 추가해야 됨. -->
 <script src="/static/adminlte/plugins/select2/js/select2.full.min.js"></script>
