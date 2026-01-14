@@ -370,6 +370,7 @@ public class MemberServiceImpl implements MemberService {
 		    param.put("limit", size); //몇개가져올지
 		    param.put("offset", offset); //몇 번째부터 가져올지
 
+		    //System.out.println("LIST param = " + param);
 		    return memberDAO.adminSelectMemberList(param);
 	}
 

@@ -159,7 +159,8 @@
 		gradeId,
 		g.grade_name AS gradeName
 		FROM member m
-		LEFT JOIN grade g ON m.grade_id =
+		LEFT JOIN grade g ON
+		m.grade_id =
 		g.grade_id
 		WHERE m.member_id = #{value}
 	</select>
@@ -185,11 +186,13 @@
 		resultType="Member">
 		SELECT
 		member_id as memberId,
-		CONCAT(LEFT(login_id, 3), '*******') as loginId,
+		CONCAT(LEFT(login_id, 3),
+		'*******') as loginId,
 		name,
 		status
 		FROM member
-		where member_id = #{memberId} and status = 'normal'
+		where member_id =
+		#{memberId} and status = 'normal'
 	</select>
 
 	<select id="existsLoginId" parameterType="String"
@@ -251,13 +254,16 @@
 	<update id="updateMyInfo" parameterType="Member">
 		UPDATE member
 		SET
-		email = #{email},
+		email =
+		#{email},
 		birth_date = #{birthDate},
 		phone = #{phone},
-		zip_code = #{zipCode},
+		zip_code =
+		#{zipCode},
 		address = #{address},
 		updated_at = NOW()
-		WHERE member_id = #{memberId}
+		WHERE member_id =
+		#{memberId}
 	</update>
 
 	<update id="updatePassword" parameterType="map">
@@ -265,68 +271,73 @@
 		SET
 		password_hash = #{passwordHash},
 		updated_at = NOW()
-		WHERE member_id = #{memberId}
+		WHERE member_id =
+		#{memberId}
 	</update>
-	
+
 	<!-- 관리자: 회원 목록(검색+필터+페이징+등급명) -->
-<select id="adminSelectMemberList" parameterType="map" resultType="Member">
-  SELECT
-    m.member_id     AS memberId,
-    m.login_id      AS loginId,
-    m.name          AS name,
-    m.email         AS email,
-    m.phone         AS phone,
-    m.status        AS status,
-    m.role          AS role,
-    m.grade_id      AS gradeId,
-    g.grade_name    AS gradeName,
-    m.last_login_at AS lastLoginAt,
-    m.created_at    AS createdAt
-  FROM member m
-  LEFT JOIN grade g ON m.grade_id = g.grade_id
-  <where>
-    <if test="status != null and status != ''">
-      AND m.status = #{status}
-    </if>
+	<select id="adminSelectMemberList" parameterType="map"
+		resultType="Member">
+		SELECT
+		m.member_id AS memberId,
+		m.login_id AS loginId,
+		m.name AS name,
+		m.email AS email,
+		m.phone AS phone,
+		m.status AS status,
+		m.role AS role,
+		m.grade_id AS gradeId,
+		g.grade_name AS gradeName,
+		m.last_login_at AS lastLoginAt,
+		m.created_at AS createdAt
+		FROM member m
+		LEFT JOIN grade g ON m.grade_id = g.grade_id
+		<where>
+			<if test="status != null and status != ''">
+				AND m.status = #{status}
+			</if>
 
-    <if test="gradeId != null">
-      AND m.grade_id = #{gradeId}
-    </if>
+			<if test="gradeId != null and gradeId != ''">
+				AND m.grade_id = #{gradeId}
+			</if>
 
-    <if test="keyword != null and keyword != ''">
-      AND (
-        m.login_id LIKE CONCAT('%', #{keyword}, '%')
-        OR m.name  LIKE CONCAT('%', #{keyword}, '%')
-        OR m.email LIKE CONCAT('%', #{keyword}, '%')
-        OR m.phone LIKE CONCAT('%', #{keyword}, '%')
-      )
-    </if>
-  </where>
-  ORDER BY m.member_id DESC
-  LIMIT #{limit} OFFSET #{offset}
-</select>
+			<bind name="kw" value="keyword == null ? null : keyword.trim()" />
 
-<!-- 관리자: 회원 목록 총 개수(페이징용) -->
-<select id="adminSelectMemberListCount" parameterType="map" resultType="int">
-  SELECT COUNT(*)
-  FROM member m
-  <where>
-    <if test="status != null and status != ''">
-      AND m.status = #{status}
-    </if>
+			<if test="kw != null and kw != ''">
+				AND (
+				m.login_id LIKE CONCAT('%', #{kw}, '%')
+				OR m.name LIKE CONCAT('%', #{kw}, '%')
+				OR m.email LIKE CONCAT('%', #{kw}, '%')
+				OR m.phone LIKE CONCAT('%', #{kw}, '%')
+				)
+			</if>
+		</where>
+		ORDER BY m.member_id DESC
+		LIMIT #{limit} OFFSET #{offset}
+	</select>
 
-    <if test="gradeId != null">
-      AND m.grade_id = #{gradeId}
-    </if>
+	<!-- 관리자: 회원 목록 총 개수(페이징용) -->
+	<select id="adminSelectMemberListCount" parameterType="map"
+		resultType="int">
+		SELECT COUNT(*)
+		FROM member m
+		<where>
+			<if test="status != null and status != ''">
+				AND m.status = #{status}
+			</if>
 
-    <if test="keyword != null and keyword != ''">
-      AND (
-        m.login_id LIKE CONCAT('%', #{keyword}, '%')
-        OR m.name  LIKE CONCAT('%', #{keyword}, '%')
-        OR m.email LIKE CONCAT('%', #{keyword}, '%')
-        OR m.phone LIKE CONCAT('%', #{keyword}, '%')
-      )
-    </if>
-  </where>
-</select>
+			<if test="gradeId != null and gradeId != ''">
+				AND m.grade_id = #{gradeId}
+			</if>
+
+			<if test="keyword != null and keyword != ''">
+				AND (
+				m.login_id LIKE CONCAT('%', #{keyword}, '%')
+				OR m.name LIKE CONCAT('%', #{keyword}, '%')
+				OR m.email LIKE CONCAT('%', #{keyword}, '%')
+				OR m.phone LIKE CONCAT('%', #{keyword}, '%')
+				)
+			</if>
+		</where>
+	</select>
 </mapper>

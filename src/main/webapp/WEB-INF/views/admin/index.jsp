@@ -833,6 +833,40 @@
           });
 
         });
+        (function(){
+        	  const ctx = "${pageContext.request.contextPath}";
+
+        	  window.addEventListener("popstate", function(e){
+        	    const st = e.state;
+
+        	    // state 없으면: (pushState가 없어서) 아무 것도 못함
+        	    // -> 여기서 return 하는 건 정상. "안되는" 주 원인도 여기.
+        	    if(!st) return;
+
+        	    // url 기반 복원
+        	    if(st.url){
+        	      $.ajax({
+        	        url: st.url.startsWith("http") ? st.url : (st.url.startsWith(ctx) ? st.url : ctx + st.url),
+        	        method: "GET",
+        	        success: function(result){
+        	          $(".content-wrapper").html(result);
+        	        }
+        	      });
+        	      return;
+        	    }
+
+        	    // detail 기반 복원 (view/memberId 저장해둔 경우)
+        	    if(st.view === "detail" && st.memberId){
+        	      $.ajax({
+        	        url: ctx + "/admin/members/detail",
+        	        data: { memberId: st.memberId },
+        	        success: function(result){
+        	          $(".content-wrapper").html(result);
+        	        }
+        	      });
+        	    }
+        	  });
+        	})();
       </script>
   </body>
 

@@ -36,7 +36,18 @@ public class AdminMemberController {
             Model model
     ) {
         if (!isAdmin(session)) return "redirect:/auth/login";
-
+        
+        //공백때문에 키워드검색+gradeId검색이 안되는듯..! 일단 방어..
+        if (keyword != null) {
+            keyword = keyword.trim();
+            if (keyword.isEmpty()) keyword = null;
+        }
+        
+        if (status != null) {
+            status = status.trim();
+            if (status.isEmpty()) status = null;
+        }
+        
         int size = 10;
 
         int total = memberService.adminSelectMemberListCount(keyword, status, gradeId);
