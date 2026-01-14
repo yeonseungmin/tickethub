@@ -10,4 +10,5 @@ public interface ReviewDAO {
 	public Review select(int review_id);
 	public void updateHit(int review_id);
 	public void updateLikeCount(int review_id);
+	public void softDelete(int review_id);
 }

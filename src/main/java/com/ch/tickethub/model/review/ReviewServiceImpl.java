@@ -41,6 +41,11 @@ public class ReviewServiceImpl implements ReviewService{
 		
 		reviewDAO.updateLikeCount(review_id);
 	}
+
+	@Override
+	public void remove(int review_id) throws ReviewException{
+		reviewDAO.softDelete(review_id);
+	}
 	
 	
 }

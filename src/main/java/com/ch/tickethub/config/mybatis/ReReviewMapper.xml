@@ -6,6 +6,11 @@
 		values(#{review.review_id}, #{member.memberId}, #{re_review_content})
 	</insert>
 	
+	<delete id="delete" parameterType="int">
+		delete from re_review
+		where re_review_id = #{re_review_id}
+	</delete>
+	
 	<resultMap id = "reReviewMap" type="ReReview">
 		<id 		property="re_review_id" 				column="re_review_id" />
 		<result property="re_review_content" 		column="re_review_content" />

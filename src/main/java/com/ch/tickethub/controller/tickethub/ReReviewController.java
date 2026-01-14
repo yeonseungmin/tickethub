@@ -51,14 +51,33 @@ public class ReReviewController {
 		return ResponseEntity.ok(body);
 	}
 	
+	@PostMapping("/detail/re_review/delete")
+	@ResponseBody
+	public ResponseEntity<Map<String, String>> remove(@RequestBody ReReview reReview, HttpSession session){
+		log.debug("reReview = {}", reReview);
+		
+		Member loginMember = (Member) session.getAttribute("loginMember");
+		Map<String, String> body = new HashMap<>();
+		
+		if(loginMember == null) {
+			body.put("message", "로그인이 필요한 서비스입니다.\n로그인 페이지로 이동하시겠습니까?");
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+		}
+		
+		reReviewService.remove(reReview.getRe_review_id());
+		
+		body.put("message", "답글이 삭제되었습니다.");
+		
+		return ResponseEntity.ok(body);
+	}
 	
 	@ExceptionHandler({ReReviewException.class})
 	@ResponseBody
 	public ResponseEntity<Map<String, String>> handle(Exception e){
-		log.debug("답글 등록에서 예외가 발생하여, handler 메서드가 호출됨");
+		log.debug("답글에서 예외가 발생하여, handler 메서드가 호출됨");
 		
 		Map<String, String> body = new HashMap<>();
-		body.put("message", "서버 오류로 인해 답글 등록에 실패했습니다.");
+		body.put("message", "서버 오류로 인해 실패했습니다.");
 		
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
 	}

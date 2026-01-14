@@ -17,4 +17,10 @@ public class ReReviewServiceImpl implements ReReviewService{
 		reReviewDAO.insert(reReview);
 	}
 
+	@Override
+	public void remove(int re_review_id) throws ReReviewException{
+		reReviewDAO.delete(re_review_id);
+		
+	}
+
 }
