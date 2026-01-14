@@ -93,5 +93,17 @@ public class MybatisReviewDAO implements ReviewDAO{
 		}
 	}
 
+	@Override
+	public void updateBlock(int review_id) throws ReviewException{
+		
+		try {
+			sqlSessionTemplate.update("Review.updateBlock", review_id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ReviewException("리뷰 블락 과정 중 오류 발생", e);
+		}
+		
+	}
+
 
 }

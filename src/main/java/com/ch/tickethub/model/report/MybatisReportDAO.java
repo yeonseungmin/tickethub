@@ -31,4 +31,15 @@ public class MybatisReportDAO implements ReportDAO {
 		return sqlSessionTemplate.selectList("Report.selectAll");
 	}
 
+	@Override
+	public void updateState(Report report) throws ReportException{
+		try {
+			sqlSessionTemplate.update("Report.updateReportState", report);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ReportException("report 업데이트 실패", e);
+		}
+		
+	}
+
 }

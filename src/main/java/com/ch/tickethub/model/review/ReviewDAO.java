@@ -13,5 +13,6 @@ public interface ReviewDAO {
 	public void updateLikeCount(int review_id);
 	public void softDelete(int review_id);
 	public Map<String, Object> selectReviewStats(int work_id);
+	public void updateBlock(int review_id);
 	
 }

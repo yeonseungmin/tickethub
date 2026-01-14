@@ -7,4 +7,5 @@ import com.ch.tickethub.dto.Report;
 public interface ReportService {
 	public void regist(Report report);
 	public List<Report> getList();
+	public void setState(Report report);
 }

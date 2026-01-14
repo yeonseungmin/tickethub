@@ -59,4 +59,9 @@
 	    order by r.report_date desc
 	</select>
 	
+	<update id="updateReportState" parameterType="Report">
+	    update report 
+	    set report_state = #{report_state}
+	    where report_id = #{report_id}
+	</update>
 </mapper>

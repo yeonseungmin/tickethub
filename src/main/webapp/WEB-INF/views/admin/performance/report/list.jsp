@@ -237,11 +237,18 @@ function handleReport(newState) {
 		},
 		success: function(res) {
 			alert("처리가 완료되었습니다.");
+			
 			$("#reportProcessModal").modal("hide");
+			
+			$('body').removeClass('modal-open');
+            $('.modal-backdrop').remove();
+			
 			$($(".performance .nav-item")[5]).click();
 		},
 		error: function() {
 			alert("처리 중 오류가 발생했습니다.");
+			$('body').removeClass('modal-open');
+            $('.modal-backdrop').remove();
 		}
 	});
 }

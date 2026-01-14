@@ -24,6 +24,12 @@
 			review_deleted_at = now() where review_id = #{review_id}
 	</update>
 	
+	<update id="updateBlock" parameterType="int">
+		update review
+		set review_state = 'BLOCKED'
+		where review_id = #{review_id}
+	</update>
+	
 	<resultMap id="reviewMapForWork" type="Review">
 		<id column="review_id"					property="review_id"/>
 		<result column="work_id"					property="work.work_id"/>
