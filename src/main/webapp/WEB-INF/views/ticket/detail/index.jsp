@@ -352,7 +352,53 @@
 	    
 	    // Bootstrap 모달 띄우기 (jQuery 방식)
 	    $('#reportModal').modal('show');
-	} 
+	}
+    
+	function registReport() {
+	    const review_id = $("#report_review_id").val();
+	    //$(":checked")	All checked input elements
+	    const report_category_id = $("input[name='report_category_id']:checked").val();
+	    const report_content = $("#report_content").val();
+
+	    if (!report_category_id) {
+	        alert("신고 사유를 선택해주세요.");
+	        return;
+	    }
+	    
+	    if (!report_content.trim()) {
+	    	alert("신고 내용을 상세히 작성해주세요.");
+	    	return;
+	    }
+
+	    // 서버로 전송하는 AJAX 로직 (예시)
+	    $.ajax({
+	        url: "/detail/report/regist",
+	        method: "POST",
+	        data: JSON.stringify({
+	            review: {review_id: review_id},
+	            reportCategory: {report_category_id: report_category_id},
+	            report_content: report_content
+	        }),
+	        contentType: "application/json",
+		    success:function(result, status, xhr) {
+		    	alert(result.message);
+		        $("#report_content").val("");
+	            $("#reportModal").modal('hide'); // 모달 닫기
+		    },
+		    error:function(xhr, status, err) {
+		        // 서버가 401을 보냈다면 (세션 만료 등)
+		        if (xhr.status === 401) {
+		        	let obj = JSON.parse(xhr.responseText);
+		        	if (confirm(obj.message)) {
+	                    location.href = "/auth/login";
+	                }
+		        } else {
+		        	let obj = JSON.parse(xhr.responseText);
+		            alert(obj.message);
+		        }
+		    }
+	    });
+	}
     
     function registReview(btn) {
     	const reviewData = {
@@ -366,7 +412,7 @@
     	        // member_id는 서버 세션에서 꺼내는 것이 낫다.
     	};
     	
-    	if(reviewData.review_content == "" || reviewData.review_title == ""){
+    	if(!reviewData.review_content.trim() || !reviewData.review_title.trim()){
     		alert("누락된 입력");
     		return;
     	}
@@ -1173,7 +1219,7 @@
 				                <div class="report-options">
 				                <%for(ReportCategory reportCategory : reportCategoryList) {%>
 				                    <div class="custom-control custom-radio mb-2">
-				                        <input type="radio" id="opt<%=reportCategory.getReport_category_id() %>" name="report_reason" class="custom-control-input" value="<%=reportCategory.getReport_category_id()%>">
+				                        <input type="radio" id="opt<%=reportCategory.getReport_category_id() %>" name="report_category_id" class="custom-control-input" value="<%=reportCategory.getReport_category_id()%>">
 				                        <label class="custom-control-label" for="opt<%=reportCategory.getReport_category_id()%>"><%=reportCategory.getReport_reason() %></label>
 				                    </div>
 								<%} %>
@@ -1183,7 +1229,7 @@
 				                          placeholder="신고 사유를 구체적으로 작성해주세요. (최대 200자)"></textarea>
 				            </div>
 				            <div class="modal-footer border-0">
-				                <button type="button" class="btn btn-danger btn-block btn-lg" onclick="submitReport()">등록완료</button>
+				                <button type="button" class="btn btn-danger btn-block btn-lg" onclick="registReport()">등록완료</button>
 				            </div>
 				        </div>
 				    </div>
