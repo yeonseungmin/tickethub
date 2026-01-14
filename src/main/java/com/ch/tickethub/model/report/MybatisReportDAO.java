@@ -1,5 +1,7 @@
 package com.ch.tickethub.model.report;
 
+import java.util.List;
+
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -22,6 +24,11 @@ public class MybatisReportDAO implements ReportDAO {
 			e.printStackTrace();
 			throw new ReportException("신고 접수 실패", e);
 		}
+	}
+
+	@Override
+	public List<Report> selectAll() {
+		return sqlSessionTemplate.selectList("Report.selectAll");
 	}
 
 }

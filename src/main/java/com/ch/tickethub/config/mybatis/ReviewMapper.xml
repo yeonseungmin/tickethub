@@ -77,13 +77,13 @@
 	    where r.work_id = #{work_id} and r.review_state = 'ACTIVE'
 	    <choose>
 	        <when test="orderType == 'rating'">
-	            ORDER BY r.rating DESC, r.review_regdate DESC
+	            order by r.rating desc, r.review_regdate desc
 	        </when>
 	        <when test="orderType == 'likes'">
-	            ORDER BY r.review_like_count DESC, r.review_regdate DESC
+	            order by r.review_like_count desc, r.review_regdate desc
 	        </when>
 	        <otherwise>
-	            ORDER BY r.review_regdate DESC
+	            order by r.review_regdate desc
 	        </otherwise>
 	    </choose>
 	</select>

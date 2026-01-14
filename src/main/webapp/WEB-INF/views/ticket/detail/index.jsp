@@ -56,8 +56,6 @@
 	let prevOrderType;
 	
 	const memberId = <%= (member != null) ? member.getMemberId() : 0 %>;
-	const birthDate = <%= (member != null) ? member.getBirthDate() : 0 %>;
-	
 	// review_like을 하루 저장하기 위한 키
 	let cookieKey = "likedList_member" + memberId;
    	let rawCookie = getCookie(cookieKey);
@@ -86,7 +84,7 @@
             icon.removeClass('fas').addClass('far');
             count.text((currentVal - 1).toLocaleString());
         }
-    }
+    } 
     
     // new Date("2025-11-09")	work_start_date work_end_date 쓸 때 참조
     // new Date("2025-11-09 18:10")
@@ -273,6 +271,7 @@
                 let priceTag = "";
                 let totalAvailable = 0;
                 
+                
                 statList.forEach((stat, index) => {
                     const isSoldOut = stat.available_seats == 0;
                     totalAvailable += stat.available_seats;
@@ -297,10 +296,6 @@
                 $("#seat-info-area .sidebar-compact-text").html(seatTag);
                 $(".price-container").html(priceTag);
                 
-                if(memberId != 0 && !checkAgeLimit(birthDate, work.age_limit)){
-                	$(".btn-reservation").prop("disabled", true).text("연령 제한");
-                	return;
-                }
 
                 // 모든 등급의 좌석이 0이면 예매 버튼 비활성화
                 if (totalAvailable === 0) {
@@ -918,6 +913,7 @@
 				reviewList = result;
 				//console.log(reviewList);
 				
+				$($(".review-count")[0]).text("리뷰 " + moneyConverter.format(reviewList.length) + "개");
 				$($(".review-count")[1]).text(moneyConverter.format(reviewList.length));
 				
 				displayReviewList(currentPage, orderType);

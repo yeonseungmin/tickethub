@@ -6,5 +6,57 @@
 		values (#{review.review_id}, #{reportCategory.report_category_id}, #{report_content})	
 	</insert>
 	
+	<resultMap id="reportMap" type="Report">
+	    <id property="report_id" column="report_id" />
+	    <result property="report_content" column="report_content" />
+	    <result property="report_date" column="report_date" />
+	    <result property="report_state" column="report_state" />
+	
+	    <association property="reportCategory" javaType="ReportCategory">
+	        <id property="report_category_id" column="report_category_id" />
+	        <result property="report_reason" column="report_reason" />
+	    </association>
+	
+	    <association property="review" javaType="Review">
+	        <id property="review_id" column="review_id" />
+	        <result property="review_title" column="review_title" />
+	        <result property="rating" column="rating" />
+	        <result property="review_content" column="review_content" />
+	        <result property="review_state" column="review_state" />
+	        
+	        <association property="member" javaType="Member">
+	            <id property="memberId" column="member_id" />
+	            <result property="loginId" column="login_id" />
+	            <result property="name" column="name" />
+	            <result property="status" column="status" />
+	        </association>
+	    </association>
+	</resultMap>
+	
+	<select id="selectAll" resultMap="reportMap">
+	    select 
+	        r.report_id, 
+	        r.report_content, 
+	        r.report_date, 
+	        r.report_state,
+	        rv.review_id,
+	        rv.review_title,
+	        rv.review_content,
+	        rv.rating,
+	        rv.review_state,
+	        reportCategory.report_category_id, 
+	        reportCategory.report_reason,
+	        m.member_id,
+	        CONCAT(LEFT(m.login_id, 3), '*******') as login_id, -- 마스킹 처리
+	        m.name,
+	        m.status
+	    from report r
+	    inner join review rv on r.review_id = rv.review_id
+	    inner join report_category reportCategory on r.report_category_id = reportCategory.report_category_id
+	    inner join member m on rv.member_id = m.member_id
+	    where r.report_state = 'received' -- 미처리 신고만
+	      and rv.review_state = 'active'  -- 활성 상태인 리뷰만
+	    order by r.report_date desc
+	</select>
 	
 </mapper>

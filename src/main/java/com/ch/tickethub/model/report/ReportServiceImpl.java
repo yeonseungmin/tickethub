@@ -1,5 +1,7 @@
 package com.ch.tickethub.model.report;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,11 @@ public class ReportServiceImpl implements ReportService {
 	@Override
 	public void regist(Report report) throws ReportException{
 		reportDAO.insert(report);
+	}
+
+	@Override
+	public List<Report> getList() {
+		return reportDAO.selectAll();
 	}
 
 }

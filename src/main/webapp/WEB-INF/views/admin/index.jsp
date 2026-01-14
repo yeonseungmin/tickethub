@@ -792,6 +792,19 @@
               }
             });
           });
+          
+          // 신고 관리 클릭 이벤트
+          $($(".performance .nav-item")[5]).click(function (e) {
+            e.preventDefault();
+            $.ajax({
+              url: "/admin/performance/report",
+              method: "GET",
+              success: function (result) {
+                console.log("신고 관리 클릭됨!!");
+                $(".content-wrapper").html(result);
+              }
+            });
+          });
 
 
 
