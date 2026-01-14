@@ -253,6 +253,8 @@
      	// data-id 에 값 round_id 값 넣어주기 .attr로 바꾸지 마라. 갱신 제대로 안 해준다.
     	$(".place button").data("id", round.round_id);
      	//console.log("round_id는 ", $(".place button").data("id"));
+     	
+     	//"/detail/seat/stats"
 
 		$("#seat-info-area .sidebar-compact-text").html(`
 			<span class="font-weight-bold">VIP</span> <span class="text-soldout">매진</span> <span class="divider-slash">/</span> 

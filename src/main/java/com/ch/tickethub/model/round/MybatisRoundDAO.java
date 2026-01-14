@@ -42,6 +42,11 @@ public class MybatisRoundDAO implements RoundDAO{
 	    // RoundMapper.xml의 id="selectByWorkAndPlace" 호출
 	    return sqlSessionTemplate.selectList("Round.selectByWorkAndPlace", params);
 	}
+
+	@Override
+	public List<Map<String, Object>> selectSeatStats(int round_id) {
+		return sqlSessionTemplate.selectList("Round.selectSeatStatsByRoundId", round_id);
+	}
 	
 
 }

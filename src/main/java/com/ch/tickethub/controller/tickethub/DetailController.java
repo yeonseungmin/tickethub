@@ -31,6 +31,7 @@ import com.ch.tickethub.exception.ReviewException;
 import com.ch.tickethub.model.reportCategory.ReportCategoryService;
 import com.ch.tickethub.model.rereview.ReReviewService;
 import com.ch.tickethub.model.review.ReviewService;
+import com.ch.tickethub.model.round.RoundService;
 import com.ch.tickethub.model.seatgrade.SeatGradeService;
 import com.ch.tickethub.model.work.WorkService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -53,6 +54,9 @@ public class DetailController {
 	
 	@Autowired
 	ReviewService reviewService;
+	
+	@Autowired
+	RoundService roundService;
 	
     @Autowired
     @Qualifier("naverMapClientId")
@@ -85,6 +89,16 @@ public class DetailController {
 		}
 		
 		return "/ticket/detail/index";
+	}
+	
+	@GetMapping("/detail/seat/stats")
+	@ResponseBody
+	public List<Map<String, Object>> getSeatStats(int round_id) {
+		List<Map<String, Object>> seatStats = roundService.getSeatStats(round_id);
+		
+		log.debug("seatStats는 {}", seatStats);
+		
+		return seatStats;
 	}
 	
 	// 2. [추가] 예매 팝업창 호출 메서드
