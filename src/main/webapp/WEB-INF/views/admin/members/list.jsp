@@ -293,7 +293,7 @@
       reloadMembers({ page: p });
     });
 
-    // 상세 보기 (Ajax로 detail도 오른쪽에 띄우고 싶으면)
+    // 상세 보기 (Ajax로 detail도 오른쪽에 띄우기..)
     $(".btn-detail").on("click", function(e){
       e.preventDefault();
       const memberId = $(this).data("memberid");

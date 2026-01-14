@@ -653,6 +653,15 @@
     <%@ include file="./inc/footer_link.jsp" %>
       <script>
         $(() => {	// ====== 비동기 클릭 이벤트 함수 =======
+        	
+        	// 전역 AJAX 401 처리: content-wrapper에 로그인 박히는 문제 방지
+            $(document).ajaxError(function (event, jqxhr) {
+              if (jqxhr.status === 401) {
+                // 서버가 Location 헤더 줬으면 그쪽으로, 아니면 기본 로그인으로
+                const loc = jqxhr.getResponseHeader("Location") || "/auth/login";
+                window.location.href = loc;
+              }
+            });
 
           // 메인배너 관리 클릭 이벤트
           $("#menu-main-banner").click(function (e) {
