@@ -10,4 +10,5 @@ public interface ReviewService {
 	public Review getReview(int review_id);
 	public void setHit(int review_id);
 	public void setLikeCount(int review_id);
+	public void remove(int review_id);
 }

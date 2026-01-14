@@ -1,0 +1,27 @@
+package com.ch.tickethub.model.report;
+
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import com.ch.tickethub.dto.Report;
+import com.ch.tickethub.exception.ReportException;
+
+@Repository
+public class MybatisReportDAO implements ReportDAO {
+
+	@Autowired
+	SqlSessionTemplate sqlSessionTemplate;
+	
+	@Override
+	public void insert(Report report) throws ReportException {
+		
+		try {
+			sqlSessionTemplate.insert("Report.insert", report);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ReportException("신고 접수 실패", e);
+		}
+	}
+
+}

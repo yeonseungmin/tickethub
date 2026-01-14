@@ -76,4 +76,15 @@ public class MybatisReviewDAO implements ReviewDAO{
 		}
 	}
 
+	@Override
+	public void softDelete(int review_id) throws ReviewException{
+		
+		try {
+			sqlSessionTemplate.update("Review.softDelete", review_id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ReviewException("리뷰 삭제 과정 중 오류 발생", e);
+		}
+	}
+
 }

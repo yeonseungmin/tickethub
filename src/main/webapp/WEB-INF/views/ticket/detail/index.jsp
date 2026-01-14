@@ -1,3 +1,4 @@
+<%@page import="com.ch.tickethub.dto.ReportCategory"%>
 <%@page import="com.ch.tickethub.dto.Member"%>
 <%@page import="com.ch.tickethub.dto.Round"%>
 <%@page import="com.ch.tickethub.dto.RoundCasting"%>
@@ -11,6 +12,7 @@
 	List<RoundCasting> uniqueCastingList = (List)request.getAttribute("uniqueCastingList");
 	String jsonWork = (String)request.getAttribute("jsonWork");
 	String naverMapClientId = (String)request.getAttribute("naverMapClientId");
+	List<ReportCategory> reportCategoryList = (List)request.getAttribute("reportCategoryList");
 	
 	// 장르 이름 가져오기
     String genreName = work.getGenre().getGenre_name();
@@ -32,7 +34,6 @@
 <body class="layout-top-nav" style="background-color: #ffffff;">
 <% System.out.println(uniqueCastingList); %>
 <% System.out.println(jsonWork); %>
-<% System.out.println(member); %>
 <script src="/static/assets/js/Util.js"></script>
 <script src="/static/assets/js/Paging.js"></script>
 <script src="/static/assets/js/MoneyConverter.js"></script>
@@ -314,7 +315,7 @@
     // 달력 끝
     
     // 장소 팝업
-    function openPlacePopup(btn){
+    function openPlaceModal(btn){
     	let roundId = $(btn).data("id");
     	const round = work.roundList.find((round)=>{return round.round_id == roundId});
     	//console.log(round);
@@ -341,7 +342,64 @@
             });
         });
     }
+    
     // 관람후기 함수 시작
+    // 신고 팝업
+	function openReportModal(review_id) {
+		console.log("신고 당한 review_id는 ", review_id);
+	    // 어느 리뷰를 신고하는지 ID를 세팅
+	    $('#report_review_id').val(review_id);
+	    
+	    // Bootstrap 모달 띄우기 (jQuery 방식)
+	    $('#reportModal').modal('show');
+	}
+    
+	function registReport() {
+	    const review_id = $("#report_review_id").val();
+	    //$(":checked")	All checked input elements
+	    const report_category_id = $("input[name='report_category_id']:checked").val();
+	    const report_content = $("#report_content").val();
+
+	    if (!report_category_id) {
+	        alert("신고 사유를 선택해주세요.");
+	        return;
+	    }
+	    
+	    if (!report_content.trim()) {
+	    	alert("신고 내용을 상세히 작성해주세요.");
+	    	return;
+	    }
+
+	    // 서버로 전송하는 AJAX 로직 (예시)
+	    $.ajax({
+	        url: "/detail/report/regist",
+	        method: "POST",
+	        data: JSON.stringify({
+	            review: {review_id: review_id},
+	            reportCategory: {report_category_id: report_category_id},
+	            report_content: report_content
+	        }),
+	        contentType: "application/json",
+		    success:function(result, status, xhr) {
+		    	alert(result.message);
+		        $("#report_content").val("");
+	            $("#reportModal").modal('hide'); // 모달 닫기
+		    },
+		    error:function(xhr, status, err) {
+		        // 서버가 401을 보냈다면 (세션 만료 등)
+		        if (xhr.status === 401) {
+		        	let obj = JSON.parse(xhr.responseText);
+		        	if (confirm(obj.message)) {
+	                    location.href = "/auth/login";
+	                }
+		        } else {
+		        	let obj = JSON.parse(xhr.responseText);
+		            alert(obj.message);
+		        }
+		    }
+	    });
+	}
+    
     function registReview(btn) {
     	const reviewData = {
     	        review_title: $("input[placeholder='제목을 입력해주세요']").val(),
@@ -354,7 +412,7 @@
     	        // member_id는 서버 세션에서 꺼내는 것이 낫다.
     	};
     	
-    	if(reviewData.review_content == "" || reviewData.review_title == ""){
+    	if(!reviewData.review_content.trim() || !reviewData.review_title.trim()){
     		alert("누락된 입력");
     		return;
     	}
@@ -536,16 +594,63 @@
 	// [관람후기] 신고 동작
 	function report(btn) {
 		let review_id = $(btn).closest("li").val();
-		console.log("신고 당한 review_id는 ", review_id);
+		openReportModal(review_id);
 	}
 	
 	function deleteComment(btn, type) {
 		if (type == "review") {
-			let id = $(btn).closest("li").val();
-			console.log("삭제할 review_id는 ", id);
+			let review_id = $(btn).closest("li").val();
+			console.log("삭제할 review_id는 ", review_id);
+			
+         	$.ajax({
+        	    url: "/detail/review/soft/delete",
+        	    method: "POST",
+        	    contentType: "application/json",
+        	    data: JSON.stringify({ "review_id": review_id }),
+        	    success:function(result, status, xhr) {
+        	    	alert(result.message);
+        	        getReviewList(prevPage, prevOrderType); // 목록 새로고침
+        	    },
+        	    error:function(xhr, status, err) {
+        	        // 서버가 401을 보냈다면 (세션 만료 등)
+        	        if (xhr.status === 401) {
+        	        	let obj = JSON.parse(xhr.responseText);
+        	        	if (confirm(obj.message)) {
+                            location.href = "/auth/login";
+                        }
+        	        } else {
+        	        	let obj = JSON.parse(xhr.responseText);
+        	            alert(obj.message);
+        	        }
+        	    }
+    		});
+         	
 		} else if(type == "re_review"){
-			let id = $(btn).val();
-			console.log("삭제할 re_review_id는 ", id);
+			let re_review_id = $(btn).val();
+			console.log("삭제할 re_review_id는 ", re_review_id);
+			
+         	$.ajax({
+        	    url: "/detail/re_review/delete",
+        	    method: "POST",
+        	    contentType: "application/json",
+        	    data: JSON.stringify({ "re_review_id": re_review_id }),
+        	    success:function(result, status, xhr) {
+        	    	alert(result.message);
+        	        getReviewList(prevPage, prevOrderType); // 목록 새로고침
+        	    },
+        	    error:function(xhr, status, err) {
+        	        // 서버가 401을 보냈다면 (세션 만료 등)
+        	        if (xhr.status === 401) {
+        	        	let obj = JSON.parse(xhr.responseText);
+        	        	if (confirm(obj.message)) {
+                            location.href = "/auth/login";
+                        }
+        	        } else {
+        	        	let obj = JSON.parse(xhr.responseText);
+        	            alert(obj.message);
+        	        }
+        	    }
+    		});
 		}
 		
 	}
@@ -722,7 +827,6 @@
 		paginationArea.append(paginationTag);
 	}
 	
-	// 이거 post방식이 맞는 것 같은데 나중에 하자.
 	function getReviewList(currentPage, orderType="latest") {
 		$(".btn-group .btn").removeClass("active");
 	    $(`.\${orderType}`).addClass("active");
@@ -806,7 +910,7 @@
                 }
             });
             
-            // 점수 텍스트 업데이트 (별 하나당 2점으로 계산 예시)
+            // 점수 텍스트 업데이트 (별 하나당 1점으로 계산 예시)
             $("#selected-rating").text(rating);
         });
     })
@@ -875,7 +979,7 @@
                                     <span class="info-label">장소</span>
                                     <span class="info-content d-inline-flex align-items-center place">
                                         <span>블루스퀘어 </span>
-                                        <button class="btn btn-xs btn-outline-secondary ml-2 rounded-circle" data-id="" onclick="openPlacePopup(this)" title="지도 보기" data-toggle="modal" data-target="#placeModal"><i class="fas fa-map-marker-alt"></i></button>
+                                        <button class="btn btn-xs btn-outline-secondary ml-2 rounded-circle" data-id="" onclick="openPlaceModal(this)" title="지도 보기" data-toggle="modal" data-target="#placeModal"><i class="fas fa-map-marker-alt"></i></button>
                                     </span>
                                 </li>
                                 <li>
@@ -1100,6 +1204,38 @@
 			        </div>
 			    </div>
 			    <!-- The PlaceModal End -->
+			    
+			    <!-- The ReportModal  -->
+				<div class="modal fade" id="reportModal" tabindex="-1" role="dialog">
+				    <div class="modal-dialog" role="document">
+				        <div class="modal-content">
+				            <div class="modal-header">
+				                <h5 class="modal-title font-weight-bold">신고하시는 이유가 무엇인가요? (필수)</h5>
+				                <button type="button" class="close" data-dismiss="modal">&times;</button>
+				            </div>
+				            <div class="modal-body">
+				                <input type="hidden" id="report_review_id">
+				                
+				                <div class="report-options">
+				                <%for(ReportCategory reportCategory : reportCategoryList) {%>
+				                    <div class="custom-control custom-radio mb-2">
+				                        <input type="radio" id="opt<%=reportCategory.getReport_category_id() %>" name="report_category_id" class="custom-control-input" value="<%=reportCategory.getReport_category_id()%>">
+				                        <label class="custom-control-label" for="opt<%=reportCategory.getReport_category_id()%>"><%=reportCategory.getReport_reason() %></label>
+				                    </div>
+								<%} %>
+				                </div>
+				
+				                <textarea class="form-control mt-3" id="report_content" rows="4" 
+				                          placeholder="신고 사유를 구체적으로 작성해주세요. (최대 200자)"></textarea>
+				            </div>
+				            <div class="modal-footer border-0">
+				                <button type="button" class="btn btn-danger btn-block btn-lg" onclick="registReport()">등록완료</button>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+			    <!-- The ReportModal End -->
+			    
             </div>
         </div>
     </div>

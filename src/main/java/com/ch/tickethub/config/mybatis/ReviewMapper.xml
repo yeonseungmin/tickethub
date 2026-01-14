@@ -18,6 +18,12 @@
 		where review_id = #{review_id}
 	</update>
 	
+	<update id="softDelete" parameterType="int">
+		update review
+		set review_state = 'DELETED',
+			review_deleted_at = now() where review_id = #{review_id}
+	</update>
+	
 	<resultMap id="reviewMapForWork" type="Review">
 		<id column="review_id"					property="review_id"/>
 		<result column="work_id"					property="work.work_id"/>
@@ -62,13 +68,13 @@
 	<!-- if-else는 choose when map의 key를 적으면 알아서 value를 적용해준다.-->
 	<!-- r을 붙이지 않으면 review_regdate가 일단위까지만 정렬한다. -->
 	<select id="selectByWorkId" parameterType="map" resultMap="reviewMapForWork">
-	    SELECT 
+	    select 
 	        r.review_id, r.work_id, r.hit, r.review_like_count, 
 	        r.review_title, r.review_content, r.review_state, r.rating,
 	        r.member_id as memberId,
 	        DATE_FORMAT(r.review_regdate, '%Y.%m.%d') as review_regdate
-	    FROM review r
-	    WHERE r.work_id = #{work_id}
+	    from review r
+	    where r.work_id = #{work_id} and r.review_state = 'ACTIVE'
 	    <choose>
 	        <when test="orderType == 'rating'">
 	            ORDER BY r.rating DESC, r.review_regdate DESC
@@ -77,7 +83,7 @@
 	            ORDER BY r.review_like_count DESC, r.review_regdate DESC
 	        </when>
 	        <otherwise>
-	            ORDER BY r.review_regdate DESC		
+	            ORDER BY r.review_regdate DESC
 	        </otherwise>
 	    </choose>
 	</select>
@@ -85,6 +91,15 @@
 	<select id="select" parameterType="int" resultType="Review">
 		select hit, review_like_count from review
 		where review_id = #{review_id}
+	</select>
+	
+	<!-- map을 반환 시 reviewCount, avgRating은 key가 됨 -->
+	<select id="selectReviewStats" parameterType="int" resultType="map">
+		select
+			count(*) as reviewCount,
+			ifnull(round(avg(rating), 1), 0.0) as avgRating
+		from review
+		where work_id = #{work_id} and review_state = 'ACTIVE'
 	</select>
 	
 	<select id="selectById" parameterType="int" resultMap="reviewMapForBestReview">
