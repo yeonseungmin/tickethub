@@ -21,12 +21,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ch.tickethub.dto.Member;
 import com.ch.tickethub.dto.ReReview;
+import com.ch.tickethub.dto.ReportCategory;
 import com.ch.tickethub.dto.Review;
 import com.ch.tickethub.dto.RoundCasting;
 import com.ch.tickethub.dto.SeatGrade;
 import com.ch.tickethub.dto.Work;
 import com.ch.tickethub.exception.ReReviewException;
 import com.ch.tickethub.exception.ReviewException;
+import com.ch.tickethub.model.reportCategory.ReportCategoryService;
 import com.ch.tickethub.model.rereview.ReReviewService;
 import com.ch.tickethub.model.review.ReviewService;
 import com.ch.tickethub.model.seatgrade.SeatGradeService;
@@ -42,8 +44,12 @@ public class DetailController {
 	
 	@Autowired
 	WorkService workService;
+	
 	@Autowired
 	SeatGradeService seatGradeService;
+	
+	@Autowired
+	ReportCategoryService reportCategoryService;
 	
     @Autowired
     @Qualifier("naverMapClientId")
@@ -54,9 +60,11 @@ public class DetailController {
 		
 		Work work = workService.getWork(work_id);
 		List<RoundCasting> uniqueCastingList = workService.getUniqueCasting(work);
+		List<ReportCategory> reportCategoryList = reportCategoryService.getReportCategoryList();
 			
 		model.addAttribute("work", work);
 		model.addAttribute("uniqueCastingList", uniqueCastingList);
+		model.addAttribute("reportCategoryList", reportCategoryList);
 		model.addAttribute("naverMapClientId", naverMapClientId);
 		
 		ObjectMapper mapper = new ObjectMapper();

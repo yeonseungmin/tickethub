@@ -1,3 +1,4 @@
+<%@page import="com.ch.tickethub.dto.ReportCategory"%>
 <%@page import="com.ch.tickethub.dto.Member"%>
 <%@page import="com.ch.tickethub.dto.Round"%>
 <%@page import="com.ch.tickethub.dto.RoundCasting"%>
@@ -11,6 +12,7 @@
 	List<RoundCasting> uniqueCastingList = (List)request.getAttribute("uniqueCastingList");
 	String jsonWork = (String)request.getAttribute("jsonWork");
 	String naverMapClientId = (String)request.getAttribute("naverMapClientId");
+	List<ReportCategory> reportCategoryList = (List)request.getAttribute("reportCategoryList");
 	
 	// 장르 이름 가져오기
     String genreName = work.getGenre().getGenre_name();
@@ -32,7 +34,6 @@
 <body class="layout-top-nav" style="background-color: #ffffff;">
 <% System.out.println(uniqueCastingList); %>
 <% System.out.println(jsonWork); %>
-<% System.out.println(member); %>
 <script src="/static/assets/js/Util.js"></script>
 <script src="/static/assets/js/Paging.js"></script>
 <script src="/static/assets/js/MoneyConverter.js"></script>
@@ -314,7 +315,7 @@
     // 달력 끝
     
     // 장소 팝업
-    function openPlacePopup(btn){
+    function openPlaceModal(btn){
     	let roundId = $(btn).data("id");
     	const round = work.roundList.find((round)=>{return round.round_id == roundId});
     	//console.log(round);
@@ -341,7 +342,18 @@
             });
         });
     }
+    
     // 관람후기 함수 시작
+    // 신고 팝업
+	function openReportModal(review_id) {
+		console.log("신고 당한 review_id는 ", review_id);
+	    // 어느 리뷰를 신고하는지 ID를 세팅
+	    $('#report_review_id').val(review_id);
+	    
+	    // Bootstrap 모달 띄우기 (jQuery 방식)
+	    $('#reportModal').modal('show');
+	} 
+    
     function registReview(btn) {
     	const reviewData = {
     	        review_title: $("input[placeholder='제목을 입력해주세요']").val(),
@@ -536,7 +548,7 @@
 	// [관람후기] 신고 동작
 	function report(btn) {
 		let review_id = $(btn).closest("li").val();
-		console.log("신고 당한 review_id는 ", review_id);
+		openReportModal(review_id);
 	}
 	
 	function deleteComment(btn, type) {
@@ -769,7 +781,6 @@
 		paginationArea.append(paginationTag);
 	}
 	
-	// 이거 post방식이 맞는 것 같은데 나중에 하자.
 	function getReviewList(currentPage, orderType="latest") {
 		$(".btn-group .btn").removeClass("active");
 	    $(`.\${orderType}`).addClass("active");
@@ -922,7 +933,7 @@
                                     <span class="info-label">장소</span>
                                     <span class="info-content d-inline-flex align-items-center place">
                                         <span>블루스퀘어 </span>
-                                        <button class="btn btn-xs btn-outline-secondary ml-2 rounded-circle" data-id="" onclick="openPlacePopup(this)" title="지도 보기" data-toggle="modal" data-target="#placeModal"><i class="fas fa-map-marker-alt"></i></button>
+                                        <button class="btn btn-xs btn-outline-secondary ml-2 rounded-circle" data-id="" onclick="openPlaceModal(this)" title="지도 보기" data-toggle="modal" data-target="#placeModal"><i class="fas fa-map-marker-alt"></i></button>
                                     </span>
                                 </li>
                                 <li>
@@ -1147,6 +1158,38 @@
 			        </div>
 			    </div>
 			    <!-- The PlaceModal End -->
+			    
+			    <!-- The ReportModal  -->
+				<div class="modal fade" id="reportModal" tabindex="-1" role="dialog">
+				    <div class="modal-dialog" role="document">
+				        <div class="modal-content">
+				            <div class="modal-header">
+				                <h5 class="modal-title font-weight-bold">신고하시는 이유가 무엇인가요? (필수)</h5>
+				                <button type="button" class="close" data-dismiss="modal">&times;</button>
+				            </div>
+				            <div class="modal-body">
+				                <input type="hidden" id="report_review_id">
+				                
+				                <div class="report-options">
+				                <%for(ReportCategory reportCategory : reportCategoryList) {%>
+				                    <div class="custom-control custom-radio mb-2">
+				                        <input type="radio" id="opt<%=reportCategory.getReport_category_id() %>" name="report_reason" class="custom-control-input" value="<%=reportCategory.getReport_category_id()%>">
+				                        <label class="custom-control-label" for="opt<%=reportCategory.getReport_category_id()%>"><%=reportCategory.getReport_reason() %></label>
+				                    </div>
+								<%} %>
+				                </div>
+				
+				                <textarea class="form-control mt-3" id="report_content" rows="4" 
+				                          placeholder="신고 사유를 구체적으로 작성해주세요. (최대 200자)"></textarea>
+				            </div>
+				            <div class="modal-footer border-0">
+				                <button type="button" class="btn btn-danger btn-block btn-lg" onclick="submitReport()">등록완료</button>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+			    <!-- The ReportModal End -->
+			    
             </div>
         </div>
     </div>
