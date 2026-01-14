@@ -15,13 +15,8 @@
 	String jsonWork = (String)request.getAttribute("jsonWork");
 	String naverMapClientId = (String)request.getAttribute("naverMapClientId");
 	List<ReportCategory> reportCategoryList = (List)request.getAttribute("reportCategoryList");
-	
-	Object avgObj = request.getAttribute("avgRating");
-	double avgRating = 0.0;
-	
-	avgRating = ((BigDecimal) avgObj).doubleValue();
-	
-	long reviewCount = (Long)request.getAttribute("reviewCount");
+	String avgRating = (String)request.getAttribute("avgRating");
+	String reviewCount = (String)request.getAttribute("reviewCount");
 	
 	System.out.println(avgRating);
 	System.out.println(reviewCount);
@@ -438,6 +433,8 @@
     	        getReviewList(1); // 목록 새로고침
     	        $("input[placeholder='제목을 입력해주세요']").val("");
     	        $("textarea[placeholder*='관람 후기']").val("");
+    	        
+    	        getAvgRating();
     	    },
     	    error:function(xhr, status, err) {
     	        // 서버가 401을 보냈다면 (세션 만료 등)
@@ -621,6 +618,8 @@
         	    success:function(result, status, xhr) {
         	    	alert(result.message);
         	        getReviewList(prevPage, prevOrderType); // 목록 새로고침
+        	        
+    				getAvgRating();
         	    },
         	    error:function(xhr, status, err) {
         	        // 서버가 401을 보냈다면 (세션 만료 등)
@@ -850,10 +849,50 @@
 				reviewList = result;
 				//console.log(reviewList);
 				
-				$($(".review-count")[0]).text("리뷰 " + moneyConverter.format(reviewList.length) + "개");
 				$($(".review-count")[1]).text(moneyConverter.format(reviewList.length));
 				
 				displayReviewList(currentPage, orderType);
+				
+			}
+		});
+	}
+	
+	function displayReviewStats(avgRating, reviewCount = -1) {
+		const avg = parseFloat(avgRating || 0);
+		
+		if(reviewCount != -1) {
+			const count = parseInt(reviewCount || 0);
+			$($(".review-count")[0]).text("리뷰 " + moneyConverter.format(count) + "개");
+		}
+		
+		let avgTag = "";
+		
+		for(let i = 1; i <= 5; i++) {
+			if(avg >= i) {
+				avgTag += `<i class="fas fa-star"></i>`;
+			} else {
+				if(avg >= i - 0.5) {
+					avgTag += `<i class="fas fa-star-half-alt"></i>`;
+				} else {
+					avgTag += `<i class="far fa-star"></i>`;				
+				}
+			}
+		}
+		
+		let reviewStats = $(".review-stats");
+		reviewStats.find(".text-dark").text(avgRating);
+		reviewStats.find(".text-warning").empty();
+		reviewStats.find(".text-warning").append(avgTag);
+	}
+	
+	function getAvgRating() {
+		$.ajax({
+			url:"/detail/review/stats?work_id=" + work.work_id,
+			method:"GET",
+			success:function(result){
+				//let reviewCount = result.get("reviewCount");
+				let avgRating = result;
+				displayReviewStats(avgRating);
 			}
 		});
 	}
@@ -924,6 +963,8 @@
             // 점수 텍스트 업데이트 (별 하나당 1점으로 계산 예시)
             $("#selected-rating").text(rating);
         });
+        
+        displayReviewStats(<%=avgRating%>, <%=reviewCount%>);
     })
 	
     // 예매 팝업창 열기
@@ -964,23 +1005,12 @@
                 <div class="col-lg-8"> 
                     <div class="mb-4 pb-3 border-bottom">
                         <h1 class="font-weight-bold mb-2" style="font-size: 32px;"><%=work.getWork_title() %></h1>
-                        <div class="d-flex align-items-center">
+                        <div class="d-flex align-items-center review-stats">
                             <span class="badge badge-warning text-white mr-2 px-2 py-1" style="font-size: 14px;"><%=work.getGenre().getGenre_name() %> 1위</span>
                             <span class="text-warning mr-1">
-                            <%for(int i = 1; i <= 5; i++) {%>
-                            	<%if(avgRating >= i) {%>
-                            			<i class="fas fa-star"></i>
-                            	<%}else { %>
-                            		<% if(avgRating >= i - 0.5){%>
-                            				<i class="fas fa-star-half-alt"></i>
-                            		<%}else { %>
-                            				<i class="far fa-star"></i>
-                            		<%} %>
-                            	<%} %>
-                            <%} %>
                             </span>
-                            <span class="font-weight-bold text-dark" style="font-size: 18px;"><%=avgRating %></span>
-                            <span class="text-muted ml-2 text-sm review-count">(리뷰 <%=MoneyConverter.format((int)reviewCount) %>개)</span>
+                            <span class="font-weight-bold text-dark" style="font-size: 18px;">15.0</span>
+                            <span class="text-muted ml-2 text-sm review-count">(리뷰 개)</span>
                         </div>
                     </div>
 

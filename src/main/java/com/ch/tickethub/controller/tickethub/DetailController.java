@@ -66,9 +66,6 @@ public class DetailController {
 		List<ReportCategory> reportCategoryList = reportCategoryService.getReportCategoryList();
 		Map<String, Object> stats = reviewService.getReviewStats(work_id);
 		
-		model.addAttribute("avgRating", stats.get("avgRating"));
-	    model.addAttribute("reviewCount", stats.get("reviewCount"));
-			
 		model.addAttribute("work", work);
 		model.addAttribute("uniqueCastingList", uniqueCastingList);
 		model.addAttribute("reportCategoryList", reportCategoryList);
@@ -78,7 +75,11 @@ public class DetailController {
 		
 		try {
 			String jsonWork = mapper.writeValueAsString(work);
+			
 			model.addAttribute("jsonWork", jsonWork);
+			model.addAttribute("avgRating", mapper.writeValueAsString(stats.get("avgRating")));
+			model.addAttribute("reviewCount", mapper.writeValueAsString(stats.get("reviewCount")));
+			
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
