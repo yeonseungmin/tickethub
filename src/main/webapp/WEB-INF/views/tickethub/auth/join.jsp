@@ -7,13 +7,13 @@
 
 <style>
 /* ===== Join Page Layout ===== */
-.auth-section {
-	min-height: 100vh;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 120px 16px 80px; /* header/footer 여유 */
-	background: #f7f8fa;
+.auth-section{
+  min-height: calc(100vh - 180px);
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+    padding: 72px 16px 64px;
+  background:#f7f8fa;
 }
 
 .auth-container {
@@ -26,7 +26,7 @@
 	background: #fff;
 	border: 1px solid #e9ecef;
 	border-radius: 14px;
-	padding: 26px 22px;
+	padding: 30px 24px;
 	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
 }
 
@@ -34,7 +34,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	margin-bottom: 16px;
+	margin-bottom: 20px;
 }
 
 .auth-title {
@@ -66,7 +66,7 @@
 
 /* ===== Fields ===== */
 .auth-field {
-	margin-bottom: 10px;
+	margin-bottom: 14px;
 }
 
 .auth-input {
@@ -96,7 +96,7 @@
 	font-weight: 800;
 	font-size: 16px;
 	letter-spacing: -0.2px;
-	margin-top: 6px;
+	margin-top: 12px;
 	cursor: pointer;
 }
 
@@ -154,16 +154,15 @@
 				}
 				%>
 
-				<form method="post" action="/auth/join" id="joinForm"
-					autocomplete="off">
+				<form method="post" action="/auth/join" id="joinForm" autocomplete="off">
 					<div class="auth-field">
 						<input type="text" name="loginId" class="auth-input"
-							placeholder="아이디 (6~20자, 영문+숫자)" placeholder="아이디" required>
+							placeholder="아이디 (6~20자, 영문+숫자)" required>
 					</div>
 
 					<div class="auth-field">
 						<input type="password" name="password" class="auth-input"
-							placeholder="비밀번호" required>
+							placeholder="비밀번호 (8~20자, 소문자+숫자)" required>
 					</div>
 
 					<div class="auth-field">
@@ -172,8 +171,8 @@
 					</div>
 
 					<div class="auth-field">
-						<input type="text" name="name" class="auth-input" placeholder="이름"
-							required>
+						<input type="text" name="name" class="auth-input"
+							placeholder="이름" required>
 					</div>
 
 					<div class="auth-field">
@@ -181,15 +180,11 @@
 							placeholder="이메일" required>
 					</div>
 
-					<div class="auth-field">
-							<input type="text" name="phone" class="auth-input"
-							placeholder="휴대폰 번호 (01012345678 / 010-1234-5678)" required>
-					</div>
-
 					<button type="submit" class="btn-submit">회원가입</button>
 
 					<div class="auth-helper">
-						* 가입 후 안내 메일이 발송될 수 있습니다.<br /> * SNS 계정으로도 로그인할 수 있어요.
+						* 가입 후 안내 메일이 발송될 수 있습니다.<br />
+						* SNS 계정으로도 로그인할 수 있어요.
 					</div>
 				</form>
 
@@ -207,7 +202,7 @@
 			var $pw = $("input[name='password']");
 			var $pw2 = $("input[name='passwordConfirm']");
 
-			function syncPwState() {                            
+			function syncPwState() {
 				var ok = $pw.val() === $pw2.val();
 				// 둘 다 입력된 상태에서만 표시
 				if ($pw.val() && $pw2.val() && !ok) {
