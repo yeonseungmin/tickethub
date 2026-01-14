@@ -24,19 +24,16 @@
         var BASE_PRICE = <%= basePrice %>;
 
         var GRADE_SURCHARGE_MAP = {
-            <% 
-                if(seatGradeList != null) {
-                    for(int i=0; i < seatGradeList.size(); i++) {
-                        SeatGrade g = seatGradeList.get(i);
-            %>
-                "<%= g.getGrade_name().toLowerCase() %>": <%= g.getSurcharge() %><%= (i < seatGradeList.size() - 1) ? "," : "" %>
-            <% 
-                    }
-                } 
-            %>
+        	<% if(seatGradeList != null) {
+                  for(int i=0; i < seatGradeList.size(); i++) {
+                      SeatGrade g = seatGradeList.get(i);%>
+                "<%= g.getGrade_name().toLowerCase()%>": <%= g.getSurcharge()%><%= (i < seatGradeList.size() - 1) ? "," : "" %>
+            <% }} %>
         };
+        console.log("DB 기반 기본가:", BASE_PRICE);
+        console.log("DB 기반 할증료 테이블:", GRADE_SURCHARGE_MAP);
     </script>
-    <script src="<%=contextPath%>/static/assets/js/seatPopup.js"></script>
+    <script src="<%=contextPath%>/static/assets/js/seatPopup.js?v=<%=System.currentTimeMillis()%>"></script>
 </head>
 
 <body class="user-reservation-page">
@@ -88,19 +85,22 @@
 </div>
 
 <script>
-    $(document).ready(function() {
-        if(currentRoundId && currentRoundId !== 'null' && currentRoundId !== '') {
-            initUserReservation(currentRoundId);
-        } else {
-            alert("회차 정보가 없습니다. 정상적인 경로로 접근해주세요.");
-        }
-
-        // 인원수 변경 시 선택 초기화
-        $('#personCount').on('change', function() {
-            resetSelection();
-            updateUserSelectionUI();
-        });
-    });
+	/* [3] 페이지 실행 시 초기화 루틴 */
+	$(document).ready(function() {
+	    if(currentRoundId && currentRoundId !== 'null' && currentRoundId !== '') {
+	        initUserReservation(currentRoundId);
+	    } else {
+	        alert("회차 정보가 없습니다.");
+	    }
+	
+	    // 인원수 변경 시 선택 상태 리셋
+	    $('#personCount').on('change', function() {
+	        if(typeof resetSelection === 'function') {
+	            resetSelection();
+	            updateUserSelectionUI();
+	        }
+	    });
+	});
 </script>
 </body>
 </html>
