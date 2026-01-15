@@ -14,15 +14,14 @@ util/FileUtil.java
 	public static String getRootDir() {
 		return "/home/tickethub/performance";
 		//return "C:/tickethub/performance";
-	}	// 이게 어떻게 루트냐 동훈아
+	}
 	
 	public static String getRealRootDir() {
 		return "/home/tickethub";
 		//return "C:/tickethub";
-	}	// 난 진짜 루트 추가한다잉 ㅋㅋ
+	}
 
-web-INF/web.xml
-
+WEB-INF/web.xml
   <!-- 업로드 관련 설정 -->
   <multipart-config>
     <location>/home/tickethub/temp</location>	<!-- 이미지가 임시로 저장될 곳  -->
