@@ -44,8 +44,8 @@ public class RootConfig extends WebMvcConfigurerAdapter {
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
 		registry.addResourceHandler("/static/**").addResourceLocations("/resources/");
-		registry.addResourceHandler("/photo/**").addResourceLocations("file:/C:/tickethub/performance/");
-		registry.addResourceHandler("/banner/**").addResourceLocations("file:/C:/tickethub/banner/");	// 메인배너 이미지 저장용
+		registry.addResourceHandler("/photo/**").addResourceLocations("file:/var/lib/tomcat9/tickethub/performance/");
+		registry.addResourceHandler("/banner/**").addResourceLocations("file:/var/lib/tomcat9/tickethub/banner/");	// 메인배너 이미지 저장용
 	}
 
 	@Override

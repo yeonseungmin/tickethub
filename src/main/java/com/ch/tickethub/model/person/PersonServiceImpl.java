@@ -29,7 +29,7 @@ public class PersonServiceImpl implements PersonService{
 	@Autowired
 	FileManager fileManager;
 	
-	private String rootDir = FileUtil.getRootDir() + "/person";
+	private String rootDir = FileUtil.getRealRootDir() + "/performance/person";
 	
 	@Override
 	public void regist(List<String> nameList, List<MultipartFile> imgList) throws PersonException{
