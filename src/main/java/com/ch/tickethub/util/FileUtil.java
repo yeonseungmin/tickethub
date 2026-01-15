@@ -15,11 +15,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FileUtil {
 	public static String getRootDir() {
-		return "/var/lib/tomcat9/tickethub/performance";
+		return "/home/tickethub/performance";
+		//return "C:/tickethub/performance";
 	}	// 이게 어떻게 루트냐 동훈아
 	
 	public static String getRealRootDir() {
-		return "/var/lib/tomcat9/tickethub";
+		return "/home/tickethub";
+		//return "C:/tickethub";
 	}	// 난 진짜 루트 추가한다잉 ㅋㅋ
 	
 //	public static String saveFile(String absDir, MultipartFile img) throws UploadException {
