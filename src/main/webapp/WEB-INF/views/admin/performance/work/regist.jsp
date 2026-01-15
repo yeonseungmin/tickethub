@@ -101,6 +101,14 @@
         border-top: 1px solid #eee !important;
         text-align: center !important;
     }
+
+	/* Select2 세로 높이를 일반 input.form-control과 동일하게 맞춤 (38px) */
+	.select2-container--bootstrap4 .select2-selection--single {
+	    height: calc(2.25rem + 2px) !important; /* Bootstrap 4 표준 높이 */
+	}
+	
+
+	
 </style>
 
 </head>
