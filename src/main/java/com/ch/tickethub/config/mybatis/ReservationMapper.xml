@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Reservation">
+
+    <insert id="insert" parameterType="Reservation" useGeneratedKeys="true" keyProperty="reservation_id">
+        INSERT INTO reservation (member_id, round_id, seat_grade_id, actual_paid, total_paid, regdate)
+        VALUES (#{member_id}, #{round_id}, #{seat_grade_id}, #{actual_paid}, #{total_paid}, NOW())
+    </insert>
+
+    <select id="select" parameterType="int" resultType="Reservation">
+        SELECT * FROM reservation WHERE reservation_id = #{reservation_id}
+    </select>
+
+    <select id="selectByMember" parameterType="int" resultType="Reservation">
+        SELECT * FROM reservation WHERE member_id = #{member_id} ORDER BY regdate DESC
+    </select>
+
+    <select id="selectByRound" parameterType="int" resultType="Reservation">
+        SELECT * FROM reservation WHERE round_id = #{round_id}
+    </select>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM reservation WHERE reservation_id = #{reservation_id}
+    </delete>
+
+	<!-- work의 기본가격 + seat_ground 가격 가져오기 -->
+	<select id="getSelectedSeatsInfo" resultType="SeatDetail">
+	    SELECT 
+	        rs.round_seat_id,
+	        g.grade_name,
+	        g.surcharge,
+	        w.work_price,
+	        (w.work_price + g.surcharge) AS price
+	    FROM round_seat rs
+	    JOIN seat s ON rs.seat_id = s.seat_id
+	    /* g.grade_id가 아니라 g.seat_grade_id일 것입니다 */
+	    JOIN seat_grade g ON s.seat_grade_id = g.seat_grade_id
+	    JOIN round r ON rs.round_id = r.round_id
+	    JOIN work w ON r.work_id = w.work_id
+	    WHERE rs.round_seat_id IN 
+	    <foreach item="id" collection="list" open="(" separator="," close=")">
+	        #{id}
+	    </foreach>
+	</select>
+		
+	<select id="checkSeatsAvailability" parameterType="map" resultType="int">
+	    SELECT COUNT(*) 
+	    FROM round_seat 
+	    WHERE round_seat_id IN 
+	    <foreach item="id" collection="seatIds" open="(" separator="," close=")">
+	        #{id}
+	    </foreach>
+	    AND (status = 'AVAILABLE' OR status = 'PREEMPTED')
+	</select>
+		
+	<update id="updateSeatsStatus" parameterType="map">
+	    UPDATE round_seat SET status = #{status}
+	    WHERE round_seat_id IN 
+	    <foreach item="id" collection="seatIds" open="(" separator="," close=")">
+	        #{id}
+	    </foreach>
+	</update>
+	
+	<!-- 회원 등급별 혜택 -->
+	<select id="getAppliedBenefit" parameterType="int" resultType="map">
+	    SELECT 
+	        gb.benefit_id,
+	        gb.title,
+	        gb.summary,
+	        g.grade_name
+	    FROM Member m
+	    JOIN grade g ON m.grade_id = g.grade_id
+	    JOIN grade_benefit gb ON g.grade_id = gb.grade_id
+	    WHERE m.member_id = #{member_id}
+	</select>
+	
+	<!-- 결제 정보 저장 -->
+	<insert id="insertReservation" parameterType="map" useGeneratedKeys="true" keyProperty="reservation_id">
+	    INSERT INTO reservation (member_id, round_id, seat_grade_id, actual_paid, total_paid, regdate)
+	    VALUES (#{member_id}, #{round_id}, #{seat_grade_id}, #{amount}, #{totalAmount}, NOW())
+	</insert>
+	
+	<update id="confirmSeats" parameterType="map">
+	    UPDATE round_seat 
+	    SET status = 'RESERVED', 
+	        reservation_id = #{reservation_id},
+	        reserved_at = NOW()
+	    WHERE round_seat_id IN 
+	    <foreach item="id" collection="seatIds" open="(" separator="," close=")">
+	        #{id}
+	    </foreach>
+	</update>
+	
+	<insert id="insertDiscountDetail" parameterType="map">
+	    INSERT INTO discount_detail (reservation_id, benefit_id)
+	    VALUES (#{reservation_id}, #{benefit_id})
+	</insert>
+	<!-- 결제 정보 저장 끝 -->
+	
+	
+</mapper>

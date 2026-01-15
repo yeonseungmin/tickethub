@@ -1,0 +1,266 @@
+@charset "UTF-8";
+
+/* [1] 전체 초기화 */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #1a1a1a !important;
+    min-height: 100vh;
+    color: #fff;
+    font-family: 'Malgun Gothic', sans-serif;
+    overflow-x: hidden;
+}
+
+.admin-seat-page {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* [2] 상단 필터 바 */
+.seat-option-bar {
+    display: flex;
+    align-items: center;
+    background: #1a1a1a;
+    padding: 15px 25px;
+    border-bottom: 1px solid #333;
+    gap: 20px;
+    height: 80px;
+    flex-shrink: 0;
+}
+
+.nav-group { display: flex; flex-direction: column; }
+.nav-label { font-size: 11px; color: #888; font-weight: bold; margin-bottom: 4px; }
+
+.nav-select {
+    background: #252525; color: #fff; border: 1px solid #444;
+    padding: 6px 10px; border-radius: 4px; min-width: 150px;
+}
+
+.nav-load-btn {
+    background: #333;
+    color: #eee;
+    border: 1px solid #555;
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.nav-load-btn:hover {
+    background: #444;
+    border-color: #007bff;
+    color: #fff;
+}
+
+.icon-search {
+    margin-right: 7px;
+    font-size: 14px;
+}
+
+/* [3] 메인 레이아웃 영역 */
+.admin-seat-wrapper {
+    display: flex;
+    padding: 0;
+    gap: 0;
+    background-color: #1a1a1a;
+    height: calc(100vh - 80px);
+    width: 100%;
+}
+
+/* 좌석 배치도 컨테이너 (왼쪽) */
+.seat-map-container {
+    flex: 1;
+    background: #222;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* ★ 내부 #seatArea 중앙 정렬 ★ */
+    padding: 60px 0;
+    border-right: 1px solid #333;
+}
+
+/* --- ★ 핵심: 좌석이 배치될 실제 영역 (1500px 고정) ★ --- */
+#seatArea {
+    position: relative;
+    width: 1920px !important;  /* 충분히 큰 너비 확보 */
+    min-height: 1440px;        /* 충분히 큰 높이 확보 */
+    background-color: #1a1a1a;
+    /* 좌표 가늠을 위한 미세한 그리드 배경 (선택 사항) */
+    background-image: 
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 50px 50px; 
+    flex-shrink: 0;
+    overflow: hidden; /* 자식 요소가 부모를 뚫고 나가지 않게 함 */
+    margin: 0 auto;
+    transform-origin: center center;
+}
+
+/* STAGE 라벨 - 1500px 안에서만 고정 */
+.stage-label {
+    width: 100%;
+    text-align: center; 
+    color: #333; 
+    font-size: 40px;
+    letter-spacing: 30px; 
+    margin-bottom: 60px;
+    font-weight: 900;
+    flex-shrink: 0;
+}
+
+/* 층 구분 라벨 - 1500px 너비에 고정 */
+.floor-label {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    color: #444;
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 15px;
+    padding: 20px 0;
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.floor-2-label {
+    color: #554411;
+    border-color: #443311;
+}
+
+/* [4] 우측 관리 패널 - 460px 확장 */
+.management-side-panel {
+    width: 460px;
+    min-width: 460px;
+    background: #252525;
+    padding: 30px;
+    height: 100%;
+    overflow-y: auto;
+    flex-shrink: 0;
+    border-left: 1px solid #333;
+}
+
+.panel-title { color: #007bff; margin-top: 0; margin-bottom: 25px; font-size: 22px; font-weight: bold; }
+
+#selection-info {
+    background: #111; padding: 20px; border-radius: 8px;
+    margin-bottom: 25px; border: 1px solid #333;
+}
+#selection-info p { margin: 8px 0; font-size: 14px; color: #888; }
+#selection-info span { color: #fff; font-weight: bold; font-size: 15px; }
+
+/* 버튼 및 인풋 그리드 */
+.state-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; }
+.grade-btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 25px; }
+
+.status-btn, .grade-btn {
+    padding: 12px 5px; border: none; border-radius: 4px; color: #fff;
+    cursor: pointer; font-size: 12px; font-weight: bold;
+}
+
+/* 등급 및 상태 색상 */
+.btn-vip { background-color: #8e44ad; }
+.btn-r   { background-color: #27ae60; }
+.btn-s   { background-color: #3498db; }
+.btn-a   { background-color: #e74c3c; }
+.btn-available { background: #28a745; }
+.btn-preempted { background: #ffc107; color: #000; }
+.btn-canceled  { background: #dc3545; }
+.btn-reserved  { background: #6c757d; }
+
+/* 하단 자동 생성 박스 */
+.auto-gen-box { border-top: 1px solid #444; padding-top: 25px; margin-top: 10px; }
+.section-title { font-size: 14px; color: #888; margin-bottom: 12px; font-weight: bold; }
+.full-width-select, .admin-input-full { width: 100%; margin-bottom: 10px; padding: 12px; background: #111; color: #fff; border: 1px solid #444; border-radius: 6px; }
+
+.input-group-row { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
+.admin-input-small {
+    width: 50%; background: #111; border: 1px solid #444;
+    color: #fff; padding: 12px; border-radius: 4px; outline: none;
+}
+
+.create-exec-btn {
+    width: 100%; padding: 15px; background: #007bff;
+    color: #fff; border: none; border-radius: 4px;
+    cursor: pointer; font-weight: bold; font-size: 16px;
+}
+
+/* [5] 개별 요소 및 구역 설정 */
+.admin-seat {
+    width: 32px; height: 32px; 
+    position: absolute;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    transition: transform 0.1s;
+    z-index: 10;
+}
+.admin-seat:hover { transform: scale(1.2); z-index: 20; }
+.admin-seat.selected { outline: 2px solid #ffc107; box-shadow: 0 0 10px rgba(255, 193, 7, 0.5); }
+.admin-seat.selected-multi { outline: 3px solid #00ff00 !important; box-shadow: 0 0 15px #00ff00; }
+
+/* 구역 경계 박스 스타일 수정 */
+.group-boundary-box {
+    position: absolute;
+    border: 2px dashed #666;
+    z-index: 5;
+    cursor: move;
+    box-sizing: border-box;
+    transform-origin: center center !important;
+
+    
+    background-color: rgba(255, 255, 255, 0.03); /* 영역 확인용 미세 배경 */
+}
+
+.group-boundary-box.dragging { border: 2px solid #007bff; background-color: rgba(0, 123, 255, 0.1); z-index: 100; }
+.group-boundary-box:hover { border-color: #007bff; background-color: rgba(0, 123, 255, 0.05); }
+
+.group-name-label {
+    position: absolute; top: -25px; left: 0;
+    background: rgba(0, 0, 0, 0.7); color: #fff;
+    padding: 2px 8px; font-size: 12px; border-radius: 3px;
+    white-space: nowrap; pointer-events: none; user-select: none;
+}
+
+/* 삭제 및 저장 버튼 */
+.btn-delete {
+    background-color: #e74c3c !important; color: white !important;
+    grid-column: span 2; margin-top: 10px; font-weight: bold; padding: 12px;
+}
+.save-layout-btn {
+    margin-top: 15px; background-color: #28a745; color: white;
+    width: 100%; padding: 15px; border: none; border-radius: 6px;
+    cursor: pointer; font-weight: bold; font-size: 16px;
+}
+.save-layout-btn:hover { background-color: #218838; }
+
+/* 구역 등록 섹션 및 추가 버튼 */
+.area-registration-box {
+    margin-top: 25px; padding: 20px; background: #2d2d2d;
+    border-radius: 10px; border: 1px solid #3d3d3d;
+}
+.add-area-btn {
+    width: 100%; padding: 15px; background-color: #1e73be;
+    color: white; border: none; border-radius: 6px;
+    font-weight: bold; font-size: 16px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+}
+.add-area-btn:hover { background-color: #007bff; transform: translateY(-1px); }
+.icon-plus { margin-right: 8px; font-size: 1.2rem; }
+
+.selection-box {
+    position: absolute; border: 1px dashed #00ff00;
+    background: rgba(0, 255, 0, 0.1); pointer-events: none; z-index: 1000;
+}

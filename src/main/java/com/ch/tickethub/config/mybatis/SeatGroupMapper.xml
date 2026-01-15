@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="SeatGroup">
+
+    <resultMap id="seatGroupMap" 							type="SeatGroup">
+        <id column="seat_group_id" 							property="seat_group_id"/>
+        <result column="group_name"				 		property="group_name"/>
+        <result column="pos_x" 								property="pos_x"/>
+        <result column="pos_y" 								property="pos_y"/>
+        <result column="angle" 									property="angle"/>
+        <result column="row_gap" 							property="row_gap"/>
+        <result column="col_gap" 								property="col_gap"/>
+        <result column="direction" 							property="direction"/>
+        <association column="place_id" 						property="place" 				select="Place.selectById"/>
+    </resultMap>
+	
+    <sql id="sql_select">
+        SELECT seat_group_id, place_id, group_name, pos_x, pos_y, angle, row_gap, col_gap, direction
+        FROM seat_group
+    </sql>
+
+    <select id="selectByPlace" parameterType="int" resultMap="seatGroupMap">
+        <include refid="sql_select"/>
+        WHERE place_id = #{place_id}
+    </select>
+
+    <select id="selectList" resultMap="seatGroupMap"> 
+    	SELECT seat_group_id, place_id, group_name, pos_x, pos_y, angle, row_gap, col_gap 
+	    FROM seat_group 
+	    WHERE place_id = #{place_id}
+    </select>
+    
+    <select id="select" parameterType="int" resultMap="seatGroupMap">
+	    <include refid="sql_select"/>
+	    WHERE seat_group_id = #{seat_group_id}
+	</select>
+	
+	<!-- ===================== -->
+    <!-- 좌석 배치 저장 -->
+    <!-- ===================== -->
+	<update id="updateGroupsPositions" parameterType="java.util.List">
+	    UPDATE seat_group
+	    SET 
+	        pos_x = CASE 
+	            <foreach collection="list" item="item">
+	                WHEN seat_group_id = #{item.seat_group_id} THEN #{item.pos_x}
+	            </foreach>
+	            ELSE pos_x END,
+	        pos_y = CASE 
+	            <foreach collection="list" item="item">
+	                WHEN seat_group_id = #{item.seat_group_id} THEN #{item.pos_y}
+	            </foreach>
+	            ELSE pos_y END,
+	        angle = CASE 
+	            <foreach collection="list" item="item">
+	                WHEN seat_group_id = #{item.seat_group_id} THEN #{item.angle}
+	            </foreach>
+	            ELSE angle END
+	    WHERE seat_group_id IN 
+	    <foreach collection="list" item="item" open="(" separator="," close=")">
+	        #{item.seat_group_id}
+	    </foreach>
+	</update>
+
+    <insert id="insertGroupByPlace" parameterType="SeatGroup">
+	    INSERT INTO seat_group (place_id, group_name, pos_x, pos_y,angle, row_gap, col_gap)  
+	    VALUES (#{place.place_id}, #{group_name}, #{pos_x}, #{pos_y},#{angle}, #{row_gap}, #{col_gap})
+	</insert>
+
+    </mapper>

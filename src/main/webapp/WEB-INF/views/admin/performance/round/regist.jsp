@@ -1,0 +1,594 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<style>
+
+    /* 1. 위젯 본체: 너비를 넉넉히 잡고 불필요한 기본 여백 제거 */
+    .bootstrap-datetimepicker-widget.dropdown-menu {
+        width: 320px !important;
+        padding: 0 !important;
+        margin-top: 5px !important;
+        border: 1px solid #dee2e6 !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+        background-color: #fff !important;
+        z-index: 10000 !important;
+    }
+
+    /* 2. 테이블 레이아웃: 강제 7등분 핵심 설정 */
+    .bootstrap-datetimepicker-widget table {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        table-layout: fixed !important; /* 모든 열의 너비를 동일하게 강제 고정 */
+        border-collapse: collapse !important;
+    }
+
+    /* 3. 모든 칸(th, td) 공통: 요일 상관없이 무조건 1/7 너비 고정 */
+    .bootstrap-datetimepicker-widget table th,
+    .bootstrap-datetimepicker-widget table td {
+        width: 14.285% !important;   /* 100% 나누기 7 = 완벽한 등간격 */
+        height: 40px !important;
+        line-height: 40px !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        padding: 0 !important;        /* 좁아지게 만드는 주범인 패딩 제거 */
+        margin: 0 !important;
+        border: none !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 4. 상단 바 (연도/월): 굵고 크게 강조 */
+    .bootstrap-datetimepicker-widget table thead tr:first-child th {
+        background-color: #f4f6f9 !important;
+        height: 50px !important;
+    }
+
+    .bootstrap-datetimepicker-widget .picker-switch {
+        font-size: 16px !important;
+        font-weight: 800 !important; /* 볼드하게 */
+        color: #222 !important;
+        width: auto !important;
+    }
+
+    /* 5. 화살표 버튼 및 비활성화(Disabled) 처리 */
+    .bootstrap-datetimepicker-widget .prev, 
+    .bootstrap-datetimepicker-widget .next {
+        background: transparent !important;
+        font-size: 16px !important;
+    }
+
+    /* 못 누르는 화살표 색상 연하게 */
+    .bootstrap-datetimepicker-widget .prev.disabled, 
+    .bootstrap-datetimepicker-widget .next.disabled {
+        color: #ddd !important;
+        opacity: 0.4 !important;
+        cursor: not-allowed !important;
+    }
+
+    /* 6. 요일 표시줄 (일~토) */
+    .bootstrap-datetimepicker-widget .dow {
+        color: #666 !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        height: 35px !important;
+        line-height: 35px !important;
+        background-color: #fff !important;
+        border-bottom: 1px solid #f4f4f4 !important;
+    }
+
+    /* 7. 날짜 숫자 및 선택 효과 (파란색 원형) */
+    .bootstrap-datetimepicker-widget td.day {
+        font-size: 14px !important;
+        position: relative !important;
+    }
+
+    .bootstrap-datetimepicker-widget td.active,
+    .bootstrap-datetimepicker-widget td.active:hover {
+        background-color: #007bff !important;
+        color: #fff !important;
+        width: 32px !important;      /* 칸 안에서 원의 크기 고정 */
+        height: 32px !important;
+        margin: 4px auto !important;  /* 칸 중앙에 배치 */
+    }
+
+    /* 8. 하단 시간 영역 정렬 */
+    .bootstrap-datetimepicker-widget .list-unstyled li:last-child {
+        padding: 10px 0 !important;
+        border-top: 1px solid #eee !important;
+        text-align: center !important;
+    }
+
+	/* 회차 추가 열(Row) 정렬 보정 */
+	.round-group .form-group.row {
+	    align-items: flex-end; /* 모든 요소를 바닥 기준으로 정렬 (레이블 높이 무관) */
+	    margin-bottom: 15px;
+	}
+
+	/* 삭제 버튼 스타일 개선 및 정렬 */
+	.btn-outline-danger.remove {
+	    margin-top: 0 !important; /* JS의 32px 무시 */
+	    height: 38px; /* Select2/Input 높이와 일치 */
+	    width: 100%;
+	    display: flex;
+	    align-items: center;
+	    justify-content: center;
+	}
+	
+	/* Select2 너비 강제 고정 (삐져나옴 방지) */
+	.round-group .select2-container {
+	    width: 100% !important;
+	}
+	
+	/* 배우 선택 필드 내부 여백 조정 */
+	.round-group .select2-selection--multiple {
+	    min-height: 38px !important;
+	    border-radius: 8px !important;
+	}
+	
+</style>
+</head>
+<body>
+	<script>
+	// ( function() { ... } ) ( ) ; 함수 실행 트리거 마지막 (); 비동기이므로 workMap, currentWork, roundIdx가 계속 살아있다. 
+	(function() {
+		//let workList;
+		let workMap = {};
+		let currentWork;
+		let roundIdx = 0;
+		let personMap ={};
+		let personList;
+		
+		/*https://select2.org/selections 선택한 옵션 이미지 넣기*/
+		// 이 함수는 상위, 하위를 모두 처리해야 하므로, 호출 시 상위를 원하는지, 하위를 원하는지 구분해줘야 한다.
+		function printCategory(title, category, list){
+			let tag = "<option value=''>"+title+"</option>";
+			for(let i = 0; i < list.length; i++){
+				if(category=="work.work_id"){
+					tag += "<option value='"+list[i].work_id+"'>"+list[i].work_title+"[ 러닝타임: "+list[i].running_time+"분 ]"+"</option>";
+				}else if(category=="place.place_id"){
+					tag += "<option value='"+list[i].place_id+"'>"+list[i].place_name+"</option>";
+				}
+			}
+			
+			$("select[name='"+category+"']").html(tag);
+		}
+		
+		function validateRoundTimes(){
+			let roundTimes = [];
+			let roundTimeForms = $("input[name='round_start_time']");
+			let runningTime = parseInt(currentWork.running_time);
+			let roundDate = $("input[name='round_date']").val();
+			let isValid = true;
+			
+			for (let roundTimeForm of roundTimeForms){
+				let roundTime = $(roundTimeForm).val();
+				
+				if(roundTime == ""){
+					alert("회차 시작 시간 누락됨!");
+					isValid = false;
+					return false;
+				}
+				roundTimes.push(roundTime);
+			}
+
+			
+			for(let round of currentWork.roundList){
+				if(round.round_date == roundDate){
+					roundTimes.push(round.round_start_time);
+				}
+			}
+			
+			
+			roundTimes.sort();
+			
+			function toMinutes(time){
+				const [h, m] = time.split(":");
+				
+				return parseInt(h) * 60 + parseInt(m);
+			}
+			
+			for(let i = 0; i < roundTimes.length - 1; i++){
+				if(toMinutes(roundTimes[i]) + runningTime >= toMinutes(roundTimes[i+1])){
+					alert(roundTimes[i] + "이 " + roundTimes[i+1] + "과 충돌합니다." );
+					return false;
+				} 
+			}
+			
+			return true;
+		}
+		
+		function registForm(){
+			
+			let work_id = $("select[name='work.work_id']").val();
+		    let place_id = $("select[name='place.place_id']").val();
+		    let round_date = $("input[name='round_date']").val();
+		    
+		    if (!work_id || !place_id || !round_date) {
+		        alert("기본 정보를 모두 입력해주세요.");
+		        return;
+		    }
+		    
+			if($(".round_container").html() == ""){
+		    	alert("시작 시간을 추가해주세요.");
+		    	return;
+		    }
+		    
+		    if(!validateRoundTimes()){
+		    	return false;	
+		    }
+		    
+		    let roundList = [];
+		    let isCastingDataValid = true;
+		    
+		 	// jQuery에서 .each()는 return false가 break고 retrun true가 다음 회차다. 되도록 for를 쓰자.
+		    $(".round-group").each(function(index) {
+		    	
+				let roundData = {
+					round_start_time: $(this).find("input[name='round_start_time']").val(),
+					castingList: []
+				};
+				
+				let isRoleValid = true;
+				$(this).find(".person_container .form-group.row").each(function() {
+					let role = $(this).find("input[name='role']").val();
+					
+					if(role == ""){
+						alert((index + 1) + "번째 회차에 역할 누락");
+						isRoleValid = false;
+						return false;
+					}
+					
+					roundData.castingList.push({
+						person_id: $(this).find("input[name='person_id']").val(),
+						role: role
+					});
+				});
+				
+				if(!isRoleValid) {
+					isCastingDataValid = false;
+					return false;
+				}
+				
+				const genre = currentWork.genre.genre_name;
+				const isCastingRequired = (genre == "뮤지컬" || genre == "연극");
+				
+				if(isCastingRequired && roundData.castingList.length == 0){
+					alert((index + 1) + "번째 회차에 배우를 선택해주세요.");
+					isCastingDataValid = false;
+					return false;
+				}
+		    	
+				roundList.push(roundData);
+		    })
+		    
+		    if(!isCastingDataValid || roundList.length == 0) {
+		    	return;
+		    }
+		    
+		    let Data = {
+		    		work_id: work_id,
+		    		place_id: place_id,
+		    		round_date: round_date,
+		    		roundList: roundList
+		    };
+		    
+		    console.log(Data);
+		    
+		    
+		    
+		    // send로 보내는 건 동기 방식이므로 formData든 json이든 둘 중 하나를 써야 한다.
+ 			$.ajax({
+				url: "/admin/performance/round/regist",
+				method: "POST",
+				processData: "POST",
+				contentType: "application/json",
+				data: JSON.stringify(Data),
+				success:function(result, status, xhr){
+					alert(result.message);
+					getWork();
+				},
+				error:function(xhr, status, err){
+					let obj = JSON.parse(xhr.responseText);
+					alert(obj.message);
+				}
+			})
+		}
+		
+		function getWork(){
+			$.ajax({
+				url:"/admin/performance/work/list",
+				method:"GET",
+				
+				success:function(result, status, xhr){
+					// select2는 placeholder를 쓴다. title은 ""
+					printCategory("", "work.work_id", result);
+					
+					result.forEach(work=>{
+						workMap[work.work_id] = work;
+					});
+					
+				    // Select2 초기화
+				    $("select[name='work.work_id']").select2({
+				        theme: 'bootstrap4',
+				        placeholder: "작품 검색",
+				        allowClear: true,
+				        width: '100%'	// 이걸 넣지 않으면 크기가 유동적이지 않음
+				    });
+				    
+					//console.log(result);
+				},
+				error:function(xhr, status, err){
+					
+				}
+			});
+		}
+		
+		function getPlace(){
+			$.ajax({
+				url:"/admin/performance/place/list",
+				method:"GET",
+				
+				success:function(result, status, xhr){
+					// select2는 placeholder를 쓴다. title은 ""
+					printCategory("", "place.place_id", result);
+					
+				    // Select2 초기화
+				    $("select[name='place.place_id']").select2({
+				        theme: 'bootstrap4',
+				        placeholder: "장소 검색",
+				        allowClear: true,
+				        width: '100%'	// 이걸 넣지 않으면 크기가 유동적이지 않음
+				    });
+				    
+					//console.log(result);
+				},
+				error:function(xhr, status, err){
+					
+				}
+			});
+		}
+		
+		function getPerson(){
+			$.ajax({
+				url:"/admin/performance/person/list",
+				method:"GET",
+				
+				success:function(result, status, xhr){
+					personList = result;
+					
+					result.forEach(person =>{
+						personMap[person.person_id] = person;
+					});
+				    
+					//console.log(personList);
+				},
+				error:function(xhr, status, err){
+					
+				}
+			});
+		}
+		
+		function add() {
+		    roundIdx++; // 새로운 회차를 위한 번호 증가
+
+		    const genre = currentWork.genre.genre_name;
+		    const isCastingRequired = (genre == "뮤지컬" || genre == "연극");
+		    
+		    let personTag = "";
+		    
+		    if (isCastingRequired && personList) {
+		        for(person of personList){
+		        	personTag += "<option value='" + person.person_id + "'>"+ person.person_name + "</option>";
+		        }
+		    }
+		    
+		    // round_start_time 추가
+		    let row = `
+		    	<div class="round-group">
+		    	<hr>
+		        <div class="form-group row" id="round_` + roundIdx + `">
+		            <div class="col-md-5">
+		                <label>회차 시작 시간:</label>
+		                <div class="input-group date" id="round_start_time_` + roundIdx + `" data-target-input="nearest">
+		                    <input type="text" class="form-control datetimepicker-input" 
+		                           data-target="#round_start_time_` + roundIdx + `" name="round_start_time" />
+		                    <div class="input-group-append" data-target="#round_start_time_` + roundIdx + `" data-toggle="datetimepicker">
+		                        <div class="input-group-text"><i class="far fa-clock"></i></div>
+		                    </div>
+		                </div>
+		            </div>`;
+			
+			// 연극, 뮤지컬일 경우만 배우 선택기 추가
+            if(isCastingRequired){
+            	row += `
+				<div class="col-md-6">
+                    <label>출연 배우 선택 (다중):</label>
+                    <select class="form-control select2 select2-info casting_select" multiple="multiple">
+					`+personTag+`
+                    </select>
+                </div>
+                `;
+            }else{
+            	row += `<div class="col-md-6"></div>`;
+            }
+		            
+            row += `
+            	<div class="col-md-1">
+                	<button type="button" class="btn btn-outline-danger remove" style="margin-top: 32px;">X</button>
+            	</div>
+        	</div>`;
+        	
+        	if(isCastingRequired){
+        		row += `
+        			<div class="person_container" id="person_container_`+ roundIdx +`"></div>
+        		`;
+        	}
+        	
+        	// round-group 닫기
+        	row +=`</div>`;
+
+		    $(".round_container").append(row);
+		    
+		    $("#round_start_time_" + roundIdx).datetimepicker({
+		        icons: { time: 'far fa-clock' },
+		        format: 'HH:mm',
+		        locale: 'ko',
+		        ignoreReadonly: true
+		    });
+		    
+		    if(isCastingRequired) {
+		    	let castingSelect = $("#round_" + roundIdx + " .casting_select");
+		    	let personContainer = $("#person_container_" + roundIdx);
+		    	
+		    	castingSelect.select2({
+			        theme: 'bootstrap4',
+			        placeholder: "배우 검색",
+			        allowClear: true,
+			        width: '100%'	// 이걸 넣지 않으면 크기가 유동적이지 않음
+			    });
+		    	
+		    	castingSelect.on("select2:select select2:unselect", function() {
+		    		//select2('data') 에서 id가 option의 value이며 text가 option의 text가 된다. 
+		    		let selectedData = $(this).select2('data');
+		    		
+		    		//console.log(selectedData);
+		    		personContainer.empty();		// 일단 비우기
+		    		
+		    		selectedData.forEach(function(person) {
+		    			// id가 없으면 출력할 필요가 없다.
+		    			if(!person.id || !personMap[person.id]){
+		    				return;
+		    			}
+		    			
+		    			let src = "/photo/person/p"+ person.id + "/" + personMap[person.id].profile_url
+						
+						// person.id는 role과 세트로 보내져야 한다.
+		    			let castingRow = `
+		    				<div class="form-group row align-items-center">
+		    					<div class="col-sm-2 text-center">
+			                    	<img src="` + src + `" class="img-circle" style="width: 45px; height: 45px; object-fit: cover;">
+			                    </div>
+								<div class="col-sm-3">
+									<span class="font-weight-bold">` + person.text + `</span>
+									<input type="hidden" name="person_id" value="` + person.id + `">
+								</div>
+			                    <div class="col-sm-7">
+									<input type="text" name="role" class="form-control" placeholder="배역 입력">
+								</div>
+		                	</div>
+		    			`;
+		    			
+		    			personContainer.append(castingRow);
+		    		})
+		    	});
+		    }
+		}
+
+		$(()=>{
+
+			getWork();
+			getPlace();
+			getPerson();
+			
+			$("#append").click(()=>{
+				add();
+			})
+
+			$(".card-body").on("click", ".remove", function(){
+				$(this).closest(".round-group").remove();
+			})
+			
+			
+			$("#regist").click(()=>{
+				registForm();
+			});
+			
+			// 화살표 함수는 자신의 this를 갖지 않고 상위 스코프의 this를 그대로 물러 받는다.
+			// 반면에 일반 함수에서의 this는 함수를 호출한 주체다.
+			$("select[name='work.work_id']").change(function(e) {
+
+				const selectedId = $(this).val();
+
+			    // [버그 수정] 선택이 해제(X 버튼 클릭)되었을 때 처리
+			    if (!selectedId) {
+			        currentWork = null;
+			        $("#round_date").val(""); // 날짜 입력창 초기화
+			        $(".round_container").empty(); // 하단 회차 초기화
+			        return; 
+			    }
+				/*
+				for(let work of workList){
+			    	if(work.work_id == $(this).val()){
+			    		currentWork = work;
+			    		break;
+			    	}
+			    }
+			    */
+			    currentWork = workMap[$(this).val()];
+			    //console.log(currentWork);
+			    
+			    $("#round_date").datetimepicker('minDate', currentWork.work_start_date);
+			    $("#round_date").datetimepicker('maxDate', currentWork.work_end_date);
+			    
+			   	// 다른 작품 선택 시 회차는 제거.
+			    $(".round_container").empty();
+			    roundIdx = 0;
+			});
+			
+			
+			// 한국어 로케일 설정 (moment.js가 로드되어 있어야 함)
+		    moment.locale('ko');
+			
+			$("#round_date").datetimepicker({
+				format: 'YYYY-MM-DD',
+				locale: 'ko',
+				dayViewHeaderFormat: 'YYYY년 MMMM'
+			})
+			
+
+		})
+	})();
+	</script>
+	<div class="container-fluid mt-5">
+		<div class="row justify-content-center">
+			<div class="col-md-8">
+	            <div class="card card-info">
+	              <div class="card-header">
+	                <h3 class="card-title">동일 날짜 회차 다중 등록</h3>
+	              </div>
+					<form id="form">
+						<div class="card-body">
+							<div class="form-group row">
+								<div class="col-md-6">
+									<select class="form-control select2 select2-info" name="work.work_id"></select>
+							    </div>
+								<div class="col-md-6">
+									<select class="form-control select2 select2-info" name="place.place_id"></select>
+							    </div>	
+							</div>
+							<div class="form-group">
+								<label>공연 날짜:</label>
+								<div class="input-group date" id="round_date" data-target-input="nearest">
+									<input type="text" class="form-control datetimepicker-input" data-target="#round_date" name=round_date>
+									<div class="input-group-append" data-target="#round_date" data-toggle="datetimepicker">
+										<div class="input-group-text"><i class="fa fa-calendar"></i></div>
+									</div>
+								</div>
+							</div>
+							<div class="round_container"></div> 
+						</div>
+						<div class="card-footer text-center">
+							<button type="button" id="append" class="btn btn-outline-info">시작시간 추가하기</button>
+							<button type="button" id="regist" class="btn btn-success">등록</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

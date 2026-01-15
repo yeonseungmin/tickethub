@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="RoundSeat">
+
+    <resultMap id="roundSeatMap" 				type="RoundSeat">
+        <id property="round_seat_id" 			column="round_seat_id"/>
+        <result property="round_id" 				column="round_id"/>
+        <result property="seat_id" 				column="seat_id"/>
+        <result property="status" 					column="status"/>
+        <result property="reservation_id" 		column="reservation_id"/>
+        <result property="preempted_at" 		column="preempted_at"/>
+        <result property="reserved_at" 			column="reserved_at"/>
+        <result property="canceled_at"		 	column="canceled_at"/>
+    </resultMap>
+
+    <select id="countByRoundAndGroup" resultType="int">
+        select count(*) from round_seat rs
+        join seat s on rs.seat_id = s.seat_id
+        where rs.round_id = #{round_id} and s.seat_group_id = #{seat_group_id}
+    </select>
+
+    <insert id="insert" parameterType="RoundSeat" useGeneratedKeys="true" keyProperty="round_seat_id">
+        insert into round_seat (round_id, seat_id, status)
+        values (#{round_id}, #{seat_id}, #{status})
+    </insert>
+
+    <select id="selectSeatDetailByRound" parameterType="int" resultType="SeatDetail">
+        SELECT 
+            rs.round_seat_id, s.seat_id, s.seat_grade_id, s.seat_x, s.seat_y, s.seat_name, s.floor,
+            sg.seat_group_id, sg.group_name, sg.pos_x, sg.pos_y, sg.angle, sg.row_gap, sg.col_gap, sg.direction,
+            sgr.grade_name, sgr.on_img_url, sgr.sold_img_url, rs.round_id, rs.status, rs.reservation_id
+        FROM round_seat rs
+        JOIN seat s ON rs.seat_id = s.seat_id
+        JOIN seat_group sg ON s.seat_group_id = sg.seat_group_id
+        JOIN seat_grade sgr ON s.seat_grade_id = sgr.seat_grade_id 
+        JOIN round r ON rs.round_id = r.round_id
+        WHERE rs.round_id = #{round_id} AND r.round_date >= CURDATE()
+    </select>
+
+    <select id="getSelectedSeatsInfo" parameterType="list" resultType="SeatDetail">
+        SELECT 
+            rs.round_seat_id, s.seat_id, s.seat_grade_id, s.seat_x, s.seat_y, s.seat_name, s.floor,
+            sg.seat_group_id, sg.group_name, sg.pos_x, sg.pos_y, sg.angle, sg.row_gap, sg.col_gap, sg.direction,
+            sgr.grade_name, sgr.on_img_url, sgr.sold_img_url, rs.round_id, rs.status, rs.reservation_id,
+            sgr.surcharge,
+            w.work_price,
+            (w.work_price + sgr.surcharge) as price
+        FROM round_seat rs
+        JOIN seat s ON rs.seat_id = s.seat_id
+        JOIN seat_group sg ON s.seat_group_id = sg.seat_group_id
+        JOIN seat_grade sgr ON s.seat_grade_id = sgr.seat_grade_id 
+        JOIN round r ON rs.round_id = r.round_id
+        JOIN work w ON r.work_id = w.work_id
+        WHERE rs.round_seat_id IN 
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <update id="updateStatus" parameterType="RoundSeat">
+        UPDATE round_seat SET status = #{status}
+        <if test="status == 'AVAILABLE'">, reservation_id = NULL, preempted_at = NULL, reserved_at = NULL, canceled_at = NULL</if>
+        <if test="status == 'PREEMPTED'">, preempted_at = NOW()</if>
+        <if test="status == 'RESERVED'">, reserved_at = NOW()</if>
+        <if test="status == 'CANCELED'">, canceled_at = NOW()</if>
+        WHERE round_id = #{round_id} AND seat_id = #{seat_id}
+    </update>
+
+    <insert id="insertBulkByGroup" parameterType="int">
+        INSERT INTO round_seat (round_id, seat_id, status)
+        SELECT r.round_id, s.seat_id, 'AVAILABLE'
+        FROM seat s JOIN seat_group sg ON s.seat_group_id = sg.seat_group_id
+        JOIN round r ON sg.place_id = r.place_id
+        WHERE s.seat_group_id = #{seat_group_id}
+        AND NOT EXISTS (SELECT 1 FROM round_seat rs WHERE rs.round_id = r.round_id AND rs.seat_id = s.seat_id)
+    </insert>
+
+    <delete id="deleteBySeatId" parameterType="int">
+        DELETE FROM round_seat WHERE seat_id = #{seat_id}
+    </delete>
+</mapper>

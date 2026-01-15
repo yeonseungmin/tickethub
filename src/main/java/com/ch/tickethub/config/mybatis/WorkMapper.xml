@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Work">
+	<insert id="insert" parameterType="Work">
+		insert into work(work_title, director, work_poster_url, work_content_url, age_limit, work_price
+		, running_time, ticket_start_date, work_start_date, work_end_date, work_type
+		, genre_id, publisher_id)
+		values(#{work_title}, #{director}, #{work_poster_url}, #{work_content_url}, #{age_limit}, #{work_price}
+		, #{running_time}, #{ticket_start_date}, #{work_start_date}, #{work_end_date}, #{work_type}
+		, #{genre.genre_id}, #{publisher.publisher_id})
+		
+		<selectKey keyColumn="work_id" resultType="int" order="AFTER" keyProperty="work_id">
+			select last_insert_id() as work_id
+		</selectKey>
+	</insert>
+	
+	<resultMap id="workMap" type="Work">
+		<id column="work_id"				property="work_id"/>
+		<result column="work_title"			property="work_title"/>
+		<result column="director"			property="director"/>
+		<result column="work_poster_url"	property="work_poster_url"/>
+		<result column="work_content_url"	property="work_content_url"/>
+		<result column="work_like_count"	property="work_like_count"/>
+		<result column="age_limit"			property="age_limit"/>
+		<result column="work_price"			property="work_price"/>	
+		<result column="running_time"		property="running_time"/>	
+		<result column="ticket_start_date"	property="ticket_start_date"/>	
+		<result column="work_start_date"	property="work_start_date"/>
+		<result column="work_end_date"		property="work_end_date"/>
+		<result column="work_type"			property="work_type"/>
+		
+	 	<association column="genre_id" property="genre"  javaType="Genre"
+	 	select = "Genre.select"/>
+
+	 	<association column="publisher_id" property="publisher"  javaType="Publisher"
+	 	select = "Publisher.select"/>
+	 	
+	 	<collection column="work_id"
+	 		select="Round.selectByWorkId"
+	 		property="roundList"
+	 		javaType="java.util.List"
+	 		ofType="Round"
+	 	/>
+	</resultMap>
+	
+	<!-- 공통 쿼리를 정의 -->
+	<sql id="sql_select">
+		select work_id, work_title, director, work_poster_url, work_content_url, work_like_count, age_limit, work_price
+		, running_time
+		, DATE_FORMAT(ticket_start_date, '%Y-%m-%d %H:%i') as ticket_start_date
+		, DATE_FORMAT(work_start_date, '%Y-%m-%d') as work_start_date
+		, DATE_FORMAT(work_end_date, '%Y-%m-%d') as work_end_date
+		, work_type
+		, genre_id, publisher_id
+		from work
+	</sql>
+	
+	<select id="selectAll" resultMap="workMap">
+		<include refid="sql_select"/>
+		order by work_id desc
+	</select>
+	
+	<select id="select" parameterType="int" resultMap="workMap">
+		<include refid="sql_select"/>
+		where work_id=#{work_id}
+	</select>
+
+
+
+
+	<select id="selectListByPlace" parameterType="int" resultType="Work">
+	    SELECT DISTINCT 
+	        w.work_id, 
+	        w.work_title, 
+	        w.director, 
+	        w.work_poster_url, 
+	        w.work_content_url, 
+	        w.work_like_count, 
+	        w.age_limit, 
+	        w.work_price, 
+	        w.running_time, 
+	        w.ticket_start_date, 
+	        w.work_start_date, 
+	        w.work_end_date, 
+	        w.work_type, 
+	        w.genre_id, 
+	        w.publisher_id
+	    FROM work w
+	    INNER JOIN round r ON w.work_id = r.work_id
+	    WHERE r.place_id = #{place_id}
+	</select>
+
+	<!-- 장르별 Work 조회 (장르 페이지용) -->
+	<select id="selectByGenreId" parameterType="int" resultMap="workMap">
+		<include refid="sql_select"/>
+		where genre_id = #{genre_id}
+		order by work_id desc
+	</select>
+
+</mapper>

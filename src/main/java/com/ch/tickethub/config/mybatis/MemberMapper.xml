@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Member">
+	<select id="selectByLoginId" parameterType="String"
+		resultType="Member">
+		SELECT
+		member_id AS memberId,
+		login_id AS loginId,
+		password_hash AS passwordHash,
+		name,
+		email,
+		birth_date AS birthDate,
+		phone,
+		zip_code AS zipCode,
+		address,
+		status,
+		role,
+		grade_id AS gradeId,
+		created_at AS
+		createdAt,
+		updated_at AS updatedAt,
+		last_login_at AS
+		lastLoginAt,
+		oauth_provider AS oauthProvider,
+		oauth_id AS oauthId
+		from
+		member
+		where
+		login_id = #{value}
+	</select>
+
+	<select id="selectByOauth" parameterType="map"
+		resultType="Member">
+		SELECT
+		member_id AS memberId,
+		login_id AS loginId,
+		password_hash AS passwordHash,
+		name,
+		email,
+		birth_date AS birthDate,
+		phone,
+		zip_code AS zipCode,
+		address,
+		status,
+		role,
+		grade_id AS gradeId,
+		created_at AS
+		createdAt,
+		updated_at AS updatedAt,
+		last_login_at AS
+		lastLoginAt,
+		oauth_provider AS oauthProvider,
+		oauth_id AS oauthId
+		from
+		member
+		where oauth_provider = #{oauthProvider} AND oauth_id =
+		#{oauthId}
+	</select>
+
+
+
+	<insert id="insert" parameterType="Member">
+		INSERT INTO member (
+		login_id,
+		password_hash,
+		name,
+		email,
+		birth_date,
+		phone,
+		zip_code,
+		address,
+		status,
+		role,
+		grade_id,
+		oauth_provider,
+		oauth_id,
+		created_at,
+		updated_at
+		)
+		VALUES (
+		#{loginId},
+		#{passwordHash},
+		#{name},
+		#{email},
+		#{birthDate},
+		#{phone},
+		#{zipCode},
+		#{address},
+		#{status},
+		#{role},
+		#{gradeId},
+		#{oauthProvider},
+		#{oauthId},
+		NOW(),
+		NOW()
+		)
+	</insert>
+
+	<update id="updateLastLoginAt" parameterType="int">
+		update member set
+		last_login_at = now()
+		where member_id = #{value}
+	</update>
+
+	<select id="adminSearchMembers" parameterType="map"
+		resultType="Member">
+		SELECT ...
+		FROM member m
+		WHERE 1=1
+		<if test="status != null and status != ''">
+			AND m.status = #{status}
+		</if>
+
+		<bind name="kw" value="keyword == null ? null : keyword.trim()" />
+		<if test="kw != null and kw != ''">
+			AND (
+			m.login_id LIKE CONCAT('%', #{kw}, '%')
+			OR m.name LIKE
+			CONCAT('%', #{kw}, '%')
+			OR m.phone LIKE CONCAT('%', #{kw}, '%')
+			)
+		</if>
+
+		ORDER BY m.created_at DESC
+	</select>
+
+	<!-- 4) 관리자: 회원 상세조회 (+ 등급명 표시용 JOIN) -->
+	<select id="adminSelectMemberDetail" parameterType="int"
+		resultType="Member">
+		SELECT
+		m.member_id as memberId,
+		m.login_id as loginId,
+		m.name,
+		m.email,
+		m.birth_date as birthDate,
+		m.phone,
+		m.zip_code as
+		zipCode,
+		m.address,
+		m.status,
+		m.role,
+		m.created_at as createdAt,
+		m.updated_at as updatedAt,
+		m.last_login_at as lastLoginAt,
+		m.oauth_provider as oauthProvider,
+		m.oauth_id as oauthId,
+		g.grade_id as
+		gradeId,
+		g.grade_name AS gradeName
+		FROM member m
+		LEFT JOIN grade g ON
+		m.grade_id =
+		g.grade_id
+		WHERE m.member_id = #{value}
+	</select>
+
+	<!-- 5) 관리자: 회원 상태 변경 (NORMAL/BLOCKED) -->
+	<!-- parameterType Map: {memberId, status} -->
+	<update id="adminUpdateMemberStatus" parameterType="map">
+		UPDATE member
+		SET status = #{status}
+		WHERE member_id = #{memberId}
+	</update>
+
+	<!-- 6) 관리자: 회원 등급 변경 -->
+	<!-- parameterType Map: {memberId, gradeId} -->
+	<update id="adminUpdateMemberGrade" parameterType="map">
+		UPDATE member
+		SET grade_id = #{gradeId}
+		WHERE member_id = #{memberId}
+	</update>
+
+	<!-- 회원: 리뷰 조회 -->
+	<select id="selectForReview" parameterType="int"
+		resultType="Member">
+		SELECT
+		member_id as memberId,
+		CONCAT(LEFT(login_id, 3),
+		'*******') as loginId,
+		name,
+		status
+		FROM member
+		where member_id =
+		#{memberId} and status = 'NORMAL'
+	</select>
+
+	<select id="existsLoginId" parameterType="String"
+		resultType="int">
+		select count(*)
+		from member
+		where login_id=#{value}
+	</select>
+
+	<select id="existsEmail" resultType="int">
+		SELECT COUNT(*)
+		FROM member
+		WHERE email = #{value}
+	</select>
+
+	<select id="selectById" parameterType="int" resultType="Member">
+		SELECT
+		member_id AS memberId,
+		login_id AS loginId,
+		password_hash AS
+		passwordHash,
+		name,
+		email,
+		birth_date AS birthDate,
+		phone,
+		zip_code AS
+		zipCode,
+		address,
+		status,
+		role,
+		grade_id AS gradeId,
+		created_at AS
+		createdAt,
+		updated_at AS updatedAt,
+		last_login_at AS lastLoginAt,
+		oauth_provider AS oauthProvider,
+		oauth_id AS oauthId
+		FROM member
+		WHERE
+		member_id = #{value}
+	</select>
+
+	<!-- 위에 거랑 다르게 간단 검색용.. -->
+	<select id="selectForProfileForm" parameterType="int"
+		resultType="Member">
+		SELECT
+		member_id AS memberId,
+		login_id AS loginId,
+		name,
+		email,
+		birth_date AS birthDate,
+		phone,
+		zip_code AS zipCode,
+		address,
+		profile_completed AS profileCompleted,
+		oauth_provider AS oauthProvider,
+		oauth_id AS oauthId
+		FROM member
+		WHERE member_id = #{value}
+	</select>
+
+	<select id="selectPasswordHashById" parameterType="int"
+		resultType="String">
+		SELECT password_hash
+		FROM member
+		WHERE member_id = #{value}
+	</select>
+
+	<select id="existsEmailExcludeSelf" parameterType="map"
+		resultType="int">
+		SELECT COUNT(*)
+		FROM member
+		WHERE email = #{email}
+		AND
+		member_id != #{memberId}
+	</select>
+
+	<update id="updateMyInfo" parameterType="Member">
+		UPDATE member
+		SET
+		email =
+		#{email},
+		birth_date = #{birthDate},
+		phone = #{phone},
+		zip_code =
+		#{zipCode},
+		address = #{address},
+		updated_at = NOW()
+		WHERE member_id =
+		#{memberId}
+	</update>
+
+	<update id="updatePassword" parameterType="map">
+		UPDATE member
+		SET
+		password_hash = #{passwordHash},
+		updated_at = NOW()
+		WHERE member_id =
+		#{memberId}
+	</update>
+
+	<!-- 관리자: 회원 목록(검색+필터+페이징+등급명) -->
+	<select id="adminSelectMemberList" parameterType="map"
+		resultType="Member">
+		SELECT
+		m.member_id AS memberId,
+		m.login_id AS loginId,
+		m.name AS name,
+		m.email AS email,
+		m.phone AS phone,
+		m.status AS status,
+		m.role AS role,
+		m.grade_id AS gradeId,
+		g.grade_name AS gradeName,
+		m.last_login_at AS
+		lastLoginAt,
+		m.created_at AS createdAt
+		FROM member m
+		LEFT JOIN grade g ON
+		m.grade_id = g.grade_id
+		<where>
+			<if test="status != null and status != ''">
+				AND m.status = #{status}
+			</if>
+
+			<if test="gradeId != null and gradeId != ''">
+				AND m.grade_id = #{gradeId}
+			</if>
+
+			<bind name="kw" value="keyword == null ? null : keyword.trim()" />
+
+			<if test="kw != null and kw != ''">
+				AND (
+				m.login_id LIKE CONCAT('%', #{kw}, '%')
+				OR m.name
+				LIKE CONCAT('%', #{kw}, '%')
+				OR m.email LIKE CONCAT('%', #{kw}, '%')
+				OR m.phone LIKE CONCAT('%', #{kw}, '%')
+				)
+			</if>
+		</where>
+		ORDER BY m.member_id DESC
+		LIMIT #{limit} OFFSET #{offset}
+	</select>
+
+	<!-- 관리자: 회원 목록 총 개수(페이징용) -->
+	<select id="adminSelectMemberListCount" parameterType="map"
+		resultType="int">
+		SELECT COUNT(*)
+		FROM member m
+		<where>
+			<if test="status != null and status != ''">
+				AND m.status = #{status}
+			</if>
+
+			<if test="gradeId != null and gradeId != ''">
+				AND m.grade_id = #{gradeId}
+			</if>
+
+			<bind name="kw" value="keyword == null ? null : keyword.trim()" />
+			<if test="kw != null and kw != ''">
+				AND (
+				m.login_id LIKE CONCAT('%', #{kw}, '%')
+				OR m.name
+				LIKE CONCAT('%', #{kw}, '%')
+				OR m.email LIKE CONCAT('%', #{kw}, '%')
+				OR m.phone LIKE CONCAT('%', #{kw}, '%')
+				)
+			</if>
+		</where>
+	</select>
+
+	<insert id="insertMinimalMember" parameterType="Member">
+		INSERT INTO
+		member (
+		login_id, password_hash, name, email,
+		status, role, grade_id,
+		oauth_provider, oauth_id,
+		profile_completed,
+		created_at, updated_at
+		)
+		VALUES (
+		#{loginId},
+		#{passwordHash},
+		#{name},
+		NULLIF(TRIM(#{email}), ''),
+		'NORMAL',
+		'USER',
+		#{gradeId},
+		#{oauthProvider},
+		#{oauthId},
+		'N',
+		NOW(),
+		NOW()
+		)
+	</insert>
+
+	<update id="completeProfile" parameterType="Member">
+		UPDATE member
+		SET
+		phone = #{phone},
+		birth_date = #{birthDate},
+		zip_code = #{zipCode},
+		address = #{address},
+		profile_completed = 'Y',
+		updated_at = NOW()
+		WHERE
+		member_id = #{memberId}
+		AND NULLIF(TRIM(#{phone}), '') IS NOT NULL
+		AND
+		NULLIF(TRIM(#{address}), '') IS NOT NULL
+		AND #{zipCode} IS NOT NULL
+	</update>
+
+	<select id="selectProfileCompleted" parameterType="int"
+		resultType="String">
+		SELECT profile_completed
+		FROM member
+		WHERE member_id =
+		#{value}
+	</select>
+
+	<select id="selectMemberIdByPhone" parameterType="string"
+		resultType="Integer">
+		SELECT member_id
+		FROM member
+		WHERE phone = #{value}
+		LIMIT 1
+	</select>
+
+	<insert id="insertFullMember" parameterType="Member"
+		useGeneratedKeys="true" keyProperty="memberId">
+		INSERT INTO member
+		(login_id, password_hash, name, email, phone, zip_code, address,
+		status, role, grade_id, oauth_provider, oauth_id, profile_completed,
+		created_at, updated_at)
+		VALUES
+		(#{loginId}, #{passwordHash}, #{name},
+		NULLIF(TRIM(#{email}), ''),
+		#{phone}, #{zipCode}, #{address},
+		#{status}, #{role}, #{gradeId},
+		NULL, NULL, #{profileCompleted}, NOW(), NOW())
+	</insert>
+
+	<select id="selectMemberIdByLoginId" parameterType="string"
+		resultType="Integer">
+		SELECT member_id
+		FROM member
+		WHERE login_id = #{value}
+		LIMIT 1
+	</select>
+</mapper>

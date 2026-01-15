@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="GenreRanking">
+
+	<!-- 등록 -->
+	<insert id="insert" parameterType="GenreRanking">
+		insert into genreranking(work_id, display_order)
+		values (#{work_id}, #{display_order})
+		
+		<selectKey keyColumn="genreranking_id" resultType="int" order="AFTER" keyProperty="genreranking_id">
+			select last_insert_id() as genreranking_id
+		</selectKey>
+	</insert>
+	
+	<resultMap type="GenreRanking" id="GenreRankingMap">
+		<id property="genreranking_id" column="genreranking_id"/>
+		<result property="work_id" column="work_id" />
+		<result property="display_order" column="display_order" />
+		
+		<association column="work_id" property="work" javaType="Work" select="Work.select"></association>
+	</resultMap>
+	
+	<!-- 공통 sql -->
+	<sql id="sql_select">
+		select genreranking_id, work_id, display_order from genreranking
+	</sql>
+	
+	<!-- 전체 조회 -->
+	<select id="selectAll" resultMap="GenreRankingMap">
+		<include refid="sql_select"></include>
+		order by display_order asc, genreranking_id desc
+	</select>
+	
+	<!-- 삭제 -->
+	<delete id="delete">
+		delete from genreranking where genreranking_id = #{genreranking_id}
+	</delete>
+	
+	<!-- 순서 업데이트 -->
+	<update id="updateOrder" parameterType="GenreRanking">
+		update genreranking set display_order = #{display_order} where genreranking_id = #{genreranking_id}
+	</update>
+
+</mapper>

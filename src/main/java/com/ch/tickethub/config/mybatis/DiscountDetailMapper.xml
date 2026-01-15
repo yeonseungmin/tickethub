@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DiscountDetail">
+
+    <insert id="insert" parameterType="com.ch.tickethub.dto.DiscountDetail" useGeneratedKeys="true" keyProperty="discount_detail_id">
+        INSERT INTO discount_detail (reservation_id, discount_type, discount_amount)
+        VALUES (#{reservation_id}, #{discount_type}, #{discount_amount})
+    </insert>
+
+    <select id="selectByReservation" parameterType="int" resultType="com.ch.tickethub.dto.DiscountDetail">
+        SELECT * FROM discount_detail 
+        WHERE reservation_id = #{reservation_id}
+    </select>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM discount_detail 
+        WHERE discount_detail_id = #{discount_detail_id}
+    </delete>
+
+</mapper>

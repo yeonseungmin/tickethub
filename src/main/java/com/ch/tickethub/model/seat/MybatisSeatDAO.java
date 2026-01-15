@@ -1,0 +1,90 @@
+package com.ch.tickethub.model.seat;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.session.SqlSession;
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import com.ch.tickethub.dto.Seat;
+import com.ch.tickethub.exception.SeatException;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Repository
+public class MybatisSeatDAO implements SeatDAO {
+
+	@Autowired
+    private SqlSession sqlSession;
+    
+    @Autowired
+    private SqlSessionTemplate sqlSessionTemplate;
+
+    private static final String NAMESPACE = "Seat";
+    
+    
+    @Override
+    public void insert(Seat seat) {
+    	try {
+			sqlSessionTemplate.insert("Seat.insert", seat);
+			log.debug("Seat.insert 가 맞는지 확인");
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SeatException("좌석 등록 실패",e);
+		}
+    }
+
+    @Override
+    public Seat select(int seat_id) {
+        return sqlSessionTemplate.selectOne("Seat.select", seat_id);
+    }
+
+    
+    @Override
+    public void updateSeatState(int seat_id, String seat_state) {
+        Seat seat = new Seat();
+        seat.setSeat_id(seat_id);
+        seat.setSeat_state(seat_state);
+        try {
+			sqlSessionTemplate.update("Seat.updateSeatState", seat);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SeatException("좌석 업데이트 실패",e);
+		}
+    }
+
+    @Override
+    public void delete(int seat_id) {
+    	try {
+			sqlSessionTemplate.delete("Seat.delete", seat_id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SeatException("좌석삭제 실패 " ,e);
+		}
+    }
+
+    @Override
+    public List<Seat> selectByGroup(int seat_group_id) {
+        return sqlSessionTemplate.selectList("Seat.selectByGroup", seat_group_id);
+    }
+    
+    @Override
+    public void updateSeatGrade(int seat_id, int seat_grade_id) {
+        Seat seat = new Seat();
+        seat.setSeat_id(seat_id);
+        seat.setSeat_grade_id(seat_grade_id);
+        try {
+            // update 메서드는 영향받은 행의 수를 반환합니다 (0이면 실패, 1이면 성공)
+            int updatedRows = sqlSessionTemplate.update("Seat.updateSeatGrade", seat);
+        } catch (Exception e) {
+            throw new SeatException("좌석 등급 변경 실패", e);
+        }
+    }
+
+
+
+}

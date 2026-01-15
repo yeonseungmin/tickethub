@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="OpeningWork">
+
+	<!-- 등록 -->
+	<insert id="insert" parameterType="OpeningWork">
+		insert into openingwork(work_id, display_order)
+		values (#{work_id}, #{display_order})
+		
+		<selectKey keyColumn="openingwork_id" resultType="int" order="AFTER" keyProperty="openingwork_id">
+			select last_insert_id() as openingwork_id
+		</selectKey>
+	</insert>
+	
+	<resultMap type="OpeningWork" id="OpeningWorkMap">
+		<id property="openingwork_id" column="openingwork_id"/>
+		<result property="work_id" column="work_id" />
+		<result property="display_order" column="display_order" />
+		
+		<association column="work_id" property="work" javaType="Work" select="Work.select"></association>
+	</resultMap>
+	
+	<!-- 공통 sql -->
+	<sql id="sql_select">
+		select openingwork_id, work_id, display_order from openingwork
+	</sql>
+	
+	<!-- 전체 조회 -->
+	<select id="selectAll" resultMap="OpeningWorkMap">
+		<include refid="sql_select"></include>
+		order by display_order asc, openingwork_id desc
+	</select>
+	
+	<!-- 삭제 -->
+	<delete id="delete">
+		delete from openingwork where openingwork_id = #{openingwork_id}
+	</delete>
+	
+	<!-- 순서 업데이트 -->
+	<update id="updateOrder" parameterType="OpeningWork">
+		update openingwork set display_order = #{display_order} where openingwork_id = #{openingwork_id}
+	</update>
+
+</mapper>
