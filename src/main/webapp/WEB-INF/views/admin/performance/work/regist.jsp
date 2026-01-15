@@ -230,7 +230,7 @@
 		$(()=>{
 			$(".card-body").on("click", ".preview-thumb", function() {
 		        const src = $(this).attr("src");
-		        displayImageModal("card-body", src);
+		        displayImageModal("wrapper", src);
 		    });
 			
 			
