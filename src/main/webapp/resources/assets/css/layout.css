@@ -99,12 +99,15 @@
 .user-actions__link:hover{ color: var(--purple); background: rgba(124,58,237,.06); }
 .user-actions__icon{ display:inline-flex; color: #111827; opacity: .85; }
 
-.nav{ background:#fff; }
-.nav__list{
-  display:flex;
-  justify-content:center;
-  gap: 44px;
-  padding: 5px 8px;
+.nav__site{ background:#fff; }
+/* layout.css 내의 nav__list 수정 */
+.nav__list {
+    display: flex;
+    justify-content: center;
+    gap: 44px;
+    padding: 0;          /* 불릿이 사라지면서 생기는 왼쪽 여백 제거 */
+    margin: 0;           /* 기본 마진 제거 */
+    list-style: none;    /* [핵심] 앞에 생기는 점(불릿) 제거 */
 }
 .nav__item{ position:relative; }
 .nav__link{
@@ -192,4 +195,63 @@
 @media (max-width: 640px){
   .nav__list{ gap: 28px; }
   .footer-bottom{ flex-direction:column; align-items:flex-start; }
+}
+
+
+/* 자동완성 드롭다운 전체 박스 */
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;       /* 검색창 바로 아래 붙임 */
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #e5e7eb;
+    border-top: none;
+    border-radius: 0 0 12px 12px; /* 하단만 둥글게 */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 400px; /* 너무 길어지면 스크롤 생성 */
+    overflow-y: auto;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: none;    /* 기본적으론 숨김 */
+}
+
+/* 각 검색 결과 항목 (li) */
+.autocomplete-dropdown li {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.autocomplete-dropdown li:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-dropdown li:hover {
+    background-color: #f9fafb;
+}
+
+/* [핵심] 이미지 크기 고정 */
+.autocomplete-dropdown li img {
+    width: 40px;      /* 썸네일 가로 크기 */
+    height: 55px;     /* 썸네일 세로 크기 */
+    object-fit: cover; /* 이미지가 찌그러지지 않게 비율 유지 */
+    border-radius: 4px;
+    margin-right: 12px;
+    flex-shrink: 0;   /* 이미지가 좁아지지 않게 고정 */
+}
+
+/* 제목 텍스트 스타일 */
+.ac-title {
+    font-size: 14px;
+    color: #1f2937;
+    font-weight: 500;
+    white-space: nowrap;    /* 제목이 길어도 한 줄로 */
+    overflow: hidden;
+    text-overflow: ellipsis; /* 너무 길면 ... 처리 */
 }

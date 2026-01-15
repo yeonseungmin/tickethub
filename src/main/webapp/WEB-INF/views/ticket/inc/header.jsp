@@ -53,7 +53,7 @@
         </div>
     </div>
 
-    <nav class="nav" aria-label="카테고리">
+    <nav class="nav__site" aria-label="카테고리">
         <div class="container">
             <ul class="nav__list" data-nav-tabs>
                 <li class='nav__item <%= "concert".equals(activeNav) ? "is-active" : "" %>'>
