@@ -5,6 +5,17 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
+
+<style>
+	/* 삭제 버튼 스타일 개선 및 정렬 */
+	.btn-outline-danger.remove {
+	    margin-top: 0 !important; /* JS의 32px 무시 */
+	    width: 100%;
+	    display: flex;
+	    align-items: center;
+	    justify-content: center;
+	}
+</style>
 </head>
 <body>
 	<script>
