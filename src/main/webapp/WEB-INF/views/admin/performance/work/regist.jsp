@@ -6,6 +6,103 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <link rel="stylesheet" href="static/assets/css/ImageModal.css">
+<style>
+    /* 1. 위젯 본체: 너비를 넉넉히 잡고 불필요한 기본 여백 제거 */
+    .bootstrap-datetimepicker-widget.dropdown-menu {
+        width: 320px !important;
+        padding: 0 !important;
+        margin-top: 5px !important;
+        border: 1px solid #dee2e6 !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+        background-color: #fff !important;
+        z-index: 10000 !important;
+    }
+
+    /* 2. 테이블 레이아웃: 강제 7등분 핵심 설정 */
+    .bootstrap-datetimepicker-widget table {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        table-layout: fixed !important; /* 모든 열의 너비를 동일하게 강제 고정 */
+        border-collapse: collapse !important;
+    }
+
+    /* 3. 모든 칸(th, td) 공통: 요일 상관없이 무조건 1/7 너비 고정 */
+    .bootstrap-datetimepicker-widget table th,
+    .bootstrap-datetimepicker-widget table td {
+        width: 14.285% !important;   /* 100% 나누기 7 = 완벽한 등간격 */
+        height: 40px !important;
+        line-height: 40px !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        padding: 0 !important;        /* 좁아지게 만드는 주범인 패딩 제거 */
+        margin: 0 !important;
+        border: none !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 4. 상단 바 (연도/월): 굵고 크게 강조 */
+    .bootstrap-datetimepicker-widget table thead tr:first-child th {
+        background-color: #f4f6f9 !important;
+        height: 50px !important;
+    }
+
+    .bootstrap-datetimepicker-widget .picker-switch {
+        font-size: 16px !important;
+        font-weight: 800 !important; /* 볼드하게 */
+        color: #222 !important;
+        width: auto !important;
+    }
+
+    /* 5. 화살표 버튼 및 비활성화(Disabled) 처리 */
+    .bootstrap-datetimepicker-widget .prev, 
+    .bootstrap-datetimepicker-widget .next {
+        background: transparent !important;
+        font-size: 16px !important;
+    }
+
+    /* 못 누르는 화살표 색상 연하게 */
+    .bootstrap-datetimepicker-widget .prev.disabled, 
+    .bootstrap-datetimepicker-widget .next.disabled {
+        color: #ddd !important;
+        opacity: 0.4 !important;
+        cursor: not-allowed !important;
+    }
+
+    /* 6. 요일 표시줄 (일~토) */
+    .bootstrap-datetimepicker-widget .dow {
+        color: #666 !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        height: 35px !important;
+        line-height: 35px !important;
+        background-color: #fff !important;
+        border-bottom: 1px solid #f4f4f4 !important;
+    }
+
+    /* 7. 날짜 숫자 및 선택 효과 (파란색 원형) */
+    .bootstrap-datetimepicker-widget td.day {
+        font-size: 14px !important;
+        position: relative !important;
+    }
+
+    .bootstrap-datetimepicker-widget td.active,
+    .bootstrap-datetimepicker-widget td.active:hover {
+        background-color: #007bff !important;
+        color: #fff !important;
+        width: 32px !important;      /* 칸 안에서 원의 크기 고정 */
+        height: 32px !important;
+        margin: 4px auto !important;  /* 칸 중앙에 배치 */
+    }
+
+    /* 8. 하단 시간 영역 정렬 */
+    .bootstrap-datetimepicker-widget .list-unstyled li:last-child {
+        padding: 10px 0 !important;
+        border-top: 1px solid #eee !important;
+        text-align: center !important;
+    }
+</style>
+
 </head>
 <body>
 	<script src="static/assets/js/ImageModal.js"></script>

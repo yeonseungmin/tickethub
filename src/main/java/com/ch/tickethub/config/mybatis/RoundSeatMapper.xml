@@ -33,7 +33,8 @@
         JOIN seat s ON rs.seat_id = s.seat_id
         JOIN seat_group sg ON s.seat_group_id = sg.seat_group_id
         JOIN seat_grade sgr ON s.seat_grade_id = sgr.seat_grade_id 
-        WHERE rs.round_id = #{round_id}
+        JOIN round r ON rs.round_id = r.round_id
+        WHERE rs.round_id = #{round_id} AND r.round_date >= CURDATE()
     </select>
 
     <select id="getSelectedSeatsInfo" parameterType="list" resultType="SeatDetail">
