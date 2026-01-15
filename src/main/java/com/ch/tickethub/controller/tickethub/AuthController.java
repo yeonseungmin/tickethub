@@ -363,43 +363,79 @@ public class AuthController {
                        @RequestParam("email") String email,
                        @RequestParam(value = "returnUrl", required = false) String returnUrl,
                        HttpSession session,
-                       HttpServletRequest httpRequest,
                        Model model) {
 
         loginId = (loginId != null) ? loginId.trim() : null;
-        name = (name != null) ? name.trim() : null;
-        email = (email != null) ? email.trim() : null;
+        name    = (name != null) ? name.trim() : null;
+        email   = (email != null) ? email.trim() : null;
 
         if (returnUrl != null && !returnUrl.trim().isEmpty()) {
             session.setAttribute("profileReturnUrl", sanitizeReturnUrl(returnUrl));
         }
 
-        // --- 기존 검증 그대로 유지 ---
-        // (loginId/password/passwordConfirm/name/email 필수 + 정규식)
-        // phone 검증/필수는 삭제된 상태로 유지
+        // 1) 필수값 검증
+        if (loginId == null || loginId.isEmpty()) {
+            model.addAttribute("error", "아이디는 필수입니다.");
+            return "tickethub/auth/join";
+        }
+        if (password == null || password.trim().isEmpty()) {
+            model.addAttribute("error", "비밀번호는 필수입니다.");
+            return "tickethub/auth/join";
+        }
+        if (passwordConfirm == null || passwordConfirm.trim().isEmpty()) {
+            model.addAttribute("error", "비밀번호 확인은 필수입니다.");
+            return "tickethub/auth/join";
+        }
+        if (name == null || name.isEmpty()) {
+            model.addAttribute("error", "이름은 필수입니다.");
+            return "tickethub/auth/join";
+        }
+        if (email == null || email.isEmpty()) {
+            model.addAttribute("error", "이메일은 필수입니다.");
+            return "tickethub/auth/join";
+        }
 
-        // 선중복 체크는 join에서 해도 됨 (UX)
-        // 최종 insert 때도 DuplicateKeyException 잡아야 동시성 안전
+        // 2) trim 기준 통일
+        String pw  = password.trim();
+        String pw2 = passwordConfirm.trim();
+        if (!pw.equals(pw2)) {
+            model.addAttribute("error", "비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+            return "tickethub/auth/join";
+        }
+
+        // 3) ID/PW 정책 (서비스 registerFullFromDraft와 동일하게 유지)
+        if (!loginId.matches("^[a-zA-Z0-9]{8,20}$")) {
+            model.addAttribute("error", "아이디는 영문/숫자 8~20자로 입력해주세요.");
+            return "tickethub/auth/join";
+        }
+        if (!pw.matches("^(?=.*[a-z])(?=.*\\d)[a-z\\d\\W]{8,20}$")) {
+            model.addAttribute("error", "비밀번호는 8~20자이며 소문자+숫자를 포함해야 합니다.");
+            return "tickethub/auth/join";
+        }
+
+        // 4) email normalize
+        String normalizedEmail = email.toLowerCase();
+
+        // 5) 선중복 체크(UX)
         if (memberService.existsLoginId(loginId)) {
             model.addAttribute("error", "이미 존재하는 ID가 있습니다.");
             return "tickethub/auth/join";
         }
-        if (memberService.existsEmail(email)) {
+        if (memberService.existsEmail(normalizedEmail)) {
             model.addAttribute("error", "이미 가입된 이메일입니다.");
             return "tickethub/auth/join";
         }
 
-        // DB 저장 금지: 세션에 draft로만 저장
+        // 6) DB 저장 금지: 세션에 draft로만 저장
         JoinDraft draft = new JoinDraft();
         draft.setLoginId(loginId);
-        draft.setRawPassword(password);
+        draft.setRawPassword(pw);
         draft.setName(name);
-        draft.setEmail(email);
+        draft.setEmail(normalizedEmail);
 
         session.setAttribute("joinDraft", draft);
         session.setAttribute("profileReason", "JOIN_FIRST");
 
-        // join -> profile 이동은 “회원가입 완료”가 아님
         return "redirect:/auth/profile";
     }
 
@@ -409,7 +445,7 @@ public class AuthController {
     @GetMapping("/profile")
     public String profileForm(HttpSession session, Model model) {
 
-        // 1) ✅ 일반가입 임시세션(joinDraft) 우선 처리
+        // 1) 일반가입 임시세션(joinDraft) 우선 처리
         com.ch.tickethub.dto.JoinDraft draft =
                 (com.ch.tickethub.dto.JoinDraft) session.getAttribute("joinDraft");
 
@@ -460,7 +496,7 @@ public class AuthController {
                                 Model model,
                                 HttpServletRequest httpRequest) {
 
-        // 1) ✅ 일반가입(joinDraft) 케이스: 여기서 최종 INSERT
+        // 1) 일반가입(joinDraft) 케이스: 여기서 최종 INSERT
         com.ch.tickethub.dto.JoinDraft draft =
                 (com.ch.tickethub.dto.JoinDraft) session.getAttribute("joinDraft");
 
@@ -597,7 +633,7 @@ public class AuthController {
         if (resp.isSuccess()) {
             session.setAttribute("loginMember", resp.getMember());
 
-            // ✅ OAuth 로그인 성공도 returnUrl 있으면 거기로
+            // OAuth 로그인 성공도 returnUrl 있으면 거기로
             String target = popReturnUrlOrDefault(session, "/");
             return "redirect:" + target;
         }
