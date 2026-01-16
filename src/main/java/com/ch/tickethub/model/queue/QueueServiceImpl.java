@@ -173,7 +173,7 @@ public class QueueServiceImpl implements QueueService {
 
 		// 만약 대기열이 비어있다면, dummy_user n명 추가.
 		if (count == null || count == 0) {
-			for (int i = 1; i <= 400; i++) {
+			for (int i = 1; i <= 50000; i++) {
 				redisTemplate.opsForZSet().add(entryWaitKey, "dummy_user_" + i, (double) i);
 			}
 		}
