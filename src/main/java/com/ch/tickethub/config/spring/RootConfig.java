@@ -44,10 +44,10 @@ public class RootConfig extends WebMvcConfigurerAdapter {
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
 		registry.addResourceHandler("/static/**").addResourceLocations("/resources/");
-		registry.addResourceHandler("/photo/**").addResourceLocations("file:/home/tickethub/performance/");
-		registry.addResourceHandler("/banner/**").addResourceLocations("file:/home/tickethub/banner/");
-		//registry.addResourceHandler("/photo/**").addResourceLocations("file:/C:/tickethub/performance/");
-		//registry.addResourceHandler("/banner/**").addResourceLocations("file:/C:/tickethub/banner/");
+		//registry.addResourceHandler("/photo/**").addResourceLocations("file:/home/tickethub/performance/");
+		//registry.addResourceHandler("/banner/**").addResourceLocations("file:/home/tickethub/banner/");
+		registry.addResourceHandler("/photo/**").addResourceLocations("file:/C:/tickethub/performance/");
+		registry.addResourceHandler("/banner/**").addResourceLocations("file:/C:/tickethub/banner/");
 	}
 
 	@Override
