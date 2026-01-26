@@ -17,6 +17,7 @@
 	List<ReportCategory> reportCategoryList = (List)request.getAttribute("reportCategoryList");
 	String avgRating = (String)request.getAttribute("avgRating");
 	String reviewCount = (String)request.getAttribute("reviewCount");
+	Integer memberLikeWork = (Integer)request.getAttribute("memberLikeWork");
 	
 	System.out.println(avgRating);
 	System.out.println(reviewCount);
@@ -62,6 +63,8 @@
    	let rawCookie = getCookie(cookieKey);
    	let likedList = rawCookie ? JSON.parse(rawCookie) : [];
    	
+   	let memberLikeWork = <%= memberLikeWork %>;
+   	
 	console.log(memberId);
 	let moneyConverter = new MoneyConverter();
 </script>
@@ -81,11 +84,41 @@
         if($(btn).hasClass("active")) {
             icon.removeClass('far').addClass('fas');
             count.text((currentVal + 1).toLocaleString());
+            
+    	    // 서버로 전송하는 AJAX 로직 (예시)
+/*     	    $.ajax({
+    	        url: "/detail/report/regist",
+    	        method: "POST",
+    	        data: JSON.stringify({
+    	            review: {review_id: review_id},
+    	            reportCategory: {report_category_id: report_category_id},
+    	            report_content: report_content
+    	        }),
+    	        contentType: "application/json",
+    		    success:function(result, status, xhr) {
+    		    	alert(result.message);
+    		        $("#report_content").val("");
+    	            $("#reportModal").modal('hide'); // 모달 닫기
+    		    },
+    		    error:function(xhr, status, err) {
+    		        // 서버가 401을 보냈다면 (세션 만료 등)
+    		        if (xhr.status === 401) {
+    		        	let obj = JSON.parse(xhr.responseText);
+    		        	if (confirm(obj.message)) {
+    	                    location.href = "/auth/login";
+    	                }
+    		        } else {
+    		        	let obj = JSON.parse(xhr.responseText);
+    		            alert(obj.message);
+    		        }
+    		    }
+    	    }); */
+    	    
         } else {
             icon.removeClass('fas').addClass('far');
             count.text((currentVal - 1).toLocaleString());
         }
-    } 
+    }
     
     // new Date("2025-11-09")	work_start_date work_end_date 쓸 때 참조
     // new Date("2025-11-09 18:10")
@@ -1031,6 +1064,15 @@
         });
         
         displayReviewStats(<%=avgRating%>, <%=reviewCount%>);
+        
+        if(memberLikeWork > 0) {
+        	// console.log("멤버가 이미 좋아요를 눌렀음 ㅋ", memberLikeWork);
+
+	        let btn = $(".btn-like").toggleClass("active");
+	        let icon = $(btn).find("i");
+	
+            icon.removeClass('far').addClass('fas');
+        }
     })
 	
     // 예매 팝업창 열기
