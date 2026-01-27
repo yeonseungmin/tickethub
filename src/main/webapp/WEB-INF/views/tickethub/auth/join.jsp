@@ -180,7 +180,7 @@
 							placeholder="이메일" required>
 					</div>
 
-					<button type="submit" class="btn-submit">회원가입</button>
+					<button type="submit" class="btn-submit">다음으로</button>
 
 					<div class="auth-helper">
 						* 가입 후 안내 메일이 발송될 수 있습니다.<br />

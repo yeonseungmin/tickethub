@@ -17,6 +17,7 @@
 	List<ReportCategory> reportCategoryList = (List)request.getAttribute("reportCategoryList");
 	String avgRating = (String)request.getAttribute("avgRating");
 	String reviewCount = (String)request.getAttribute("reviewCount");
+	Integer memberLikeWork = (Integer)request.getAttribute("memberLikeWork");
 	
 	System.out.println(avgRating);
 	System.out.println(reviewCount);
@@ -62,6 +63,8 @@
    	let rawCookie = getCookie(cookieKey);
    	let likedList = rawCookie ? JSON.parse(rawCookie) : [];
    	
+   	let memberLikeWork = <%= memberLikeWork %>;
+   	
 	console.log(memberId);
 	let moneyConverter = new MoneyConverter();
 </script>
@@ -79,13 +82,54 @@
         let currentVal = parseInt(count.text().replace(/,/g, ''));
 
         if($(btn).hasClass("active")) {
-            icon.removeClass('far').addClass('fas');
-            count.text((currentVal + 1).toLocaleString());
+
+     	    $.ajax({
+    	        url: "/detail/work-likes/increase?work_id=" + work.work_id,
+    	        method: "GET",
+    		    success:function(result, status, xhr) {
+    		    	//alert(result.message);
+    	            icon.removeClass('far').addClass('fas');
+    	            count.text((currentVal + 1).toLocaleString());
+    		    },
+    		    error:function(xhr, status, err) {
+    		        // 서버가 401을 보냈다면 (세션 만료 등)
+    		        if (xhr.status === 401) {
+    		        	let obj = JSON.parse(xhr.responseText);
+    		        	if (confirm(obj.message)) {
+    	                    location.href = "/auth/login";
+    	                }
+    		        } else {
+    		        	let obj = JSON.parse(xhr.responseText);
+    		            alert(obj.message);
+    		        }
+    		    }
+    	    });
+    	    
         } else {
-            icon.removeClass('fas').addClass('far');
-            count.text((currentVal - 1).toLocaleString());
+            
+     	    $.ajax({
+    	        url: "/detail/work-likes/decrease?work_id=" + work.work_id,
+    	        method: "GET",
+    		    success:function(result, status, xhr) {
+    		    	//alert(result.message);
+    	            icon.removeClass('fas').addClass('far');
+    	            count.text((currentVal - 1).toLocaleString());
+    		    },
+    		    error:function(xhr, status, err) {
+    		        // 서버가 401을 보냈다면 (세션 만료 등)
+    		        if (xhr.status === 401) {
+    		        	let obj = JSON.parse(xhr.responseText);
+    		        	if (confirm(obj.message)) {
+    	                    location.href = "/auth/login";
+    	                }
+    		        } else {
+    		        	let obj = JSON.parse(xhr.responseText);
+    		            alert(obj.message);
+    		        }
+    		    }
+    	    });
         }
-    } 
+    }
     
     // new Date("2025-11-09")	work_start_date work_end_date 쓸 때 참조
     // new Date("2025-11-09 18:10")
@@ -494,7 +538,7 @@
     	    contentType: "application/json",
     	    data: JSON.stringify(reviewData),
     	    success:function(result, status, xhr) {
-    	    	alert(result.message);
+    	    	//alert(result.message);
     	        getReviewList(1); // 목록 새로고침
     	        $("input[placeholder='제목을 입력해주세요']").val("");
     	        $("textarea[placeholder*='관람 후기']").val("");
@@ -535,7 +579,7 @@
     	    contentType: "application/json",
     	    data: JSON.stringify(reReviewData),
     	    success:function(result, status, xhr) {
-    	    	alert(result.message);
+    	    	//alert(result.message);
     	        getReviewList(prevPage, prevOrderType); // 목록 새로고침
     	        $("textarea[placeholder*='답글을 입력']").val("");
     	    },
@@ -1031,6 +1075,15 @@
         });
         
         displayReviewStats(<%=avgRating%>, <%=reviewCount%>);
+        
+        if(memberLikeWork > 0) {
+        	// console.log("멤버가 이미 좋아요를 눌렀음 ㅋ", memberLikeWork);
+
+	        let btn = $(".btn-like").toggleClass("active");
+	        let icon = $(btn).find("i");
+	
+            icon.removeClass('far').addClass('fas');
+        }
     })
 	
     // 예매 팝업창 열기
@@ -1169,10 +1222,106 @@
                                         <img src="/photo/work/p<%=work.getWork_id() %>/<%=work.getWork_content_url() %>" class="img-fluid border">
                                     </div>
                                 </div>
-                                <!-- 공연정보 끝-->
+                                <!-- 공연정보 끝 -->
                                 
                                 <!-- <div class="tab-pane fade" id="content-casting"><div id="ajax-casting-area" class="py-5 text-center"><i class="fas fa-spinner fa-spin fa-2x"></i></div></div> -->
-                                <div class="tab-pane fade" id="content-sales"><div id="ajax-sales-area" class="py-5 text-center"><i class="fas fa-spinner fa-spin fa-2x"></i></div></div>
+                                
+                                <!-- 판매정보 -->
+								<div class="tab-pane fade" id="content-sales">
+								    <div id="ajax-sales-area" class="p-4 bg-white">
+								        
+								        <h5 class="font-weight-bold mb-4 border-left pl-3" style="border-left-width: 4px !important; border-color: #6366f1 !important;">
+								            판매 정보
+								        </h5>
+								
+								        <div class="mb-5">
+								            <h6 class="font-weight-bold text-dark mb-2"><i class="fas fa-info-circle mr-2 text-primary"></i>기획사 및 공연 정보</h6>
+								            <table class="table table-bordered custom-table">
+								                <colgroup>
+								                    <col style="width: 25%;">
+								                    <col style="width: 75%;">
+								                </colgroup>
+								                <tbody>
+								                    <tr>
+								                        <th class="bg-light">주최/기획</th>
+								                        <td><%=work.getPublisher().getPublisher_name() %></td>
+													</tr>
+								                    <tr>
+								                        <th class="bg-light">고객문의</th>
+								                        <td><%=work.getPublisher().getPublisher_phone() %></td>
+								                    </tr>
+								                    <tr>
+								                        <th class="bg-light">감독</th>
+								                        <td><%=work.getDirector() %></td>
+													</tr>
+								                    <tr>
+								                        <th class="bg-light">관람연령</th>
+								                        <td><%=work.getAge_limit() %>세 이상 관람가</td>
+													</tr>
+								                </tbody>
+								            </table>
+								        </div>
+								
+								        <div class="mb-5">
+								            <h6 class="font-weight-bold text-dark mb-2"><i class="fas fa-coins mr-2 text-warning"></i>예매 수수료</h6>
+								            <table class="table table-bordered text-center custom-table">
+								                <thead class="bg-light">
+								                    <tr>
+								                        <th style="width: 30%;">구분</th>
+								                        <th>수수료</th>
+								                    </tr>
+								                </thead>
+								                <tbody>
+								                    <tr>
+								                        <td class="font-weight-bold">웹/모바일 예매</td>
+								                        <td>장당 1,000원 (VIP회원 무료)</td>
+								                    </tr>
+								                    <tr>
+								                        <td class="font-weight-bold">전화 예매</td>
+								                        <td>장당 2,000원</td>
+								                    </tr>
+								                </tbody>
+								            </table>
+								        </div>
+								
+								        <div class="mb-4">
+								            <h6 class="font-weight-bold text-dark mb-2"><i class="fas fa-exclamation-circle mr-2 text-danger"></i>취소 수수료 안내</h6>
+								            <table class="table table-bordered custom-table">
+								                <thead class="bg-light text-center">
+								                    <tr>
+								                        <th style="width: 40%;">취소일</th>
+								                        <th>취소 수수료</th>
+								                    </tr>
+								                </thead>
+								                <tbody>
+								                    <tr>
+								                        <td>예매 후 7일 이내</td>
+								                        <td class="text-primary font-weight-bold">없음</td>
+								                    </tr>
+								                    <tr>
+								                        <td>예매 후 8일 ~ 관람일 10일 전</td>
+								                        <td>장당 4,000원 (티켓 금액의 10% 한도)</td>
+								                    </tr>
+								                    <tr>
+								                        <td>관람일 9일 전 ~ 7일 전</td>
+								                        <td>티켓 금액의 10%</td>
+								                    </tr>
+								                    <tr>
+								                        <td>관람일 6일 전 ~ 3일 전</td>
+								                        <td>티켓 금액의 20%</td>
+								                    </tr>
+								                    <tr>
+								                        <td>관람일 2일 전 ~ 1일 전</td>
+								                        <td>티켓 금액의 30%</td>
+								                    </tr>
+								                </tbody>
+								            </table>
+								            <p class="text-muted text-xs mt-2 text-right">* 관람 당일 취소는 불가능합니다.</p>
+								        </div>
+								
+								    </div>
+								</div>
+                                <!-- 판매정보 끝 -->
                                 
                                 <!-- review-->
                                 <div class="tab-pane fade" id="content-review">

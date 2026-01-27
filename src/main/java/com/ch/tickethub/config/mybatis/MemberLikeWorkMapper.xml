@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MemberLikeWork">
+	<insert id="insert" parameterType="MemberLikeWork">
+		insert into member_like_work(member_id, work_id)
+		values(#{member.memberId}, #{work.work_id})
+	</insert>
+	
+	<select id="countByMemberId" parameterType="int" resultType="int">
+		select count(*) from member_like_work
+		where member_id = #{memberId}
+	</select>
+	
+	<delete id="delete" parameterType="int">
+		delete from member_like_work
+		where member_id = #{memberId}
+	</delete>
+	
+</mapper>

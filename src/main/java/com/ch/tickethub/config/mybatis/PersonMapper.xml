@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="Person">
 	<insert id="insert" parameterType="Person">
-		insert into Person(person_name, profile_url)
+		insert into person(person_name, profile_url)
 		values(#{person_name}, #{profile_url})
 		
 		<selectKey keyColumn="person_id" resultType="int" order="AFTER" keyProperty="person_id">
@@ -11,12 +11,12 @@
 	</insert>
 	
 	<select id="selectAll" resultType="Person">
-		select person_id, person_name, profile_url from Person
+		select person_id, person_name, profile_url from person
 		order by person_id desc
 	</select>
 	
 	<select id="select" resultType="Person">
-		select person_id, person_name, profile_url from Person
+		select person_id, person_name, profile_url from person
 		where person_id = #{person_id}
 		order by person_id desc
 	</select>

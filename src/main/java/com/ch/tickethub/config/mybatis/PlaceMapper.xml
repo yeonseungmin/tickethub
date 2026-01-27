@@ -14,7 +14,7 @@
 
 
 	<insert id="insert" parameterType="Place">
-		insert into Place(place_name, address, latitude, longitude)
+		insert into place(place_name, address, latitude, longitude)
 		values(#{place_name}, #{address}, #{latitude}, #{longitude})
 	</insert>
 	
@@ -27,7 +27,7 @@
 		order by place_id desc
 	</select>
 	<select id="selectById" parameterType="int" resultType="Place">
-		select place_id, place_name, latitude, longitude from Place
+		select place_id, place_name, latitude, longitude from place
 		where place_id=#{place_id}
 	</select>
 	

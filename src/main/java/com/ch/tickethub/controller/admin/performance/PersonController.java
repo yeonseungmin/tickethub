@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ch.tickethub.dto.Person;
+import com.ch.tickethub.dto.Report;
+import com.ch.tickethub.dto.ReportCategory;
 import com.ch.tickethub.exception.PersonException;
 import com.ch.tickethub.exception.UploadException;
 import com.ch.tickethub.model.person.PersonService;
@@ -69,10 +72,14 @@ public class PersonController {
 	
 
 	@GetMapping("/performance/person/listpage")
-	public String getListPage() {
+	public String getListPage(Model model) {
+		List<Person> personList = personService.getList();
+		
+		model.addAttribute("personList", personList);
 		
 		return "admin/performance/person/list";
 	}
+
 	
 	@GetMapping("/performance/person/list")
 	@ResponseBody

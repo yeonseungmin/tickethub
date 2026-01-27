@@ -43,7 +43,7 @@
 	</resultMap>
 
 	<insert id="insert" parameterType="Round">
-		insert into Round(round_date, round_start_time, work_id, place_id)
+		insert into round(round_date, round_start_time, work_id, place_id)
 		values(#{round_date}, #{round_start_time}, #{work.work_id}, #{place.place_id})
 		
 		<selectKey keyColumn="round_id" resultType="int" order="AFTER" keyProperty="round_id">

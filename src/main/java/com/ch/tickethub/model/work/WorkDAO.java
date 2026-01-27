@@ -14,4 +14,7 @@ public interface WorkDAO {
 	public List<Work> selectListByPlace(int placeId);
 
 	public List<Work> selectByGenreId(int genre_id);
+	
+	public void increaseLikeCount(int work_id);
+	public void decreaseLikeCount(int work_id);
 }

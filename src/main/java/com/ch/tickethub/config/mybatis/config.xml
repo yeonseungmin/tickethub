@@ -37,6 +37,7 @@
 		<typeAlias type = "com.ch.tickethub.dto.SearchResult" alias = "SearchResult"/>
 		<typeAlias type = "com.ch.tickethub.dto.Dashboard" alias = "Dashboard"/>
 		<typeAlias type = "com.ch.tickethub.dto.Order" alias = "Order"/>
+		<typeAlias type = "com.ch.tickethub.dto.MemberLikeWork" alias = "MemberLikeWork"/>
 
 	</typeAliases>
 
@@ -70,6 +71,7 @@
 		<mapper resource = "com/ch/tickethub/config/mybatis/SearchResultMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/DashboardMapper.xml"/>
 		<mapper resource = "com/ch/tickethub/config/mybatis/OrderMapper.xml"/>
+		<mapper resource = "com/ch/tickethub/config/mybatis/MemberLikeWorkMapper.xml"/>
 		
 	</mappers>
 

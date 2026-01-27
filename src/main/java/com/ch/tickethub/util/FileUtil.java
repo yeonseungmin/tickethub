@@ -15,12 +15,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FileUtil {
 	public static String getRootDir() {
-		return "c:/tickethub/performance";
-	}	// 이게 어떻게 루트냐 동훈아
+		//return "/home/tickethub/performance";
+		return "C:/tickethub/performance";
+	}
 	
 	public static String getRealRootDir() {
-		return "c:/tickethub";
-	}	// 난 진짜 루트 추가한다잉 ㅋㅋ
+		//return "/home/tickethub";
+		return "C:/tickethub";
+	}
 	
 //	public static String saveFile(String absDir, MultipartFile img) throws UploadException {
 //		/* Universally Unique Idenfitier */

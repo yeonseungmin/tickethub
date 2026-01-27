@@ -30,7 +30,7 @@ public class WorkServiceImpl implements WorkService {
 	@Autowired
 	private FileManager fileManager;
 
-	private String rootDir = FileUtil.getRootDir() + "/work";
+	private String rootDir = FileUtil.getRealRootDir() + "/performance/work";
 
 	@Transactional
 	@Override

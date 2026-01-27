@@ -233,3 +233,27 @@ transition: transform 0.2s;
 .tab-pane {
     scroll-margin-top: 160px; 
 }
+
+
+/* 판매정보 테이블 전용 스타일 */
+.custom-table th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+    vertical-align: middle !important;
+}
+
+.custom-table td {
+    vertical-align: middle !important;
+    color: #333;
+    font-size: 14px;
+}
+
+.custom-table tbody tr:hover {
+    background-color: #fcfcfc; /* 마우스 올렸을 때 살짝 밝아짐 */
+}
+
+/* 제목 강조 바 색상 (보라색 테마와 통일) */
+.border-left {
+    border-left: 4px solid #6366f1 !important; 
+}

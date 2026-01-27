@@ -47,4 +47,41 @@ public class MybatisWorkDAO implements WorkDAO {
 	public List<Work> selectByGenreId(int genre_id) {
 		return sqlSessionTemplate.selectList("Work.selectByGenreId", genre_id);
 	}
+
+	@Override
+	public void increaseLikeCount(int work_id) throws WorkException {
+		
+		try {
+			int increaseCount = sqlSessionTemplate.update("Work.increaseLikeCount", work_id);
+			
+			if(increaseCount == 0) {
+				throw new WorkException("작품 좋아요에 실패했습니다.");
+			}
+			
+		} catch (WorkException e) {
+			throw e;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new WorkException("작품 좋아요에서 오류 발생", e);
+		}
+		
+	}
+
+	@Override
+	public void decreaseLikeCount(int work_id) throws WorkException {
+	
+		try {
+			int decreaseCount = sqlSessionTemplate.update("Work.decreaseLikeCount", work_id);
+			
+			if(decreaseCount == 0) {
+				throw new WorkException("작품 좋아요 취소에 실패했습니다.");
+			}
+			
+		} catch (WorkException e) {
+			throw e;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new WorkException("작품 좋아요 취소에서 오류 발생", e);
+		}
+	}
 }

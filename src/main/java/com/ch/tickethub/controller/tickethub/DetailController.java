@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ch.tickethub.dto.Member;
+import com.ch.tickethub.dto.MemberLikeWork;
 import com.ch.tickethub.dto.ReReview;
 import com.ch.tickethub.dto.ReportCategory;
 import com.ch.tickethub.dto.Review;
@@ -28,6 +29,7 @@ import com.ch.tickethub.dto.SeatGrade;
 import com.ch.tickethub.dto.Work;
 import com.ch.tickethub.exception.ReReviewException;
 import com.ch.tickethub.exception.ReviewException;
+import com.ch.tickethub.model.memberLikeWork.MemberLikeWorkService;
 import com.ch.tickethub.model.reportCategory.ReportCategoryService;
 import com.ch.tickethub.model.rereview.ReReviewService;
 import com.ch.tickethub.model.review.ReviewService;
@@ -58,12 +60,23 @@ public class DetailController {
 	@Autowired
 	RoundService roundService;
 	
+	@Autowired
+	MemberLikeWorkService memberLikeWorkService;
+	
     @Autowired
     @Qualifier("naverMapClientId")
     private String naverMapClientId;
 
 	@GetMapping("/detail")
-	public String getDetail(int work_id, Model model) {
+	public String getDetail(int work_id, Model model, HttpSession session) {
+		Member loginMember = (Member) session.getAttribute("loginMember");
+		
+		if(loginMember == null) {
+			model.addAttribute("memberLikeWork", 0);
+		} else {
+			int memberLikework = memberLikeWorkService.getMemberLikeWork(loginMember.getMemberId());
+			model.addAttribute("memberLikeWork", memberLikework);
+		}
 		
 		Work work = workService.getWork(work_id);
 		List<RoundCasting> uniqueCastingList = workService.getUniqueCasting(work);

@@ -4,6 +4,36 @@
 이클립스 로드 후 추가 필수 세팅(직접 해야 함)
 
 =================================================
+RootConfig.java
+  registry.addResourceHandler("/photo/**").addResourceLocations("file:/home/tickethub/performance/");
+  registry.addResourceHandler("/banner/**").addResourceLocations("file:/home/tickethub/banner/");
+  //registry.addResourceHandler("/photo/**").addResourceLocations("file:/C:/tickethub/performance/");
+  //registry.addResourceHandler("/banner/**").addResourceLocations("file:/C:/tickethub/banner/");
+
+util/FileUtil.java
+	public static String getRootDir() {
+		return "/home/tickethub/performance";
+		//return "C:/tickethub/performance";
+	}
+	
+	public static String getRealRootDir() {
+		return "/home/tickethub";
+		//return "C:/tickethub";
+	}
+
+WEB-INF/web.xml
+  <!-- 업로드 관련 설정 -->
+  <multipart-config>
+    <location>/home/tickethub/temp</location>	<!-- 이미지가 임시로 저장될 곳  -->
+    <!-- <location>C:\tickethub\temp</location> -->
+    <!-- <location>/Users/nam-yeowon/shopdata/temp</location> -->	<!-- 이미지가 임시로 저장될 곳  -->
+    <max-file-size>5242880</max-file-size>		<!-- 파일 1개의 최대 용량 5M 제한 -->
+    <max-request-size>10485760</max-request-size>		<!-- 요청 전체 크기 10M 제한-->
+    <file-size-threshold>0</file-size-threshold>		<!-- 0일 경우 무조건 디스크 사용 -->
+  </multipart-config>
+
+
+
 
 redis 설치하는 법.
 
