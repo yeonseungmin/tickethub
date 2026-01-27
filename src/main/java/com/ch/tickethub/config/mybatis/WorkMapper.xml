@@ -64,8 +64,18 @@
 		<include refid="sql_select"/>
 		where work_id=#{work_id}
 	</select>
-
-
+	
+	<update id="increaseLikeCount" parameterType="int">
+		update work
+		set work_like_count = work_like_count + 1
+		where work_id = #{work_id}
+	</update>
+	
+	<update id="decreaseLikeCount" parameterType="int">
+		update work
+		set work_like_count = work_like_count - 1
+		where work_id = #{work_id}
+	</update>
 
 
 	<select id="selectListByPlace" parameterType="int" resultType="Work">

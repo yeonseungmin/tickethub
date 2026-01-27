@@ -82,23 +82,14 @@
         let currentVal = parseInt(count.text().replace(/,/g, ''));
 
         if($(btn).hasClass("active")) {
-            icon.removeClass('far').addClass('fas');
-            count.text((currentVal + 1).toLocaleString());
-            
-    	    // 서버로 전송하는 AJAX 로직 (예시)
-/*     	    $.ajax({
-    	        url: "/detail/report/regist",
-    	        method: "POST",
-    	        data: JSON.stringify({
-    	            review: {review_id: review_id},
-    	            reportCategory: {report_category_id: report_category_id},
-    	            report_content: report_content
-    	        }),
-    	        contentType: "application/json",
+
+     	    $.ajax({
+    	        url: "/detail/work-likes/increase?work_id=" + work.work_id,
+    	        method: "GET",
     		    success:function(result, status, xhr) {
-    		    	alert(result.message);
-    		        $("#report_content").val("");
-    	            $("#reportModal").modal('hide'); // 모달 닫기
+    		    	//alert(result.message);
+    	            icon.removeClass('far').addClass('fas');
+    	            count.text((currentVal + 1).toLocaleString());
     		    },
     		    error:function(xhr, status, err) {
     		        // 서버가 401을 보냈다면 (세션 만료 등)
@@ -112,11 +103,31 @@
     		            alert(obj.message);
     		        }
     		    }
-    	    }); */
+    	    });
     	    
         } else {
-            icon.removeClass('fas').addClass('far');
-            count.text((currentVal - 1).toLocaleString());
+            
+     	    $.ajax({
+    	        url: "/detail/work-likes/decrease?work_id=" + work.work_id,
+    	        method: "GET",
+    		    success:function(result, status, xhr) {
+    		    	//alert(result.message);
+    	            icon.removeClass('fas').addClass('far');
+    	            count.text((currentVal - 1).toLocaleString());
+    		    },
+    		    error:function(xhr, status, err) {
+    		        // 서버가 401을 보냈다면 (세션 만료 등)
+    		        if (xhr.status === 401) {
+    		        	let obj = JSON.parse(xhr.responseText);
+    		        	if (confirm(obj.message)) {
+    	                    location.href = "/auth/login";
+    	                }
+    		        } else {
+    		        	let obj = JSON.parse(xhr.responseText);
+    		            alert(obj.message);
+    		        }
+    		    }
+    	    });
         }
     }
     
@@ -527,7 +538,7 @@
     	    contentType: "application/json",
     	    data: JSON.stringify(reviewData),
     	    success:function(result, status, xhr) {
-    	    	alert(result.message);
+    	    	//alert(result.message);
     	        getReviewList(1); // 목록 새로고침
     	        $("input[placeholder='제목을 입력해주세요']").val("");
     	        $("textarea[placeholder*='관람 후기']").val("");
@@ -568,7 +579,7 @@
     	    contentType: "application/json",
     	    data: JSON.stringify(reReviewData),
     	    success:function(result, status, xhr) {
-    	    	alert(result.message);
+    	    	//alert(result.message);
     	        getReviewList(prevPage, prevOrderType); // 목록 새로고침
     	        $("textarea[placeholder*='답글을 입력']").val("");
     	    },

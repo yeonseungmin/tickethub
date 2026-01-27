@@ -29,5 +29,20 @@ public class MybatisMemberLikeWorkDAO implements MemberLikeWorkDAO{
 		}
 	
 	}
+
+	@Override
+	public void deleteByMemberId(int memberId) throws MemberLikeWorkException {
+		
+		try {
+			int deleteCount = sqlSessionTemplate.delete("MemberLikeWork.delete", memberId);
+			
+			if(deleteCount == 0) throw new MemberLikeWorkException("멤버 작품 좋아요 취소 실패");
+		} catch (MemberLikeWorkException e) {
+			throw e;
+		}catch (Exception e) {
+			e.printStackTrace();
+			throw new MemberLikeWorkException("멤버 작품 좋아요 취소 과정 중 오류 발생", e);
+		}
+	}
 	
 }

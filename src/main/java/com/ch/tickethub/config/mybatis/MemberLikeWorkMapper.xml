@@ -11,4 +11,9 @@
 		where member_id = #{memberId}
 	</select>
 	
+	<delete id="delete" parameterType="int">
+		delete from member_like_work
+		where member_id = #{memberId}
+	</delete>
+	
 </mapper>

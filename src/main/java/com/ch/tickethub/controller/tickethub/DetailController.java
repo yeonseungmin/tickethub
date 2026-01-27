@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ch.tickethub.dto.Member;
+import com.ch.tickethub.dto.MemberLikeWork;
 import com.ch.tickethub.dto.ReReview;
 import com.ch.tickethub.dto.ReportCategory;
 import com.ch.tickethub.dto.Review;
