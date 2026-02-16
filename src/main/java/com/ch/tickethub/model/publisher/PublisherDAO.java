@@ -7,6 +7,7 @@ import com.ch.tickethub.dto.Publisher;
 public interface PublisherDAO {
 	
 	public void insert(Publisher publisher);
-	
 	public List selectAll();
+	public void delete(int publisher_id);
+	public void update(Publisher publisher);
 }

@@ -23,3 +23,5 @@
   	<!-- select2를 사용하기 위해 추가함 -->
   	<link rel="stylesheet" href="/static/adminlte/plugins/select2/css/select2.min.css">
 	<link rel="stylesheet" href="/static/adminlte/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+	
+<script src="/static/assets/js/Paging.js"></script>

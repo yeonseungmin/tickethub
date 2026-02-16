@@ -28,4 +28,26 @@ public class PublisherServiceImpl implements PublisherService{
 	public List getList() {
 		return publisherDAO.selectAll();
 	}
+
+	@Override
+	public void remove(int publisher_id) throws PublisherException{
+		try {
+			publisherDAO.delete(publisher_id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new PublisherException("출판/기획 삭제 오류", e);
+		}
+		
+	}
+
+	@Override
+	public void setPublisher(Publisher publisher) throws PublisherException{
+		
+		try {
+			publisherDAO.update(publisher);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new PublisherException("출판/기획 수정 오류", e);
+		}
+	}
 }

@@ -80,4 +80,48 @@ public class PersonServiceImpl implements PersonService{
 		return personDAO.selectAll();
 	}
 
+	@Override
+	public void remove(int person_id) throws PersonException{
+		
+		try {
+			personDAO.delete(person_id);
+			String dirName = rootDir + "/p" + person_id;
+			fileManager.remove(dirName);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new PersonException("인물 삭제 실패", e);
+		}
+	}
+
+	@Override
+	public void setPerson(Person person, MultipartFile img) throws PersonException {
+
+	    String ext = fileManager.getExtend(img.getOriginalFilename());
+	    String newFilename = UUID.randomUUID().toString() + "." + ext;
+	    
+	    // DTO에 새 파일명 세팅
+	    person.setProfile_url(newFilename);
+
+	    // 저장 경로 설정 (/p[id] 형태)
+	    String dirName = rootDir + "/p" + person.getPerson_id();
+
+	    try {
+	        personDAO.update(person); 
+
+	        fileManager.remove(dirName); 
+	        fileManager.makeDirectory(dirName);
+	        
+	        // 새 이미지 저장
+	        fileManager.save(img, dirName, newFilename);
+	        
+	        log.debug("인물 수정 성공: ID={}, NewFile={}", person.getPerson_id(), newFilename);
+
+	    } catch (Exception e) {
+	        log.error("인물 수정 중 에러 발생: {}", e.getMessage());
+
+	        throw new PersonException("인물 정보 수정 중 오류가 발생했습니다.", e);
+	    }
+	}
+
 }

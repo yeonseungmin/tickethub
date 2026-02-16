@@ -21,4 +21,15 @@
 		order by person_id desc
 	</select>
 	
+	<delete id="delete" parameterType="int">
+		delete from person where person_id = #{person_id}
+	</delete>
+	
+	<update id="update" parameterType="Person">
+	    update person 
+	    set person_name = #{person_name},
+	        profile_url = #{profile_url}
+	    where person_id = #{person_id}
+	</update>
+	
 </mapper>

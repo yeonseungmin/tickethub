@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.ch.tickethub.dto.Place;
 import com.ch.tickethub.dto.Publisher;
 import com.ch.tickethub.exception.PublisherException;
 import com.ch.tickethub.model.publisher.PublisherService;
@@ -81,14 +82,48 @@ public class PublisherController {
 		return publisherService.getList();
 	}
 	
+	@PostMapping("/performance/publisher/delete")
+	@ResponseBody
+	public Map<String, String> remove(int publisher_id) {
+		
+		try {
+			publisherService.remove(publisher_id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		
+		Map<String, String> body = new HashMap<>();
+		body.put("message", "주최/기획 삭제 성공");
+		
+		return body;
+	}
+	
+	@PostMapping("/performance/publisher/update")
+	@ResponseBody
+	public Map<String, String> setPublisher(Publisher publisher) {
+
+	    Map<String, String> body = new HashMap<>();
+
+	    try {
+	    	publisherService.setPublisher(publisher); 
+
+	        body.put("message", "정보가 성공적으로 수정되었습니다.");
+	        return body;
+	        
+	    } catch (Exception e) {
+			e.printStackTrace();
+	        throw e;
+	    }
+	}
 	
 	@ExceptionHandler({PublisherException.class, MissingServletRequestParameterException.class})
 	@ResponseBody
 	public ResponseEntity<Map<String, String>> handle(Exception e){
-		log.debug("주최/기획 등록 시 예외가 발생하여, handler 메서드가 호출됨");
+		log.debug("주최/기획 예외가 발생하여, handler 메서드가 호출됨");
 		
 		Map<String, String> body = new HashMap<>();
-		body.put("message", "주최/기획 등록 실패");
+		body.put("message", "주최/기획 실패");
 		
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
 	}

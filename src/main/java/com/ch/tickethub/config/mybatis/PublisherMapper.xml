@@ -21,5 +21,15 @@
 		select publisher_id, publisher_name, publisher_phone from publisher
 		where publisher_id = #{publisher_id}
 	</select>
+
+	<delete id="delete" parameterType="int">
+		delete from publisher where publisher_id = #{publisher_id}
+	</delete>
 	
+	<update id="update" parameterType="Publisher">
+	    update publisher 
+	    set publisher_name = #{publisher_name},
+	        publisher_phone = #{publisher_phone}
+	    where publisher_id = #{publisher_id}
+	</update>
 </mapper>

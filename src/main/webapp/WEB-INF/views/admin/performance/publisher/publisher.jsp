@@ -13,8 +13,6 @@
 <div class="topnav">
   <a class="nav-link registform" href="#home">주최/기획 등록</a>
   <a class="nav-link list" href="#news">주최/기획 목록</a>
-  <a class="nav-link delete" href="#home">주최/기획 삭제</a>
-  <a class="nav-link update" href="#home">주최/기획 수정</a>
 </div>
 
 <div style="padding-left:16px"></div>
@@ -50,12 +48,6 @@
 				
 			}
 		});
-	}
-	function loadDelete(){
-		console.log("loadDelete");
-	}
-	function loadUpdate(){
-		console.log("loadUpdate");
 	}
 	
 	
