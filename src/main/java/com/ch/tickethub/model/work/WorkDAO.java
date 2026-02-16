@@ -17,4 +17,7 @@ public interface WorkDAO {
 	
 	public void increaseLikeCount(int work_id);
 	public void decreaseLikeCount(int work_id);
+	
+	public void delete(int work_id);
+	public void update(Work work);
 }

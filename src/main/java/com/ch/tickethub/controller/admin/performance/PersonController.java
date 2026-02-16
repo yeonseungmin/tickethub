@@ -90,7 +90,6 @@ public class PersonController {
 	public Map<String, String> remove(int person_id) {
 		
 		try {
-			
 			personService.remove(person_id);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -112,14 +111,11 @@ public class PersonController {
 
 	    try {
 	        if (img != null && !img.isEmpty()) {
-	            String fileName = img.getOriginalFilename();
-	            person.setProfile_url(fileName);
-	            
+	            personService.setPerson(person, img); 	            
 	        } else {
 	        	throw new PersonException("이미지가 비어있습니다");
 	        }
 
-	        personService.setPerson(person, img); 
 
 	        body.put("message", "정보가 성공적으로 수정되었습니다.");
 	        return body;

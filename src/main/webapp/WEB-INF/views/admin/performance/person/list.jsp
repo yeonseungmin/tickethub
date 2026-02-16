@@ -45,21 +45,25 @@
                 <h5 class="modal-title font-weight-bold">인물 정보 수정</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
             </div>
-            <form id="editPersonForm">
+            <form id="editPersonForm" enctype="multipart/form-data">
                 <div class="modal-body">
                     <input type="hidden" name="person_id" id="edit_person_id">
+                    
                     <div class="text-center mb-4">
-                        <img id="edit_preview" src="" class="person-thumb shadow-sm" style="width: 100px; height: 100px;">
+                        <img id="edit_preview" src="" class="person-thumb shadow-sm" style="width: 120px; height: 120px; border: 3px solid #fff;">
+                        <p class="text-muted small mt-2">프로필 미리보기</p>
                     </div>
+
                     <div class="form-group">
                         <label class="font-weight-bold">이름</label>
                         <input type="text" class="form-control" name="person_name" id="edit_person_name" required>
                     </div>
+
                     <div class="form-group">
                         <label class="font-weight-bold">프로필 이미지 변경</label>
                         <div class="custom-file">
-                            <input type="file" class="custom-file-input" name="profile_img" id="edit_profile_img">
-                            <label class="custom-file-label">파일을 선택하세요</label>
+                            <input type="file" class="custom-file-input" name="profile_img" id="edit_profile_img" accept="image/*">
+                            <label class="custom-file-label" for="edit_profile_img">파일을 선택하세요</label>
                         </div>
                     </div>
                 </div>
@@ -147,7 +151,11 @@
         $("#edit_person_id").val(person.person_id);
         $("#edit_person_name").val(person.person_name);
         $("#edit_preview").attr("src", `/photo/person/p\${person.person_id}/\${person.profile_url}`);
+        
+        // 파일 입력창 및 라벨 초기화
+        $("#edit_profile_img").val("");
         $(".custom-file-label").html("파일을 선택하세요");
+        
         $("#personEditModal").modal("show");
     }
 
@@ -164,34 +172,53 @@
         });
     }
 
+    function handleUpdate(formElement) {
+        let formData = new FormData(formElement);
+        $.ajax({
+            url: "/admin/performance/person/update",
+            method: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function() {
+                alert("정보가 수정되었습니다.");
+                $("#personEditModal").modal("hide");
+                loadPersonData();
+            }
+        });
+    }
+
     // 글로벌 네임스페이스 등록
     window.PersonManager = {
         renderTable: renderTable,
         openEditModal: openEditModal,
-        handleDelete: handleDelete
+        handleDelete: handleDelete,
+        handleUpdate: handleUpdate
     };
 
     $(document).ready(function() {
         loadPersonData();
+        
+        // 수정 폼 제출 이벤트
         $("#editPersonForm").submit(function(e) {
             e.preventDefault();
-            let formData = new FormData(this);
-            $.ajax({
-                url: "/admin/performance/person/update",
-                method: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function() {
-                    alert("정보가 수정되었습니다.");
-                    $("#personEditModal").modal("hide");
-                    loadPersonData();
-                }
-            });
+            PersonManager.handleUpdate(this);
         });
-        $(".custom-file-input").on("change", function() {
-            let fileName = $(this).val().split("\\").pop();
-            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+
+        // 파일 선택 시 실시간 미리보기 로직
+        $("#edit_profile_img").on("change", function() {
+            let file = this.files[0];
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    $("#edit_preview").attr("src", e.target.result); // 모달 내 이미지 즉시 변경
+                }
+                reader.readAsDataURL(file);
+                
+                // 파일명 라벨 업데이트
+                let fileName = $(this).val().split("\\").pop();
+                $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+            }
         });
     });
 })();

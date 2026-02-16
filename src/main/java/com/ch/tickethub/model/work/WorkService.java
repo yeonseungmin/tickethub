@@ -18,4 +18,8 @@ public interface WorkService {
 	public List getUniqueCasting(Work work);
 
 	public List<Work> getListByGenreId(int genre_id);
+	
+	public void remove(int work_id);
+	
+	public void setWork(Work work, MultipartFile work_poster_img, MultipartFile work_content_img);
 }

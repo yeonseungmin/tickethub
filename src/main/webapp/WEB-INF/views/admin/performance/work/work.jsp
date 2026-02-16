@@ -13,8 +13,6 @@
 <div class="topnav">
   <a class="nav-link registform" href="#home">작품 등록</a>
   <a class="nav-link list" href="#news">작품 목록</a>
-  <a class="nav-link delete" href="#home">작품 삭제</a>
-  <a class="nav-link update" href="#home">작품 수정</a>
 </div>
 
 <div style="padding-left:16px"></div>
@@ -51,12 +49,6 @@
 			}
 		});
 	}
-	function loadDelete(){
-		console.log("loadDelete");
-	}
-	function loadUpdate(){
-		console.log("loadUpdate");
-	}
 	
 	
 	$(()=>{
@@ -72,10 +64,6 @@
 		    	loadRegist();
 		    } else if($(this).hasClass("list")){
 		    	loadList();
-		    } else if($(this).hasClass("delete")){
-		    	loadDelete();
-		    } else if($(this).hasClass("update")){
-		    	loadUpdate();
 		    }
 		})
 	});
