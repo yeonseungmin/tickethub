@@ -31,4 +31,26 @@ public class MybatisPlaceDAO implements PlaceDAO{
 		return sqlSessionTemplate.selectList("Place.selectAll");
 	}
 
+	@Override
+	public void delete(int place_id) throws PlaceException{
+		try {
+			sqlSessionTemplate.delete("Place.delete", place_id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new PlaceException("장소 삭제 실패", e);
+		}
+		
+	}
+
+	@Override
+	public void update(Place place) throws PlaceException{
+		try {
+			sqlSessionTemplate.update("Place.update", place);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new PlaceException("장소 수정 실패", e);
+		}
+		
+	}
+
 }

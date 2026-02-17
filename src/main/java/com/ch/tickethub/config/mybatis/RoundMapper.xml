@@ -106,5 +106,20 @@
         ORDER BY round_date ASC, round_start_time ASC
     </select>
     
+	<update id="updateCancelStatus" parameterType="map">
+	    update round 
+	    set is_cancelled = #{is_cancelled}
+	    where round_id = #{round_id}
+	</update>
+	
+	<delete id="delete" parameterType="int">
+	    delete from round 
+	    where round_id = #{round_id}
+	</delete>
+	
+	<select id="selectByDate" parameterType="map" resultMap="roundMapForWork">
+        select * from round 
+        where round_date = #{round_date} and work_id = #{work_id}
+    </select>
 	
 </mapper>

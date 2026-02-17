@@ -11,9 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ch.tickethub.dto.Person;
 import com.ch.tickethub.dto.Round;
 import com.ch.tickethub.dto.RoundCasting;
 import com.ch.tickethub.dto.Work;
+import com.ch.tickethub.exception.PersonException;
 import com.ch.tickethub.exception.WorkException;
 import com.ch.tickethub.util.FileManager;
 import com.ch.tickethub.util.FileUtil;
@@ -97,6 +99,50 @@ public class WorkServiceImpl implements WorkService {
 	@Override
 	public List<Work> getListByGenreId(int genre_id) {
 		return workDAO.selectByGenreId(genre_id);
+	}
+
+	@Override
+	public void remove(int work_id) throws WorkException{
+		
+		try {
+			workDAO.delete(work_id);
+			String dirName = rootDir + "/p" + work_id;
+			fileManager.remove(dirName);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new WorkException("작품 삭제 실패", e);
+		}
+	}
+
+	@Override
+	public void setWork(Work work, MultipartFile work_poster_img, MultipartFile work_content_img) throws WorkException {
+
+		String posterFilename = UUID.randomUUID() + "." + fileManager.getExtend(work_poster_img.getOriginalFilename());
+		String contentFilename = UUID.randomUUID() + "."
+				+ fileManager.getExtend(work_content_img.getOriginalFilename());
+
+		work.setWork_poster_url(posterFilename);
+		work.setWork_content_url(contentFilename);
+
+	    // 저장 경로 설정 (/p[id] 형태)
+	    String dirName = rootDir + "/p" + work.getWork_id();
+
+	    try {
+	        workDAO.update(work); 
+
+	        fileManager.remove(dirName); 
+	        fileManager.makeDirectory(dirName);
+	        
+	        fileManager.save(work_poster_img, dirName, posterFilename);
+	        fileManager.save(work_content_img, dirName, contentFilename);
+	        
+
+	    } catch (Exception e) {
+	        log.error("작품 수정 중 에러 발생: {}", e.getMessage());
+
+	        throw new PersonException("인물 정보 수정 중 오류가 발생했습니다.", e);
+	    }
 	}
 
 }

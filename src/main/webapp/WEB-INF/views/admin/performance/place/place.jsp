@@ -13,8 +13,6 @@
 <div class="topnav">
   <a class="nav-link registform" href="#home">장소 등록</a>
   <a class="nav-link list" href="#news">장소 목록</a>
-  <a class="nav-link delete" href="#home">장소 삭제</a>
-  <a class="nav-link update" href="#home">장소 수정</a>
 </div>
 
 <div style="padding-left:16px"></div>
@@ -50,12 +48,6 @@
 				
 			}
 		});
-	}
-	function loadDelete(){
-		console.log("loadDelete");
-	}
-	function loadUpdate(){
-		console.log("loadUpdate");
 	}
 	
 	

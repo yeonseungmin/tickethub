@@ -84,4 +84,25 @@ public class MybatisWorkDAO implements WorkDAO {
 			throw new WorkException("작품 좋아요 취소에서 오류 발생", e);
 		}
 	}
+
+	@Override
+	public void delete(int work_id) throws WorkException {
+		try {
+			sqlSessionTemplate.delete("Work.delete", work_id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new WorkException("작품 삭제 실패", e);
+		}
+		
+	}
+
+	@Override
+	public void update(Work work) throws WorkException {
+		try {
+			sqlSessionTemplate.update("Work.update", work);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new WorkException("작품 수정 실패", e);
+		}
+	}
 }

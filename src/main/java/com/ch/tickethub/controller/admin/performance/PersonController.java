@@ -72,10 +72,7 @@ public class PersonController {
 	
 
 	@GetMapping("/performance/person/listpage")
-	public String getListPage(Model model) {
-		List<Person> personList = personService.getList();
-		
-		model.addAttribute("personList", personList);
+	public String getListPage() {
 		
 		return "admin/performance/person/list";
 	}
@@ -87,15 +84,58 @@ public class PersonController {
 		
 		return personService.getList();
 	}
+
+	@PostMapping("/performance/person/delete")
+	@ResponseBody
+	public Map<String, String> remove(int person_id) {
+		
+		try {
+			personService.remove(person_id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		
+		Map<String, String> body = new HashMap<>();
+		body.put("message", "인물삭제 성공");
+		
+		return body;
+	}
+	
+	@PostMapping("/performance/person/update")
+	@ResponseBody
+	public Map<String, String> setPerson(Person person, 
+	        @RequestParam(value = "profile_img", required = false) MultipartFile img) {
+
+	    Map<String, String> body = new HashMap<>();
+
+	    try {
+	        if (img != null && !img.isEmpty()) {
+	            personService.setPerson(person, img); 	            
+	        } else {
+	        	throw new PersonException("이미지가 비어있습니다");
+	        }
+
+
+	        body.put("message", "정보가 성공적으로 수정되었습니다.");
+	        return body;
+	        
+	    } catch (PersonException e) {
+			throw e;
+		} catch (Exception e) {
+			e.printStackTrace();
+	        throw e;
+	    }
+	}
 	
 	// MissingServletRequestParameterException.class 값을 제대로 입력 받지 못했을 때의 에러. 난 이것도 처리했다.
 	@ExceptionHandler({PersonException.class, UploadException.class, MissingServletRequestParameterException.class})
 	@ResponseBody
 	public ResponseEntity<Map<String, String>> handle(Exception e){
-		log.debug("인물 등록 시 예외가 발생하여, handler 메서드가 호출됨");
+		log.debug("인물 예외가 발생하여, handler 메서드가 호출됨");
 		
 		Map<String, String> body = new HashMap<>();
-		body.put("message", "인물 등록 실패");
+		body.put("message", "인물 실패");
 		
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
 	}

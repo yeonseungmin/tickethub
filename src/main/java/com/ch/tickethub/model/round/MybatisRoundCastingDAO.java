@@ -24,4 +24,15 @@ public class MybatisRoundCastingDAO implements RoundCastingDAO{
 		}
 	}
 
+	@Override
+	public void deleteByRoundId(int round_id) throws RoundCastingException{
+		try {
+			sqlSessionTemplate.delete("RoundCasting.deleteByRoundId", round_id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RoundCastingException("회차별 캐스팅 삭제 실패", e);
+		}
+		
+	}
+
 }

@@ -19,4 +19,9 @@
 		select round_casting_id, person_id, role from round_casting
 		where round_id = #{round_id}
 	</select>
+	
+	<delete id="deleteByRoundId" parameterType="int">
+	    delete from round_casting where round_id = #{round_id}
+	</delete>
+	
 </mapper>

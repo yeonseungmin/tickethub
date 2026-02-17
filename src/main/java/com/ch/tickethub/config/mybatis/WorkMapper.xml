@@ -106,5 +106,22 @@
 		where genre_id = #{genre_id}
 		order by work_id desc
 	</select>
+	
+	<delete id="delete" parameterType="int">
+		delete from work where work_id = #{work_id}
+	</delete>
+	
+	<update id="update" parameterType="Work">
+	    update work 
+	    set work_title = #{work_title},
+	    	director = #{director},
+	        work_poster_url = #{work_poster_url},
+	        work_content_url = #{work_content_url},
+	        age_limit = #{age_limit},
+	        work_price = #{work_price},
+	        running_time = #{running_time}
+	        
+	    where work_id = #{work_id}
+	</update>
 
 </mapper>

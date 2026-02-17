@@ -11,4 +11,7 @@ public interface RoundDAO {
 	public List<Integer> selectRoundIdsByPlace(int place_id);
 	public List<Round> selectByWorkAndPlace(int work_id, int place_id);
 	public  List<Map<String, Object>> selectSeatStats(int round_id);
+	public int updateCancelStatus(Map<String, Object> params);
+	public int delete(int round_id);
+	public List<Round> selectByDate(int work_id, String sourceDate);
 }

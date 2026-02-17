@@ -8,14 +8,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ch.tickethub.dto.Person;
+import com.ch.tickethub.dto.Round;
 import com.ch.tickethub.dto.Work;
+import com.ch.tickethub.exception.PersonException;
 import com.ch.tickethub.exception.UploadException;
 import com.ch.tickethub.exception.WorkException;
 import com.ch.tickethub.model.work.WorkService;
@@ -30,7 +35,7 @@ public class WorkController {
 	WorkService workService;
 
 	@GetMapping("/performance/work")
-	public String person() {
+	public String work() {
 		
 		return "admin/performance/work/work";
 	}
@@ -87,6 +92,51 @@ public class WorkController {
 		return workService.getList(); 
 	}
 	
+	@PostMapping("/performance/work/delete")
+	@ResponseBody
+	public Map<String, String> remove(int work_id) {
+		
+		try {
+			workService.remove(work_id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		
+		Map<String, String> body = new HashMap<>();
+		body.put("message", "공연 삭제 성공");
+		
+		return body;
+	}
+	
+	@PostMapping("/performance/work/update")
+	@ResponseBody
+	public Map<String, String> setWork(Work work, 
+	        @RequestParam(value = "work_poster_img", required = false) MultipartFile work_poster_img, 
+	        @RequestParam(value = "work_content_img", required = false) MultipartFile work_content_img) {
+
+	    Map<String, String> body = new HashMap<>();
+
+	    try {
+	        if (work_poster_img != null && !work_poster_img.isEmpty() && work_content_img != null && !work_content_img.isEmpty()) {
+	            workService.setWork(work, work_poster_img, work_content_img); 
+	            
+	        } else {
+	        	throw new WorkException("이미지가 비어있습니다");
+	        }
+
+	        body.put("message", "정보가 성공적으로 수정되었습니다.");
+	        return body;
+	        
+	    } catch (WorkException e) {
+			throw e;
+		} catch (Exception e) {
+			e.printStackTrace();
+	        throw e;
+	    }
+	}
+	
+			
 	// MissingServletRequestParameterException.class 값을 제대로 입력 받지 못했을 때의 에러. 난 이것도 처리했다.
 	@ExceptionHandler({WorkException.class, UploadException.class, MissingServletRequestParameterException.class})
 	@ResponseBody

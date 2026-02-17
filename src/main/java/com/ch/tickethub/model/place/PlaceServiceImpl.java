@@ -16,7 +16,6 @@ public class PlaceServiceImpl implements PlaceService{
 	@Autowired
 	PlaceDAO placeDAO;
 	
-	
 	public void regist(List<Place> placeList) throws PlaceException{
 		
 		for(Place place: placeList) {
@@ -25,10 +24,31 @@ public class PlaceServiceImpl implements PlaceService{
 		
 	}
 
-
 	@Override
 	public List getList() {
 		return placeDAO.selectAll();
 	}
 
+	@Override
+	public void remove(int place_id) throws PlaceException{
+		try {
+			placeDAO.delete(place_id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new PlaceException("장소 삭제 실패", e);
+		}
+		
+	}
+
+	@Override
+	public void setPlace(Place place) throws PlaceException{
+		try {
+			placeDAO.update(place);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new PlaceException("장소 수정 실패", e);
+		}
+	}
+
+	
 }

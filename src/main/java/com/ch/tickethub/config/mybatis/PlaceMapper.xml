@@ -36,4 +36,17 @@
 		where place_id=#{place_id}
 	</select>
 	
+	<delete id="delete" parameterType="int">
+		delete from place where place_id = #{place_id}
+	</delete>
+	
+	<update id="update" parameterType="Place">
+	    update place 
+	    set place_name = #{place_name},
+	        address = #{address},
+	        latitude = #{latitude},
+	        longitude = #{longitude}
+	    where place_id = #{place_id}
+	</update>
+	
 </mapper>

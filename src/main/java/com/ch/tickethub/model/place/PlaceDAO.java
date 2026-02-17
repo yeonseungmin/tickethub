@@ -7,4 +7,6 @@ import com.ch.tickethub.dto.Place;
 public interface PlaceDAO {
 	public void insert(Place place);
 	public List selectAll();
+	public void delete(int place_id);
+	public void update(Place place);
 }

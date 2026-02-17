@@ -4,4 +4,6 @@ import com.ch.tickethub.dto.RoundCasting;
 
 public interface RoundCastingDAO {
 	public void insert(RoundCasting roundCasting);
+	
+	public void deleteByRoundId(int round_id);
 }

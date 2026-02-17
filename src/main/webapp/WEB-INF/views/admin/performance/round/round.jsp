@@ -13,8 +13,7 @@
 <div class="topnav">
   <a class="nav-link registform" href="#home">회차 등록</a>
   <a class="nav-link list" href="#news">회차 목록</a>
-  <a class="nav-link delete" href="#home">회차 삭제</a>
-  <a class="nav-link update" href="#home">회차 수정</a>
+  <a class="nav-link copy" href="#home">회차 복사</a>
 </div>
 
 <div style="padding-left:16px"></div>
@@ -51,11 +50,19 @@
 			}
 		});
 	}
-	function loadDelete(){
-		console.log("loadDelete");
-	}
-	function loadUpdate(){
-		console.log("loadUpdate");
+	function loadCopy(){
+		$.ajax({
+			url:"/admin/performance/round/copypage",
+			method:"GET",
+			
+			success:function(result, status, xhr){
+				$(".content").html(result);
+				console.log("loadCopy");
+			},
+			error:function(xhr, status, err){
+				
+			}
+		});
 	}
 	
 	
@@ -72,10 +79,8 @@
 		    	loadRegist();
 		    } else if($(this).hasClass("list")){
 		    	loadList();
-		    } else if($(this).hasClass("delete")){
-		    	loadDelete();
-		    } else if($(this).hasClass("update")){
-		    	loadUpdate();
+		    } else if($(this).hasClass("copy")){
+		    	loadCopy();
 		    }
 		})
 	});

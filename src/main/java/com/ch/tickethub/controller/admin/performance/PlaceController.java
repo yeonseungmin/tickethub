@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ch.tickethub.dto.Person;
 import com.ch.tickethub.dto.Place;
 import com.ch.tickethub.dto.SeatGroup;
 import com.ch.tickethub.exception.PersonException;
@@ -91,13 +92,48 @@ public class PlaceController {
 		return placeService.getList();
 	}
 	
+	@PostMapping("/performance/place/delete")
+	@ResponseBody
+	public Map<String, String> remove(int place_id) {
+		
+		try {
+			placeService.remove(place_id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		
+		Map<String, String> body = new HashMap<>();
+		body.put("message", "장소 삭제 성공");
+		
+		return body;
+	}
+	
+	@PostMapping("/performance/place/update")
+	@ResponseBody
+	public Map<String, String> setPlace(Place place) {
+
+	    Map<String, String> body = new HashMap<>();
+
+	    try {
+	        placeService.setPlace(place); 
+
+	        body.put("message", "정보가 성공적으로 수정되었습니다.");
+	        return body;
+	        
+	    } catch (Exception e) {
+			e.printStackTrace();
+	        throw e;
+	    }
+	}
+	
 	@ExceptionHandler({PlaceException.class, MissingServletRequestParameterException.class})
 	@ResponseBody
 	public ResponseEntity<Map<String, String>> handle(Exception e){
-		log.debug("장소 등록 시 예외가 발생하여, handler 메서드가 호출됨");
+		log.debug("장소 예외가 발생하여, handler 메서드가 호출됨");
 		
 		Map<String, String> body = new HashMap<>();
-		body.put("message", "장소 등록 실패");
+		body.put("message", "장소 실패");
 		
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
 	}

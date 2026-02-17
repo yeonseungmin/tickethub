@@ -47,6 +47,26 @@ public class MybatisRoundDAO implements RoundDAO{
 	public List<Map<String, Object>> selectSeatStats(int round_id) {
 		return sqlSessionTemplate.selectList("Round.selectSeatStatsByRoundId", round_id);
 	}
+
+	@Override
+	public int updateCancelStatus(Map<String, Object> params) {
+		return sqlSessionTemplate.update("Round.updateCancelStatus", params);
+	}
+
+	@Override
+	public int delete(int round_id) {
+		
+		return sqlSessionTemplate.delete("Round.delete", round_id);
+	}
+
+	@Override
+	public List<Round> selectByDate(int work_id, String sourceDate) {
+	    Map<String, Object> params = new HashMap<>();
+	    params.put("work_id", work_id);
+	    params.put("round_date", sourceDate);
+
+		return sqlSessionTemplate.selectList("Round.selectByDate", params);
+	}
 	
 
 }
