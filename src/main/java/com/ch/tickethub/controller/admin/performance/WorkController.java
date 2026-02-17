@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ch.tickethub.dto.Person;
+import com.ch.tickethub.dto.Round;
 import com.ch.tickethub.dto.Work;
 import com.ch.tickethub.exception.PersonException;
 import com.ch.tickethub.exception.UploadException;
@@ -33,7 +35,7 @@ public class WorkController {
 	WorkService workService;
 
 	@GetMapping("/performance/work")
-	public String person() {
+	public String work() {
 		
 		return "admin/performance/work/work";
 	}
@@ -134,6 +136,7 @@ public class WorkController {
 	    }
 	}
 	
+			
 	// MissingServletRequestParameterException.class 값을 제대로 입력 받지 못했을 때의 에러. 난 이것도 처리했다.
 	@ExceptionHandler({WorkException.class, UploadException.class, MissingServletRequestParameterException.class})
 	@ResponseBody

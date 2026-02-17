@@ -510,31 +510,26 @@
 			// 화살표 함수는 자신의 this를 갖지 않고 상위 스코프의 this를 그대로 물러 받는다.
 			// 반면에 일반 함수에서의 this는 함수를 호출한 주체다.
 			$("select[name='work.work_id']").change(function(e) {
-
-				const selectedId = $(this).val();
-
-			    // [버그 수정] 선택이 해제(X 버튼 클릭)되었을 때 처리
+			    const selectedId = $(this).val();
+			
 			    if (!selectedId) {
 			        currentWork = null;
-			        $("#round_date").val(""); // 날짜 입력창 초기화
-			        $(".round_container").empty(); // 하단 회차 초기화
+			        $("#round_date").val(""); 
+			        $(".round_container").empty(); 
 			        return; 
 			    }
-				/*
-				for(let work of workList){
-			    	if(work.work_id == $(this).val()){
-			    		currentWork = work;
-			    		break;
-			    	}
-			    }
-			    */
-			    currentWork = workMap[$(this).val()];
-			    //console.log(currentWork);
+			
+			    currentWork = workMap[selectedId];
+			
+			    let now = new Date(); // 현재 시간
+			    let workStartDate = new Date(currentWork.work_start_date); // 작품 시작일
 			    
-			    $("#round_date").datetimepicker('minDate', currentWork.work_start_date);
+			    let finalMinDate = workStartDate > now ? workStartDate : now;
+			
+			    // datetimepicker에 적용
+			    $("#round_date").datetimepicker('minDate', finalMinDate);
 			    $("#round_date").datetimepicker('maxDate', currentWork.work_end_date);
 			    
-			   	// 다른 작품 선택 시 회차는 제거.
 			    $(".round_container").empty();
 			    roundIdx = 0;
 			});
